@@ -1,5 +1,5 @@
 <h1> ParallelCluster post-install samples</h1>
-This repository gather some <a href=https://docs.aws.amazon.com/parallelcluster/latest/ug/what-is-aws-parallelcluster.html>**ParallelCluster**</a> post-install samples for common HPC-related operations.
+This repository gather some <a href=https://docs.aws.amazon.com/parallelcluster/latest/ug/what-is-aws-parallelcluster.html><b>ParallelCluster</b></a> post-install samples for common HPC-related operations.
 <br>Primary ParallelCluster script sets the environment and launches secondary scripts according to their naming convention.
 <br>All those scripts are meant to be stored on an S3 bucket. See more details in the Requirements section below.
 
