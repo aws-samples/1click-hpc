@@ -5,9 +5,17 @@ This repository gather some <a href=https://docs.aws.amazon.com/parallelcluster/
 
 At the moment we are including:
 1. *01.install.enginframe.master.sh*
-    <br>Secondary script installing EnginFrame
+    <br>Secondary script installing <a href="https://www.nice-software.com"><b>NICE EnginFrame</b></a> HPC portal
 2. *02.install.dcv.broker.master.sh*
-    <br>Secondary script installing DCV Session Manager Broker
+    <br>Secondary script installing <a href="https://docs.aws.amazon.com/dcv/latest/sm-admin/what-is-sm.html"><b>DCV Session Manager Broker</b></a>
+<h2 id='PfT9CA6xURy'>Software and Services used</h2>
+<b>AWS ParallelCluster</b> is an open source cluster management tool that simplifies deploying and managing HPC clusters with Amazon FSx for Lustre, EFA, a variety of job schedulers, and the MPI library of your choice. AWS ParallelCluster simplifies cluster orchestration on AWS so that HPC environments become easy-to-use even for if you’re new to the cloud. <br/>
+<br/>
+<b>NICE EnginFrame</b> is the leading grid-enabled application portal for user-friendly submission,control and monitoring of HPC jobs and interactive remote sessions.It includes sophisticated data management for all stages of HPC job lifetime and is integrated with most popular job schedulers and middleware tools to submit, monitor, and manage jobs.<br/>
+<br/>
+<b>NICE DCV</b>  is a remote visualization technology that enables users to securely connect to graphic-intensive 3D applications hosted on a remote, high-performance server. With NICE DCV, you can make a server's high-performance graphics processing capabilities available to multiple remote users by creating secure client sessions. <br/>
+<br/>
+<b>NICE DCV Session Manager</b> is set of two software packages (an Agent and a Broker) and an application programming interface (API) that makes it easy for developers and independent software vendors (ISVs) to build front-end applications that programmatically create and manage the lifecycle of NICE DCV sessions across a fleet of NICE DCV servers. <br/>
 <h1 id='PfT9CAbj2Qb'>Overview</h1>
 I’ll add the following 2 options to my ParallelCluster configuration file:<br/>
 <pre id='PfT9CA8SwhA'>post_install = s3://&lt;bucket&gt;/&lt;bucket key&gt;/scripts/post.install.sh<br>post_install_args = '&lt;bucket&gt; &lt;bucket key&gt; &lt;efadmin password (optional)&gt;'</pre>
