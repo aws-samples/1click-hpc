@@ -1,0 +1,65 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this
+# software and associated documentation files (the "Software"), to deal in the Software
+# without restriction, including without limitation the rights to use, copy, modify,
+# merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+[global]
+cluster_template = default
+update_check = true
+sanity_check = false
+
+[aws]
+aws_region_name = eu-west-1
+
+[cluster default]
+base_os = alinux2
+scheduler = slurm
+key_name = my-EC2-key-here
+master_instance_type = m5.large
+queue_settings = parallel
+vpc_settings = public
+
+# post install: EnginFrame and DCV session manager broker
+# requires post_install_argrs = "<S3 bucket> <S3 Key> <efadmin password>"
+post_install = s3://my-bucket-here/parallelcluster/scripts/post.install.sh
+post_install_args = "my-bucket-here parallelcluster efadminpassword"
+s3_read_resource = arn:aws:s3:::my-bucket-here*
+
+[queue parallel]
+compute_resource_settings = c5queue, m5queue
+compute_type = ondemand
+disable_hyperthreading = true
+placement_group = DYNAMIC
+
+[compute_resource c5queue]
+instance_type = c5.large
+min_count = 0
+max_count = 2
+initial_count = 0
+
+[compute_resource m5queue]
+instance_type = m5.large
+min_count = 0
+max_count = 4
+initial_count = 0
+
+[vpc public]
+master_subnet_id = subnet-123456
+vpc_id = vpc-123456
+additional_sg = sg-123456
+
+[cw_log parallelculuster-log]
+enable = true
+retention_days = 7
