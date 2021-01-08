@@ -24,6 +24,8 @@ source '/etc/parallelcluster/cfnconfig'
 export NICE_ROOT="${cfn_shared_dir}/nice"
 export EF_CONF_ROOT="${NICE_ROOT}/enginframe/conf"
 export EF_DATA_ROOT="${NICE_ROOT}/enginframe/data"
+export ef_version="2020.0-r91"
+export git_hub_url=$(dirname "${post_install_url}")
 
 set -x
 set -e
@@ -34,8 +36,12 @@ set -e
 installEnginFrame() {
     # install pre-requisites
     yum -y install java-latest-openjdk
-    # get packages from S3
-    aws s3 sync "s3://${S3Bucket}/${S3Key}/packages" "/tmp/packages" || exit 1
+    # get the EF package from the official repository
+    wget -P /tmp/packages https://dn3uclhgxk1jt.cloudfront.net/enginframe/packages/2020.0/enginframe-${ef_version}.jar || exit 1
+    
+    # get the EF installation config from the git-hub
+    wget -P /tmp/packages "${git_hub_url}/packages/efinstall.config" || exit 1 
+
     # set permissions and uncompress
     chmod 755 -R /tmp/packages/*
     enginframe_jar=$(find /tmp/packages -type f -name 'enginframe-[0-9]*.jar')

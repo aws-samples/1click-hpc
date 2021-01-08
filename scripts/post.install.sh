@@ -25,7 +25,7 @@ myscripts="${@:3}"
 
 source '/etc/parallelcluster/cfnconfig'
 
-post_install_url=$(dirname ${cfn_postinstall})
+export post_install_url=$(dirname ${cfn_postinstall})
 proto="$(echo $post_install_url | grep :// | sed -e's,^\(.*://\).*,\1,g')"
 
 # run scripts
