@@ -20,20 +20,31 @@
 # Top level post install script
 
 # get post install arguments
-export S3Bucket="$2"
-export S3Key="$3"
-export efadminPassword="$4"
+export efadminPassword="$2"
+myscripts="${@:3}"
 
 source '/etc/parallelcluster/cfnconfig'
 
+post_install_url=$(dirname ${cfn_postinstall})
+proto="$(echo $post_install_url | grep :// | sed -e's,^\(.*://\).*,\1,g')"
 
 # run scripts
 # ----------------------------------------------------------------------------
 # runs secondary scripts according to the node type
 runScripts() {
-    # get packages from S3
-    echo "Getting S3 packages from ${S3Bucket}"
-    aws s3 sync s3://${S3Bucket}/${S3Key}/scripts /tmp/scripts || exit 1
+    
+    # get packages from Git-Hub
+    echo "Getting packages from ${post_install_url}"
+    for script in ${myscripts}; do
+        if [[ ${proto} == "https://" ]]; then
+            wget -P /tmp/scripts "${git_hub_url}/${script}" || exit 1 
+        elif [[ ${proto} == "s3://" ]]; then
+            aws s3 sync s3://${git_hub_url}/${script} /tmp/scripts || exit 1
+        else
+            exit 1
+        fi
+    done
+
     chmod 755 -R /tmp/scripts/*
     # run scripts according to node type
     if [[ ${cfn_node_type} == MasterServer ]]; then
@@ -41,7 +52,6 @@ runScripts() {
             sort -z -n | xargs -0 -I '{}' /bin/bash -c '{}'
     fi
     if [[ ${cfn_node_type} == ComputeFleet ]]; then
-
         find /tmp/scripts -type f -name '[0-9][0-9]*.compute.sh' -print0 | \
             sort -z -n | xargs -0 -I '{}' /bin/bash -c '{}'
     fi
