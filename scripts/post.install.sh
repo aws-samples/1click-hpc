@@ -26,7 +26,8 @@ myscripts="${@:3}"
 source '/etc/parallelcluster/cfnconfig'
 
 export post_install_url=$(dirname ${cfn_postinstall})
-proto="$(echo $post_install_url | grep :// | sed -e's,^\(.*://\).*,\1,g')"
+export post_install_base=$(dirname "${post_install_url}")
+export proto="$(echo $post_install_url | grep :// | sed -e's,^\(.*://\).*,\1,g')"
 
 # run scripts
 # ----------------------------------------------------------------------------
@@ -39,7 +40,7 @@ runScripts() {
         if [[ ${proto} == "https://" ]]; then
             wget -P /tmp/scripts "${post_install_url}/${script}" || exit 1 
         elif [[ ${proto} == "s3://" ]]; then
-            aws s3 sync s3://${post_install_url}/${script} /tmp/scripts || exit 1
+            aws s3 cp ${post_install_url}/${script} /tmp/scripts/ || exit 1
         else
             exit 1
         fi

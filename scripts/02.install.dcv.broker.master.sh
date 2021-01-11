@@ -22,25 +22,24 @@
 source '/etc/parallelcluster/cfnconfig'
 
 export NICE_ROOT="${cfn_shared_dir}/nice"
+NICE_GPG_KEY_URL="https://d1uj6qtbmh3dt5.cloudfront.net/NICE-GPG-KEY"
 
 set -x
 set -e
 
-
 # install DCV Session Broker
 installDCVSessionBroker() {
-    # get packages from S3
-    aws s3 sync "s3://${S3Bucket}/${S3Key}/packages" "/tmp/packages" || exit 1
+    # get the DCV-SM rpm from the official repository
+    wget -P /tmp/packages https://d1uj6qtbmh3dt5.cloudfront.net/nice-dcv-session-manager-broker.el7.noarch.rpm || exit 1
+    
     # set permissions and uncompress
     chmod 755 -R /tmp/packages/*
-    dcv_session_broker_pkg=$(find /tmp/packages -type f -name 'nice-dcv-session-manager-broker-[0-9]*.rpm')
+    dcv_session_broker_pkg=$(find /tmp/packages -type f -name 'nice-dcv-session-manager-broker.*.rpm')
     # some checks
     [[ -z ${dcv_session_broker_pkg} ]] && \
         echo "[ERROR] missing DCV Session Broker rpm" && return 1
-    [[ ! -r /tmp/packages/NICE-GPG-KEY ]] && \
-        echo "[ERROR] missing NICE-GPG-KEY" && return 1
 
-    rpm --import /tmp/packages/NICE-GPG-KEY
+    rpm --import "${NICE_GPG_KEY_URL}"
     yum install -y "${dcv_session_broker_pkg}"
     # switch broker to 8446 since 8443 is used by EnginFrame
     sed -i 's/client-to-broker-connector-https-port = .*$/client-to-broker-connector-https-port = 8446/' \
