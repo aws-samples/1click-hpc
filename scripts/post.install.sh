@@ -19,15 +19,7 @@
 
 # Top level post install script
 
-# get post install arguments
-export efadminPassword="$2"
-myscripts="${@:3}"
-
 source '/etc/parallelcluster/cfnconfig'
-
-export post_install_url=$(dirname ${cfn_postinstall})
-export post_install_base=$(dirname "${post_install_url}")
-export proto="$(echo $post_install_url | grep :// | sed -e's,^\(.*://\).*,\1,g')"
 
 # run scripts
 # ----------------------------------------------------------------------------
@@ -58,6 +50,15 @@ runScripts() {
     fi
 }
 
+findSharedDir() {
+    fsx=$(mount | grep lustre | awk '{print $3}')
+    if [[ -z "$fsx" ]]; then
+        echo "$cfn_shared_dir"
+    else
+        echo "$fsx"
+    fi
+}
+
 
 # main
 # ----------------------------------------------------------------------------
@@ -66,5 +67,19 @@ main() {
     runScripts
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] post.install.sh: STOP" >&2
 }
+
+export NICE_GPG_KEY_URL=${NICE_GPG_KEY_URL:-"https://d1uj6qtbmh3dt5.cloudfront.net/NICE-GPG-KEY"}
+
+export post_install_url=$(dirname ${cfn_postinstall})
+export post_install_base=$(dirname "${post_install_url}")
+export proto="$(echo $post_install_url | grep :// | sed -e's,^\(.*://\).*,\1,g')"
+
+export compute_instance_type=$(ec2-metadata -t | awk '{print $2}')
+export SHARED_FS_DIR=$(findSharedDir)
+
+# get post install arguments
+export ec2user_home=$(getent passwd | grep ec2-user | sed 's/^.*:.*:.*:.*:.*:\(.*\):.*$/\1/')
+export dna_json="/etc/chef/dna.json"
+myscripts="${@:2}"
 
 main "$@"
