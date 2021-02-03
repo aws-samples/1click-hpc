@@ -37,6 +37,8 @@ installSimpleExternalAuth() {
 }
 
 installDCVGLonG4() {
+    
+    systemctl disable slurmd  
     systemctl isolate multi-user.target
     
     nvidia-xconfig --enable-all-gpus --preserve-busid  --connected-monitor=DFP-0,DFP-1,DFP-2,DFP-3
@@ -46,6 +48,7 @@ installDCVGLonG4() {
     yum -y install nice-dcv-*/nice-dcv-gltest*.rpm nice-dcv-*/nice-dcv-gl-*.x86_64.rpm
     
     systemctl isolate graphical.target
+    systemctl enable slurmd
 }
 
 fixNat() {
