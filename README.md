@@ -5,9 +5,18 @@ This repository gather some <a href=https://docs.aws.amazon.com/parallelcluster/
 
 At the moment we are including:
 1. *01.install.enginframe.master.sh*
-    <br>Secondary script installing <a href="https://www.nice-software.com"><b>NICE EnginFrame</b></a> HPC portal
+    <br>Script installing <a href="https://www.nice-software.com"><b>NICE EnginFrame</b></a> HPC portal on the head node.
 2. *02.install.dcv.broker.master.sh*
-    <br>Secondary script installing <a href="https://docs.aws.amazon.com/dcv/latest/sm-admin/what-is-sm.html"><b>DCV Session Manager Broker</b></a>
+    <br>Script installing <a href="https://docs.aws.amazon.com/dcv/latest/sm-admin/what-is-sm.html"><b>DCV Session Manager Broker</b></a> on the head node.
+3. *03.install.dcv.Slurm.master.sh*
+    <br>Alternative to the previous, this script enables support for DCV sessions using Slurm instead of the DCV Session Manager Broker.
+4. *04.install.dcv-server.compute.sh*
+    <br>Script Configuring <a href="https://aws.amazon.com/hpc/dcv/"><b>DCV Server</b></a> on compute nodes.
+5. *05.install.dcv-sm-agent.compute.sh*
+    <br>Script installing and configuring <a href="https://docs.aws.amazon.com/dcv/latest/sm-admin/agent.html"><b>DCV Session Manager Agent</b></a>
+6. *06.install.dcv.slurm.compute.sh*
+    <br>Alternative to the previous, this script enables support for DCV sessions using Slurm instead of the DCV Session Manager Agent.
+
 <h2 id='PfT9CA6xURy'>Software and Services used</h2>
 <b>AWS ParallelCluster</b> is an open source cluster management tool that simplifies deploying and managing HPC clusters with Amazon FSx for Lustre, EFA, a variety of job schedulers, and the MPI library of your choice. AWS ParallelCluster simplifies cluster orchestration on AWS so that HPC environments become easy-to-use even for if you’re new to the cloud. <br/>
 <br/>
@@ -16,21 +25,86 @@ At the moment we are including:
 <b>NICE DCV</b>  is a remote visualization technology that enables users to securely connect to graphic-intensive 3D applications hosted on a remote, high-performance server. With NICE DCV, you can make a server's high-performance graphics processing capabilities available to multiple remote users by creating secure client sessions. <br/>
 <br/>
 <b>NICE DCV Session Manager</b> is set of two software packages (an Agent and a Broker) and an application programming interface (API) that makes it easy for developers and independent software vendors (ISVs) to build front-end applications that programmatically create and manage the lifecycle of NICE DCV sessions across a fleet of NICE DCV servers. <br/>
-<h1 id='PfT9CAbj2Qb'>Overview</h1>
-I’ll add the following 2 options to my ParallelCluster configuration file:<br/>
-<pre id='PfT9CA8SwhA'>post_install = s3://&lt;bucket&gt;/&lt;bucket key&gt;/scripts/post.install.sh<br>post_install_args = '&lt;bucket&gt; &lt;bucket key&gt; &lt;efadmin password (optional)&gt;'</pre>
-The first one, <code><b>post_install</b></code>, specifies a Bash script stored on Amazon S3 as ParallelCluster post-install option. This is my main script that will run secondary scripts for EnginFrame and DCV Session Manager broker respectively.<br/>
+
+# QuickStart
+Create a new cluster using your configuration file and just add the following parameters, everything will be installed and configured automatically.<br/>
+If this is your first approach to AWS ParallelCluster, then follow all the steps of our [Workshop](https://www.hpcworkshops.com/03-hpc-aws-parallelcluster-workshop.html) and include the following configuration:
+```ini
+[cluster yourcluster]
+...
+post_install = https://raw.githubusercontent.com/aws-samples/aws-pcluster-post-samples/development/scripts/post.install.sh
+post_install_args = "01.install.enginframe.master.sh 03.install.dcv.slurm.master.sh 04.install.dcv-server.compute.sh 06.install.dcv.slurm.compute.sh"
+tags = {"EnginFrame" : "true"}
+...
+```
+<blockquote id='PfT9CA19ub2'><b>Note:</b> You need to specify a custom Security Group (that allows inbound connection to the port 8443) defined as <b>`additional_sg`</b> parameter in the `[VPC]` section of your AWS ParallelCluster config file.</blockquote>
+
+
+# (Optional) Custom QuickStart
+In addition to the Quickstart deployment, there are a few parameters that you can optionally define to customize the components installed. <br/>
+These parameters are defined as part of the <b> `extra_json` </b> [parameter](https://docs.aws.amazon.com/parallelcluster/latest/ug/cluster-definition.html#extra-json) in the [cluster section](https://docs.aws.amazon.com/parallelcluster/latest/ug/cluster-definition.html) of the AWS ParallelCluster configuration file.
+If the <b> `extra_json` </b> is not specified, all the components will be installed using the default values. <br/> 
+See below a example:
+```json
+{   
+  "post_install": {
+    "enginframe": {
+      "nice_root": "/fsx/nice",
+      "ef_admin": "ec2-user",
+      "ef_conf_root": "/fsx/nice/enginframe/conf",
+      "ef_data_root": "/fsx/nice/enginframe/data",
+      "ef_spooler": "/fsx/nice/enginframe/spoolers",
+      "ef_repository": "/fsx/nice/enginframe/repository",
+      "ef_admin_pass": "Change_this!"
+    },
+    "dcvsm": {
+      "agent_broker_port": 8445,
+      "broker_ca": "/home/ec2-user/dcvsmbroker_ca.pem",
+      "client_broker_port": 8446
+    },
+    "dcv": {
+      "dcv_queue_keyword": "dcv"
+    }
+  }
+}
+```
+ * <b>`nice_root`</b> by default `${SHARED_FS_DIR}/nice` , is the base directory where EnginFrame is installed. 
+ * <b>`ef_admin`</b> by default `ec2-user` , is the EnginFrame user with administrative rights.
+ * <b>`ef_conf_root`</b> by default `${NICE_ROOT}/enginframe/conf`, is the path of the EnginFrame configuration directory.
+ * <b>`ef_data_root`</b> by default `${NICE_ROOT}/enginframe/data`, is the path of the EnginFrame data directory.
+ * <b>`ef_spooler`</b> by default `${NICE_ROOT}/enginframe/spoolers`, is the path of the EnginFrame Spoolers. Please consider that the Spoolers are the loaction where your jobs are executed.
+ * <b>`ef_repository`</b> by default `${NICE_ROOT}/enginframe/repository`, is the EnginFrame repository directory path.
+ * <b>`ef_admin_pass`</b> by default `Change_this!` , is the EnginFrame admin password. Use this user and pass for your first login into EnginFrame.
+ * <b>`agent_broker_port`</b> by default `8445`, is the DCV Session Manager Broker port.
+ * <b>`broker_ca`</b> by default `/home/ec2-user/dcvsmbroker_ca.pem`, is the location for the DCV Session Manager Broker certificate.
+ * <b>`client_broker_port`</b> by default `8446` , is the DCV Session Manager Broker port used by the client.
+ * <b>`dcv_queue_keyword`</b> by default `dcv` , is a keyword that identifies the queues of your cluster where you want to enable DCV.
+
+<i>**Note:** Because of the <b>`extra_json`</b> is a parameter in a <b>`.ini`</b> file, you need to put your custom json on a single line. 
+You can use the following command to convert your json into a one-line json:</i>
+```bash
+tr -d '\n' < your_extra.json
+```
+<i>See below an example output.</i>
+```json
+{ "post_install": { "enginframe": { "nice_root": "/fsx/nice", "ef_admin": "ec2-user", "ef_conf_root": "/fsx/nice/enginframe/conf", "ef_data_root": "/fsx/nice/enginframe/data", "ef_spooler": "/fsx/nice/enginframe/spoolers", "ef_repository": "/fsx/nice/enginframe/repository", "ef_admin_pass": "Change_this!" }, "dcvsm": { "agent_broker_port": 8445, "broker_ca": "/home/ec2-user/dcvsmbroker_ca.pem", "client_broker_port": 8446 }, "dcv": { "dcv_queue_keyword": "dcv" }}}
+```
+
+# (Optional) Script customization
+An additional way to further customize the installation and configuration of your components is by downlaoding the scripts locally, modify them, and put them back onto S3.<br/>
+In this case, your AWS ParallelCluster configuration files have the following paramteres:
+```ini
+post_install = s3://<your_bucket>/scripts/post.install.sh
+post_install_args = "01.install.enginframe.master.sh 03.install.dcv.slurm.master.sh 04.install.dcv-server.compute.sh 06.install.dcv.slurm.compute.sh"
+```
+
+The first one, <b>`post_install`</b>, specifies the S3 bucket you choose to store your post_install bash script. 
+This is the main script that will run all the secondary scripts for installing EnginFrame, DCV Session Manager, DCV Server, and other components.<br/>
+The second parameter, <b>`post_install_args`</b>, contains the scripts being launched for installing the selected components.<br/>
+EnginFrame and DCV Session Manager Broker, and all the other secondary scripts are build indipendently, so you can potentially install just one of them.<br/>
 <br/>
-The second parameter, <b><code>post_install_args</code></b>, passes a set of arguments to the above script:<br/>
-<div style="" class="" data-section-style='6'><ul id='PfT9CAw9zAh'><li id='PfT9CA0VmS0' class='' value='1'>the S3 bucket repository and
-<br/></li><li id='PfT9CAjaeLP' class=''>the S3 bucket key identifying the location of the secondary scripts
-<br/></li><li id='PfT9CAwVaVD' class=''>the password for EnginFrame administrator user, required to install EnginFrame
-<br/></li></ul></div>Secondary script will get those arguments, detect all the other information required and proceed with the installation of the 2 components on ParallelCluster master host.<br/>
-<br/>
-EnginFrame and DCV Session Manager Broker secondary scripts are separated, so you can potentially install just one of them.<br/>
-<br/>
+
 <blockquote id='PfT9CA19ub2'><b>Note:</b> This procedure has been tested with <i>EnginFrame version 2020.0</i> and <i>DCV Session Manager Broker version 2020.2. </i>With easy modifications, though, it can work with previous versions, just mind to add the license management.</blockquote>
-<h1 id='PfT9CADnnnW'>Walktrough</h1>
 <h2 id='PfT9CA9NvjI'>Requirements</h2>
 To perform a successful installation of EnginFrame and DCV Sesssion Manager broker, you’ll need:<br/>
 <div style="" data-section-style='5' class=""><ul id='PfT9CAZDjCH'><li id='PfT9CAEzM18' class='' value='1'><b>An S3 bucket,</b> made accessible to ParallelCluster via its <code>s3_read_resource</code> or <code>s3_read_write_resource</code> <code>[cluster]</code> settings. Refer to <a href="https://docs.aws.amazon.com/parallelcluster/latest/ug/configuration.html">ParallelCluster configuration</a> for details.

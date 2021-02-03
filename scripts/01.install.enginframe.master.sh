@@ -21,9 +21,14 @@
 
 source '/etc/parallelcluster/cfnconfig'
 
-export NICE_ROOT="${cfn_shared_dir}/nice"
-export EF_CONF_ROOT="${NICE_ROOT}/enginframe/conf"
-export EF_DATA_ROOT="${NICE_ROOT}/enginframe/data"
+export NICE_ROOT=$(jq --arg default "${SHARED_FS_DIR}/nice" -r '.post_install.enginframe | if has("nice_root") then .nice_root else $default end' "${dna_json}")
+export EF_CONF_ROOT=$(jq --arg default "${NICE_ROOT}/enginframe/conf" -r '.post_install.enginframe | if has("ef_conf_root") then .ef_conf_root else $default end' "${dna_json}")
+export EF_DATA_ROOT=$(jq --arg default "${NICE_ROOT}/enginframe/data" -r '.post_install.enginframe | if has("ef_data_root") then .ef_data_root else $default end' "${dna_json}")
+export efadminPassword=$(jq --arg default "Change_this!" -r '.post_install.enginframe | if has("ef_admin_pass") then .ef_admin_pass else $default end' "${dna_json}")
+
+
+
+#to be removed when ..latest.. is available
 export ef_version="2020.0-r91"
 
 set -x
@@ -87,9 +92,8 @@ installEnginFrame() {
         "s/^kernel.server.tomcat.https.ef.hostname = .*$/kernel.server.tomcat.https.ef.hostname = $(hostname -s)/" \
         /tmp/packages/efinstall.config
     # add EnginFrame users
-    adduser efadmin
     adduser efnobody
-    printf "${efadminPassword}" | passwd efadmin --stdin
+    printf "${efadminPassword}" | passwd ec2-user --stdin
 
     # finally, launch EnginFrame installer
     ( cd /tmp/packages

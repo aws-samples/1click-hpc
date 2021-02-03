@@ -21,29 +21,29 @@
 
 source '/etc/parallelcluster/cfnconfig'
 
-export NICE_ROOT="${cfn_shared_dir}/nice"
-NICE_GPG_KEY_URL="https://d1uj6qtbmh3dt5.cloudfront.net/NICE-GPG-KEY"
+export NICE_ROOT=$(jq --arg default "${SHARED_FS_DIR}/nice" -r '.post_install.enginframe | if has("nice_root") then .nice_root else $default end' "${dna_json}")
+export CLIENT_BROKER_PORT=$(jq --arg default "8446" -r '.post_install.dcvsm | if has("client_broker_port") then .client_broker_port else $default end' "${dna_json}")
+export AGENT_BROKER_PORT=$(jq --arg default "8445" -r '.post_install.dcvsm | if has("agent_broker_port") then .agent_broker_port else $default end' "${dna_json}")
+export BROKER_CA=$(jq --arg default "${ec2user_home}/dcvsmbroker_ca.pem" -r '.post_install.dcvsm | if has("broker_ca") then .broker_ca else $default end' "${dna_json}")
 
 set -x
 set -e
 
 # install DCV Session Broker
 installDCVSessionBroker() {
-    # get the DCV-SM rpm from the official repository
-    wget -P /tmp/packages https://d1uj6qtbmh3dt5.cloudfront.net/nice-dcv-session-manager-broker.el7.noarch.rpm || exit 1
     
-    # set permissions and uncompress
-    chmod 755 -R /tmp/packages/*
-    dcv_session_broker_pkg=$(find /tmp/packages -type f -name 'nice-dcv-session-manager-broker.*.rpm')
-    # some checks
-    [[ -z ${dcv_session_broker_pkg} ]] && \
-        echo "[ERROR] missing DCV Session Broker rpm" && return 1
-
     rpm --import "${NICE_GPG_KEY_URL}"
-    yum install -y "${dcv_session_broker_pkg}"
+    yum install -y https://d1uj6qtbmh3dt5.cloudfront.net/nice-dcv-session-manager-broker.el7.noarch.rpm || exit 1
+ 
     # switch broker to 8446 since 8443 is used by EnginFrame
-    sed -i 's/client-to-broker-connector-https-port = .*$/client-to-broker-connector-https-port = 8446/' \
-        /etc/dcv-session-manager-broker/session-manager-broker.properties
+    pattern='^ *client-to-broker-connector-https-port *=.*$'
+    replace="client-to-broker-connector-https-port = ${CLIENT_BROKER_PORT}"
+    sed -i -e "s|${pattern}|${replace}|" '/etc/dcv-session-manager-broker/session-manager-broker.properties'
+    
+    pattern='^ *agent-to-broker-connector-https-port *=.*$'
+    replace="agent-to-broker-connector-https-port = ${AGENT_BROKER_PORT}"
+    sed -i -e "s|${pattern}|${replace}|" '/etc/dcv-session-manager-broker/session-manager-broker.properties'
+    
     # switch broker discovery port to 45001 since in the boot phase it can be busy
     #sed -i 's/broker-to-broker-discovery-port = .*$/broker-to-broker-discovery-port = 47501/' \
     #    /etc/dcv-session-manager-broker/session-manager-broker.properties
@@ -58,12 +58,11 @@ startDCVSessionBroker() {
     systemctl enable dcv-session-manager-broker
     systemctl start dcv-session-manager-broker
     sleep 10    # wait for a correct ignite initialization
-    efadmin_home=$(getent passwd | grep efadmin | sed 's/^.*:.*:.*:.*:.*:\(.*\):.*$/\1/')
-
+    
     # wait for the certificate to be available, and copy it to efadmin's home
     while [[ $((attempts--)) -gt 0 ]]; do
         if [[ -r /var/lib/dcvsmbroker/security/dcvsmbroker_ca.pem ]]; then
-            cp /var/lib/dcvsmbroker/security/dcvsmbroker_ca.pem "${efadmin_home}"
+            cp /var/lib/dcvsmbroker/security/dcvsmbroker_ca.pem "${BROKER_CA}"
             break
         else sleep $((wait++))
         fi
@@ -93,16 +92,16 @@ setupEFSessionManager() {
     client_id=$(cat /tmp/packages/ef_client_reg | sed -n 's/^[ \t]*client-id:[ \t]*//p')
     client_pw=$(cat /tmp/packages/ef_client_reg | sed -n 's/^[ \t]*client-password:[ \t]*//p')
     sed -i "s/^DCVSM_CLUSTER_dcvsm_cluster1_AUTH_ID=.*$/DCVSM_CLUSTER_dcvsm_cluster1_AUTH_ID=${client_id//\//\\/}/" \
-        /shared/nice/enginframe/conf/plugins/dcvsm/clusters.props
+        "${NICE_ROOT}/enginframe/conf/plugins/dcvsm/clusters.props"
     sed -i \
         "s/^DCVSM_CLUSTER_dcvsm_cluster1_AUTH_PASSWORD=.*$/DCVSM_CLUSTER_dcvsm_cluster1_AUTH_PASSWORD=${client_pw//\//\\/}/" \
-        /shared/nice/enginframe/conf/plugins/dcvsm/clusters.props
+        "${NICE_ROOT}/enginframe/conf/plugins/dcvsm/clusters.props"
     sed -i \
-        "s/^DCVSM_CLUSTER_dcvsm_cluster1_AUTH_ENDPOINT=.*$/DCVSM_CLUSTER_dcvsm_cluster1_AUTH_ENDPOINT=https:\/\/$(hostname):8446\/oauth2\/token/" \
-        /shared/nice/enginframe/conf/plugins/dcvsm/clusters.props
+        "s/^DCVSM_CLUSTER_dcvsm_cluster1_AUTH_ENDPOINT=.*$/DCVSM_CLUSTER_dcvsm_cluster1_AUTH_ENDPOINT=https:\/\/$(hostname):${CLIENT_BROKER_PORT}\/oauth2\/token/" \
+        "${NICE_ROOT}/enginframe/conf/plugins/dcvsm/clusters.props"
     sed -i \
-        "s/^DCVSM_CLUSTER_dcvsm_cluster1_SESSION_MANAGER_ENDPOINT=.*$/DCVSM_CLUSTER_dcvsm_cluster1_SESSION_MANAGER_ENDPOINT=https:\/\/$(hostname):8446/" \
-        /shared/nice/enginframe/conf/plugins/dcvsm/clusters.props
+        "s/^DCVSM_CLUSTER_dcvsm_cluster1_SESSION_MANAGER_ENDPOINT=.*$/DCVSM_CLUSTER_dcvsm_cluster1_SESSION_MANAGER_ENDPOINT=https:\/\/$(hostname):${CLIENT_BROKER_PORT}/" \
+        "${NICE_ROOT}/enginframe/conf/plugins/dcvsm/clusters.props"
 
     # add dcvsm certificate to Java keystore
     openssl x509 -in /var/lib/dcvsmbroker/security/dcvsmbroker_ca.pem -inform pem \
