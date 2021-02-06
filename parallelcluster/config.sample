@@ -67,7 +67,7 @@ disable_hyperthreading = true
 compute_type = ondemand
 
 [queue dcv-gpu]
-compute_resource_settings = g4dn-xlarge, g4dn-2xlarge, g4dn-4xlarge, g4dn-8xlarge, g4dn-16xlarge
+compute_resource_settings = g4dn-xlarge, g4dn-4xlarge, g4dn-16xlarge
 placement_group = DYNAMIC
 enable_efa = false
 disable_hyperthreading = true
@@ -110,20 +110,8 @@ min_count = 0
 initial_count = 0
 max_count = 10
 
-[compute_resource g4dn-2xlarge]
-instance_type = g4dn.2xlarge
-min_count = 0
-initial_count = 0
-max_count = 10
-
 [compute_resource g4dn-4xlarge]
 instance_type = g4dn.4xlarge
-min_count = 0
-initial_count = 0
-max_count = 10
-
-[compute_resource g4dn-8xlarge]
-instance_type = g4dn.8xlarge
 min_count = 0
 initial_count = 0
 max_count = 10
