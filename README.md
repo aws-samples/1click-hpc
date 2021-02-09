@@ -42,12 +42,14 @@ Click the link below corresponding to your preferred [AWS Region](https://aws.am
 2. Check the checkbox to acknowledge the IAM resources creations.
 3. Click the "Create Stack" botton.
 </br>
+
 ![Step2](docs/step2.png?raw=true "Step 2")
 
 #### Step 3
 1. Wait until all the resources are created 
 2. Click on the "Stack Name"
 </br>
+
 ![Step3](docs/step3.png?raw=true "Step 3")
 
 #### Step 4
@@ -55,6 +57,7 @@ Click the link below corresponding to your preferred [AWS Region](https://aws.am
 2. Click the "EnginFrameURL" to access your HPC Clsuter using the EnginFrame portal.
 3. Alternatively, Click the "Cloud9URL" if you wish to connect to your Cloud9 Instance and then ssh into your Cluster form there.
 </br>
+
 ![Step4](docs/step4.png?raw=true "Step 4")
 
 #### Step 5
