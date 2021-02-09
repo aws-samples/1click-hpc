@@ -367,5 +367,5 @@ Outputs:
     Description: Cloud9 Environment
     Value: !Sub 'https://${AWS::Region}.console.aws.amazon.com/cloud9/ide/${Cloud9}'
   EnginFrameURL:
-    Description: EnginFrame HPC Portal
+    Description: "EnginFrame HPC Portal, default username: ec2-user , default password: Change_this!"
     Value: !Sub 'https://${MasterIP.MasterPublicIP}:8443/enginframe'
