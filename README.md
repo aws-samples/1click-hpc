@@ -26,9 +26,28 @@ At the moment we are including:
 <br/>
 <b>NICE DCV Session Manager</b> is set of two software packages (an Agent and a Broker) and an application programming interface (API) that makes it easy for developers and independent software vendors (ISVs) to build front-end applications that programmatically create and manage the lifecycle of NICE DCV sessions across a fleet of NICE DCV servers. <br/>
 
+
+# 1-Click Deployment
+For Users who have no experience with AWS and no experience building an HPC Cluster, here an easy way to start.
+
+#### Step 1
+Click the link below corresponding to your preferred [AWS Region](https://aws.amazon.com/about-aws/global-infrastructure/regions_az/) .
+
+| Region       | Launch                                                                                                                                                                                                                                                                                                             | 
+|--------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| North Virginia (us-east-1)   | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/us-east-1.svg)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/quickcreate?templateUrl=https%3A%2F%2Fenginframe.s3.amazonaws.com%2FAWS-HPC-Cluster.yaml&stackName=AWS-HPC-Cluster) |
+
+#### Step 2
+Just change the "Stack Name" as you like, check the checkbox and click the "Create Stack".
+</br>
+![Step2](docs/step2.png?raw=true "Step 2")
+
+#### Step 3
+Click "Output" ....
+
 # QuickStart
 Create a new cluster using your configuration file and just add the following parameters, everything will be installed and configured automatically.<br/>
-If this is your first approach to AWS ParallelCluster, then follow all the steps of our [Workshop](https://www.hpcworkshops.com/03-hpc-aws-parallelcluster-workshop.html) and include the following configuration:
+If this is your first approach to AWS ParallelCluster, either go back to the section above or follow all the steps of our [Workshop](https://www.hpcworkshops.com/03-hpc-aws-parallelcluster-workshop.html) and include the following configuration:
 ```ini
 [cluster yourcluster]
 ...
@@ -38,7 +57,6 @@ tags = {"EnginFrame" : "true"}
 ...
 ```
 <blockquote id='PfT9CA19ub2'><b>Note:</b> You need to specify a custom Security Group (that allows inbound connection to the port 8443) defined as <b>`additional_sg`</b> parameter in the `[VPC]` section of your AWS ParallelCluster config file.</blockquote>
-
 
 # (Optional) Custom QuickStart
 In addition to the Quickstart deployment, there are a few parameters that you can optionally define to customize the components installed. <br/>
