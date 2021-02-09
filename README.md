@@ -38,12 +38,35 @@ Click the link below corresponding to your preferred [AWS Region](https://aws.am
 | North Virginia (us-east-1)   | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/us-east-1.svg)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/quickcreate?templateUrl=https%3A%2F%2Fenginframe.s3.amazonaws.com%2FAWS-HPC-Cluster.yaml&stackName=hpc-cluster) |
 
 #### Step 2
-Just change the "Stack Name" as you like, check the checkbox and click the "Create Stack".
+1. Just change the "Stack Name" as you like (please do not user capital letters) 
+2. Check the checkbox to acknowledge the IAM resources creations.
+3. Click the "Create Stack" botton.
 </br>
 ![Step2](docs/step2.png?raw=true "Step 2")
 
 #### Step 3
-Click "Output" ....
+1. Wait until all the resources are created 
+2. Click on the "Stack Name"
+</br>
+![Step3](docs/step3.png?raw=true "Step 3")
+
+#### Step 4
+1. Go to the "outputs" tab
+2. Click the "EnginFrameURL" to access your HPC Clsuter using the EnginFrame portal.
+3. Alternatively, Click the "Cloud9URL" if you wish to connect to your Cloud9 Instance and then ssh into your Cluster form there.
+</br>
+![Step4](docs/step4.png?raw=true "Step 4")
+
+#### Step 5
+If you haven't customize the EnginFrame configuration, you can use the default Username and Password.
+```Username: ec2-user```
+</br>
+```Password: Change_this!```
+</br>
+<blockquote id='PfT9CA19ub2'><b>Note:</b> Please make sure you the default password right after the first login.</blockquote>
+</br>
+
+![Step5](docs/step5.png?raw=true "Step 5")
 
 # QuickStart
 Create a new cluster using your configuration file and just add the following parameters, everything will be installed and configured automatically.<br/>
