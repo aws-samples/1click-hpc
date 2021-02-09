@@ -1,0 +1,371 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS ParallelCluster Quickstart
+
+Resources:
+
+  Cloud9Role:
+    Type: AWS::IAM::Role
+    Properties:
+      Tags:
+        - Key: Environment
+          Value: AWS Example
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+            - ssm.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/AdministratorAccess
+      Path: "/"
+
+  Cloud9InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+      - Ref: Cloud9Role
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+      Policies:
+      - PolicyName:
+          Fn::Join:
+          - ''
+          - - LambdaExecutionRole-
+            - Ref: AWS::Region
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Resource: arn:aws:logs:*:*:*
+          - Effect: Allow
+            Action:
+            - cloudformation:DescribeStacks
+            - cloudformation:DescribeStackEvents
+            - cloudformation:DescribeStackResource
+            - cloudformation:DescribeStackResources
+            - ec2:DescribeInstances
+            - ec2:AssociateIamInstanceProfile
+            - ec2:ModifyInstanceAttribute
+            - ec2:ReplaceIamInstanceProfileAssociation
+            - iam:ListInstanceProfiles
+            - iam:PassRole
+            Resource: "*"
+
+  Cloud9BootstrapAssociation: 
+    Type: AWS::SSM::Association
+    DependsOn: Cloud9OutputBucket 
+    Properties: 
+      Name: !Ref Cloud9SSMDocument
+      OutputLocation: 
+        S3Location:
+          OutputS3BucketName: !Ref Cloud9OutputBucket
+          OutputS3KeyPrefix: bootstrapoutput
+      Targets:
+        - Key: tag:SSMBootstrap
+          Values:
+          - Active
+  
+  Cloud9OutputBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName : !Sub 
+        - ${AWS::StackName}-${RANDOM}
+        - RANDOM: !Select [0, !Split ['-', !Select [2, !Split ['/', !Ref 'AWS::StackId' ]]]]
+  
+  VPC:
+    Type: "AWS::EC2::VPC"
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: "Name"
+          Value: !Sub '${AWS::StackName}-HPC-VPC'
+
+  PublicSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.0.0/20
+      AvailabilityZone: !Select [ 1, !GetAZs ]
+      MapPublicIpOnLaunch: true
+      Tags:
+      - Key: Name
+        Value: !Sub '${AWS::StackName}-Public-Subnet'
+  
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    DependsOn: VPC
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    DependsOn: InternetGateway
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    DependsOn: AttachGateway
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: Public
+  PublicRoute1:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+  
+  PublicSubnetARouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnetA
+      RouteTableId: !Ref PublicRouteTable
+      
+  PCAdditionalSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: 'Allow https over 8443 (for EnginFrame)'
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 8443
+        ToPort: 8443
+        CidrIp: 0.0.0.0/0
+
+  Cloud9:
+    Type: 'AWS::Cloud9::EnvironmentEC2'
+    DependsOn: 
+     - Cloud9BootstrapAssociation
+     - AttachGateway
+    Properties:
+      OwnerArn: arn:aws:sts::697180330511:assumed-role/Admin/venuti-Isengard
+      Name: !Ref 'AWS::StackName'
+      Description: 'Cloud9 IDE for AWS ParallelCluster'
+      AutomaticStopTimeMinutes: 60
+      InstanceType: 't2.micro'
+      SubnetId: !Ref PublicSubnetA
+      Tags: 
+        - 
+          Key: SSMBootstrap
+          Value: Active
+        - 
+          Key: Environment
+          Value: AWS Example
+
+  Cloud9SSMDocument: 
+    Type: AWS::SSM::Document
+    Properties: 
+      Content: Yaml
+      DocumentType: Command
+      Content: 
+        schemaVersion: '2.2'
+        description: Bootstrap Cloud9 Instance
+        mainSteps:
+        - action: aws:runShellScript
+          name: ExampleC9bootstrap
+          inputs:
+            runCommand:
+            - "#!/bin/bash"
+            - echo LANG=en_US.utf-8 >> /etc/environment
+            - echo LC_ALL=en_US.UTF-8 >> /etc/environment
+            - !Sub echo "export AWS_DEFAULT_REGION=${AWS::Region}" >> /home/ec2-user/.bashrc
+            - !Sub echo "export AWS_REGION_NAME=${AWS::Region}" >> /home/ec2-user/.bashrc
+            - !Sub echo "export S3_BUCKET=${Cloud9OutputBucket}" >> /home/ec2-user/.bashrc
+            - !Sub echo "export VPC_ID=${VPC}" >> /home/ec2-user/.bashrc
+            - !Sub echo "export SUBNET_ID=${PublicSubnetA}" >> /home/ec2-user/.bashrc
+            - !Sub echo "export ADDITIONAL_SG=${PCAdditionalSecurityGroup}" >> /home/ec2-user/.bashrc
+            - !Sub echo "export CLUSTER_NAME=${AWS::StackName}" >> /home/ec2-user/.bashrc
+            - !Sub echo "export WAIT_HANDLE='${WaitHandle}'" >> /home/ec2-user/.bashrc
+            - !Sub echo "export KEY_PAIR=\"${AWS::StackName}-parallelcluster-key\"" >> /home/ec2-user/.bashrc
+            - echo "export POST_INSTALL=\"https://raw.githubusercontent.com/aws-samples/aws-pcluster-post-samples/development/scripts/post.install.sh\"" >> /home/ec2-user/.bashrc
+            - echo "export POST_INSTALL_ARGS=\"01.install.enginframe.master.sh 03.install.dcv.slurm.master.sh 04.install.dcv-server.compute.sh 06.install.dcv.slurm.compute.sh\"" >> /home/ec2-user/.bashrc
+            - cd /home/ec2-user/environment
+            - wget https://raw.githubusercontent.com/aws-samples/aws-pcluster-post-samples/development/scripts/Cloud9-Bootstrap.sh
+            - chmod -x /home/ec2-user/environment/Cloud9-Bootstrap.sh
+            - sudo -H -u ec2-user bash -c "bash /home/ec2-user/environment/Cloud9-Bootstrap.sh"
+
+  Cloud9BootstrapInstanceLambda:
+    Description: Bootstrap Cloud9 instance
+    Type: Custom::Cloud9BootstrapInstanceLambda
+    DependsOn:
+    - Cloud9BootstrapInstanceLambdaFunction
+    - Cloud9
+    - Cloud9InstanceProfile
+    - LambdaExecutionRole
+    Properties:
+      Tags:
+        - Key: Environment
+          Value: AWS Example
+      ServiceToken:
+        Fn::GetAtt:
+        - Cloud9BootstrapInstanceLambdaFunction
+        - Arn
+      REGION:
+        Ref: AWS::Region
+      StackName:
+        Ref: AWS::StackName
+      EnvironmentId:
+        Ref: Cloud9
+      LabIdeInstanceProfileName:
+        Ref: Cloud9InstanceProfile
+      LabIdeInstanceProfileArn:
+        Fn::GetAtt:
+        - Cloud9InstanceProfile
+        - Arn
+
+  Cloud9BootstrapInstanceLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Tags:
+        - Key: Environment
+          Value: AWS Example
+      Handler: index.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: python3.6
+      MemorySize: 256
+      Timeout: '600'
+      Code:
+        ZipFile: |
+          from __future__ import print_function
+          import boto3
+          import json
+          import os
+          import time
+          import traceback
+          import cfnresponse
+          
+          def lambda_handler(event, context):
+              # logger.info('event: {}'.format(event))
+              # logger.info('context: {}'.format(context))
+              responseData = {}
+          
+              if event['RequestType'] == 'Create':
+                  try:
+                      # Open AWS clients
+                      ec2 = boto3.client('ec2')
+          
+                      # Get the InstanceId of the Cloud9 IDE
+                      instance = ec2.describe_instances(Filters=[{'Name': 'tag:Name','Values': ['aws-cloud9-'+event['ResourceProperties']['StackName']+'-'+event['ResourceProperties']['EnvironmentId']]}])['Reservations'][0]['Instances'][0]
+                      # logger.info('instance: {}'.format(instance))
+          
+                      # Create the IamInstanceProfile request object
+                      iam_instance_profile = {
+                          'Arn': event['ResourceProperties']['LabIdeInstanceProfileArn'],
+                          'Name': event['ResourceProperties']['LabIdeInstanceProfileName']
+                      }
+                      # logger.info('iam_instance_profile: {}'.format(iam_instance_profile))
+          
+                      # Wait for Instance to become ready before adding Role
+                      instance_state = instance['State']['Name']
+                      # logger.info('instance_state: {}'.format(instance_state))
+                      while instance_state != 'running':
+                          time.sleep(5)
+                          instance_state = ec2.describe_instances(InstanceIds=[instance['InstanceId']])
+                          # logger.info('instance_state: {}'.format(instance_state))
+          
+                      # attach instance profile
+                      response = ec2.associate_iam_instance_profile(IamInstanceProfile=iam_instance_profile, InstanceId=instance['InstanceId'])
+                      # logger.info('response - associate_iam_instance_profile: {}'.format(response))
+                      r_ec2 = boto3.resource('ec2')
+  
+                      responseData = {'Success': 'Started bootstrapping for instance: '+instance['InstanceId']}
+                      cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData, 'CustomResourcePhysicalID')
+                      
+                  except Exception as e:
+                      # logger.error(e, exc_info=True)
+                      responseData = {'Error': traceback.format_exc(e)}
+                      cfnresponse.send(event, context, cfnresponse.FAILED, responseData, 'CustomResourcePhysicalID')
+              else:
+                  cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
+
+
+  WaitHandle:
+    Type: AWS::CloudFormation::WaitConditionHandle
+
+  WaitCondition:
+    Type: AWS::CloudFormation::WaitCondition
+    DependsOn:
+    - Cloud9BootstrapInstanceLambda
+    Properties:
+      Handle: !Ref WaitHandle
+      Timeout: 1800
+
+  LambdaGetMasterIP:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: |
+          import logging
+          import boto3
+          import cfnresponse
+          
+          LOGGER = logging.getLogger()
+          LOGGER.setLevel(logging.INFO)
+          
+          CFN = boto3.resource('cloudformation')
+          
+          
+          def lambda_handler(event, context):
+              if event['RequestType'] in ('Create', 'Update'):
+                  try:
+                      stack = CFN.Stack(event['ResourceProperties']['StackName'])
+                      outputs = {
+                          output['OutputKey']: output['OutputValue']
+                          for output in stack.outputs
+                      }
+                  except Exception as error:
+                      LOGGER.exception(error)
+                      cfnresponse.send(event, context, cfnresponse.FAILED, {}, reason=str(error))
+                  else:
+                      cfnresponse.send(event, context, cfnresponse.SUCCESS, outputs)
+              else:
+                  cfnresponse.send(event, context, cfnresponse.SUCCESS, {})
+      Handler: index.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: python3.7
+      Timeout: 10
+      MemorySize: 128
+
+  MasterIP:
+    Description: Get master IP
+    Type: Custom::MasterIP
+    DependsOn: 
+    - WaitCondition
+    Properties:
+      ServiceToken: !GetAtt LambdaGetMasterIP.Arn
+      StackName: !Sub parallelcluster-${AWS::StackName}
+
+Outputs:
+
+  Cloud9URL:
+    Description: Cloud9 Environment
+    Value: !Sub 'https://${AWS::Region}.console.aws.amazon.com/cloud9/ide/${Cloud9}'
+  EnginFrameURL:
+    Description: EnginFrame HPC Portal
+    Value: !Sub 'https://${MasterIP.MasterPublicIP}:8443/enginframe'
