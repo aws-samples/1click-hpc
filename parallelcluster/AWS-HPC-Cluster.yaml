@@ -164,7 +164,6 @@ Resources:
      - Cloud9BootstrapAssociation
      - AttachGateway
     Properties:
-      OwnerArn: arn:aws:sts::697180330511:assumed-role/Admin/venuti-Isengard
       Name: !Ref 'AWS::StackName'
       Description: 'Cloud9 IDE for AWS ParallelCluster'
       AutomaticStopTimeMinutes: 60
