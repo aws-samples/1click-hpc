@@ -9,8 +9,8 @@ sudo yum -y install jq
 pip install --user -U boto boto3 botocore awscli aws-sam-cli aws-parallelcluster
 aws ec2 create-key-pair --key-name ${KEY_PAIR} --query KeyMaterial --output text > /home/ec2-user/.ssh/id_rsa
 chown 644 /home/ec2-user/.ssh/id_rsa
-wget https://raw.githubusercontent.com/aws-samples/aws-pcluster-post-samples/development/parallelcluster/config.sample
-/usr/bin/envsubst < config.sample > cluster.config
+wget https://raw.githubusercontent.com/aws-samples/aws-pcluster-post-samples/development/parallelcluster/${PC_CONFIG}
+/usr/bin/envsubst < ${PC_CONFIG} > cluster.config
 sudo chown -R ec2-user:ec2-user /home/ec2-user/
 /home/ec2-user/.local/bin/pcluster create -c cluster.config ${CLUSTER_NAME} --norollback
 export MASTER_IP=$(/home/ec2-user/.local/bin/pcluster status ${CLUSTER_NAME} | grep MasterPublicIP | sed 's/MasterPublicIP: //')

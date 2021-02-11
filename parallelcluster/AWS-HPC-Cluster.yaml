@@ -1,6 +1,42 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: AWS ParallelCluster Quickstart
 
+Mappings: 
+  RegionMap: 
+    us-east-1:
+      instanceType: t2.micro
+      PCConfig: config.sample
+    us-east-2:
+      instanceType: t2.micro
+      PCConfig: config.sample
+    us-west-1:
+      instanceType: t2.micro
+      PCConfig: config.sample
+    us-west-2:
+      instanceType: t2.micro
+      PCConfig: config.sample
+    eu-central-1:
+      instanceType: t2.micro
+      PCConfig: config.sample
+    eu-west-1:
+      instanceType: t2.micro
+      PCConfig: config.sample
+    eu-north-1:
+      instanceType: t3.micro
+      PCConfig: config.limited-EC2.sample
+#    eu-south-1:
+#      instanceType: t3.micro
+#      PCConfig: config.limited-EC2.sample
+    ap-east-1:
+      instanceType: t3.micro
+      PCConfig: config.limited-EC2.sample
+#    me-south-1:
+#      instanceType: t3.micro
+#      PCConfig: config.limited-EC2.sample
+    ap-northeast-1:
+      instanceType: t2.micro
+      PCConfig: config.noFSX.sample
+
 Resources:
 
   Cloud9Role:
@@ -167,7 +203,7 @@ Resources:
       Name: !Ref 'AWS::StackName'
       Description: 'Cloud9 IDE for AWS ParallelCluster'
       AutomaticStopTimeMinutes: 60
-      InstanceType: 't2.micro'
+      InstanceType: !FindInMap [RegionMap, !Ref "AWS::Region", instanceType]
       SubnetId: !Ref PublicSubnetA
       Tags: 
         - 
@@ -202,6 +238,9 @@ Resources:
             - !Sub echo "export CLUSTER_NAME=${AWS::StackName}" >> /home/ec2-user/.bashrc
             - !Sub echo "export WAIT_HANDLE='${WaitHandle}'" >> /home/ec2-user/.bashrc
             - !Sub echo "export KEY_PAIR=\"${AWS::StackName}-parallelcluster-key\"" >> /home/ec2-user/.bashrc
+            - !Sub 
+              - echo "export PC_CONFIG=${PCConfigFile}" >> /home/ec2-user/.bashrc
+              - { PCConfigFile: !FindInMap [RegionMap, !Ref "AWS::Region", PCConfig] }
             - echo "export POST_INSTALL=\"https://raw.githubusercontent.com/aws-samples/aws-pcluster-post-samples/development/scripts/post.install.sh\"" >> /home/ec2-user/.bashrc
             - echo "export POST_INSTALL_ARGS=\"01.install.enginframe.master.sh 03.install.dcv.slurm.master.sh 04.install.dcv-server.compute.sh 06.install.dcv.slurm.compute.sh\"" >> /home/ec2-user/.bashrc
             - cd /home/ec2-user/environment
