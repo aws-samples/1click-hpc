@@ -121,15 +121,7 @@ Resources:
         - Key: tag:SSMBootstrap
           Values:
           - Active
-  
-  Cloud9OutputBucket:
-    Type: AWS::S3::Bucket
-    DeletionPolicy: Retain
-    Properties:
-      BucketName : !Sub 
-        - ${AWS::StackName}-${RANDOM}
-        - RANDOM: !Select [0, !Split ['-', !Select [2, !Split ['/', !Ref 'AWS::StackId' ]]]]
-  
+
   VPC:
     Type: "AWS::EC2::VPC"
     Properties:
@@ -398,6 +390,40 @@ Resources:
     Properties:
       ServiceToken: !GetAtt LambdaGetMasterIP.Arn
       StackName: !Sub parallelcluster-${AWS::StackName}
+
+  LowerCaseLambda:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Description: Returns the lowercase version of a string
+      MemorySize: 256
+      Runtime: python3.8
+      Handler: index.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Timeout: 30
+      Code:
+        ZipFile: |
+          import cfnresponse
+          
+          def lambda_handler(event, context):                                                    
+              output = event['ResourceProperties'].get('InputString', '').lower()                
+              responseData = {'OutputString': output}                                            
+              cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
+
+  S3BucketName:
+    Type: Custom::Lowercase
+    Properties:
+      ServiceToken: !GetAtt LowerCaseLambda.Arn
+      InputString: !Sub 
+        - ${AWS::StackName}-${RANDOM}
+        - RANDOM: !Select [0, !Split ['-', !Select [2, !Split ['/', !Ref 'AWS::StackId' ]]]]
+
+  Cloud9OutputBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Join
+        - ''
+        - - !GetAtt S3BucketName.OutputString
 
 Outputs:
 
