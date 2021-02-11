@@ -1,0 +1,132 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this
+# software and associated documentation files (the "Software"), to deal in the Software
+# without restriction, including without limitation the rights to use, copy, modify,
+# merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+[aws]
+aws_region_name = ${AWS_REGION_NAME}
+
+[global]
+sanity_check = true
+cluster_template = default
+update_check = true
+
+[vpc my-vpc]
+vpc_id = ${VPC_ID}
+master_subnet_id = ${SUBNET_ID}
+additional_sg = ${ADDITIONAL_SG}
+
+
+[cluster default]
+key_name = ${KEY_PAIR}
+vpc_settings = my-vpc
+master_instance_type=c5.2xlarge
+scheduler=slurm
+s3_read_write_resource=arn:aws:s3:::${S3_BUCKET}*
+base_os = alinux2
+ebs_settings = shared
+queue_settings = batch-efa, batch, dcv-gpu, dcv
+post_install = https://raw.githubusercontent.com/aws-samples/aws-pcluster-post-samples/development/scripts/post.install.sh
+post_install_args = "01.install.enginframe.master.sh 03.install.dcv.slurm.master.sh 04.install.dcv-server.compute.sh 06.install.dcv.slurm.compute.sh"
+tags = {"EnginFrame" : "true"}
+extra_json = {     "post_install": {    "enginframe": {      "nice_root": "/fsx/nice",      "ef_admin": "ec2-user",      "ef_conf_root": "/fsx/nice/enginframe/conf",      "ef_data_root": "/fsx/nice/enginframe/data",      "ef_spooler": "/fsx/nice/enginframe/spoolers",      "ef_repository": "/fsx/nice/enginframe/repository",      "ef_admin_pass": "Change_this!"    },    "dcvsm": {      "agent_broker_port": 8445,      "broker_ca": "/home/ec2-user/dcvsmbroker_ca.pem",      "client_broker_port": 8446    },    "dcv": {      "dcv_queue_keyword": "dcv"    }  }}
+
+[ebs shared]
+shared_dir = /shared
+volume_type = gp3
+volume_iops = 5000
+volume_size = 1024
+volume_throughput = 500
+
+[queue batch]
+compute_resource_settings = c5-24xlarge, z1d-12xlarge
+placement_group = DYNAMIC
+enable_efa = false
+disable_hyperthreading = true
+compute_type = ondemand
+
+[queue batch-efa]
+compute_resource_settings = c5n-18xlarge, m5zn-12xlarge
+placement_group = DYNAMIC
+enable_efa = true
+disable_hyperthreading = true
+compute_type = ondemand
+
+[queue dcv-gpu]
+compute_resource_settings = g4dn-xlarge, g4dn-4xlarge, g4dn-16xlarge
+placement_group = DYNAMIC
+enable_efa = false
+disable_hyperthreading = true
+compute_type = ondemand
+
+[queue dcv]
+compute_resource_settings = m5-24xlarge, c5-2xlarge
+placement_group = DYNAMIC
+enable_efa = false
+disable_hyperthreading = true
+compute_type = ondemand
+
+[compute_resource c5-24xlarge]
+instance_type = c5.24xlarge
+min_count = 0
+initial_count = 0
+max_count = 20
+
+[compute_resource z1d-12xlarge]
+instance_type = z1d.12xlarge
+min_count = 0
+initial_count = 0
+max_count = 30
+
+[compute_resource c5n-18xlarge]
+instance_type = c5n.18xlarge
+min_count = 0
+initial_count = 0
+max_count = 100
+
+[compute_resource m5zn-12xlarge]
+instance_type = m5zn.12xlarge
+min_count = 0
+initial_count = 0
+max_count = 100
+
+[compute_resource g4dn-xlarge]
+instance_type = g4dn.xlarge
+min_count = 0
+initial_count = 0
+max_count = 10
+
+[compute_resource g4dn-4xlarge]
+instance_type = g4dn.4xlarge
+min_count = 0
+initial_count = 0
+max_count = 10
+
+[compute_resource g4dn-16xlarge]
+instance_type = g4dn.16xlarge
+min_count = 0
+initial_count = 0
+max_count = 10
+
+[compute_resource c5-2xlarge]
+instance_type = c5.2xlarge
+min_count = 0
+initial_count = 0
+max_count = 10
+
+[compute_resource m5-24xlarge]
+instance_type = m5.24xlarge
+min_count = 0
+initial_count = 0
+max_count = 50
