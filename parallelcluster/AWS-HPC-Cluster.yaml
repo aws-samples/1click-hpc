@@ -229,10 +229,12 @@ Resources:
             - !Sub echo "export ADDITIONAL_SG=${PCAdditionalSecurityGroup}" >> /home/ec2-user/.bashrc
             - !Sub echo "export CLUSTER_NAME=${AWS::StackName}" >> /home/ec2-user/.bashrc
             - !Sub echo "export WAIT_HANDLE='${WaitHandle}'" >> /home/ec2-user/.bashrc
-            - !Sub echo "export KEY_PAIR=\"${AWS::StackName}-parallelcluster-key\"" >> /home/ec2-user/.bashrc
+            - !Sub
+              - echo "export KEY_PAIR=\"${AWS::StackName}-${RANDOM}\"" >> /home/ec2-user/.bashrc
+              - RANDOM: !Select [0, !Split ['-', !Select [2, !Split ['/', !Ref 'AWS::StackId' ]]]]
             - !Sub 
               - echo "export PC_CONFIG=${PCConfigFile}" >> /home/ec2-user/.bashrc
-              - { PCConfigFile: !FindInMap [RegionMap, !Ref "AWS::Region", PCConfig] }
+              - PCConfigFile: !FindInMap [RegionMap, !Ref "AWS::Region", PCConfig]
             - echo "export POST_INSTALL=\"https://raw.githubusercontent.com/aws-samples/aws-pcluster-post-samples/development/scripts/post.install.sh\"" >> /home/ec2-user/.bashrc
             - echo "export POST_INSTALL_ARGS=\"01.install.enginframe.master.sh 03.install.dcv.slurm.master.sh 04.install.dcv-server.compute.sh 06.install.dcv.slurm.compute.sh\"" >> /home/ec2-user/.bashrc
             - cd /home/ec2-user/environment
