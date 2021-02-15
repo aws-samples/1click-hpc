@@ -21,7 +21,7 @@ rm ${PC_CONFIG}
 export MASTER_IP=$(/home/ec2-user/.local/bin/pcluster status ${CLUSTER_NAME} | grep MasterPublicIP | sed 's/MasterPublicIP: //')
 
 # motd message
-sudo cat <<\EOF > /etc/motd
+sudo bash -c "cat <<\EOF > /etc/motd
 
  ██╗  ██╗██████╗  ██████╗     ██████╗██╗     ██╗   ██╗███████╗████████╗███████╗██████╗ 
  ██║  ██║██╔══██╗██╔════╝    ██╔════╝██║     ██║   ██║██╔════╝╚══██╔══╝██╔════╝██╔══██╗
@@ -44,7 +44,7 @@ sudo cat <<\EOF > /etc/motd
  Or, You can ssh into the Head-node:
  $ pcluster ssh ${CLUSTER_NAME}
 
-EOF
+EOF"
 
 echo 'cat /etc/motd' >> /home/ec2-user/.bash_profile
 
