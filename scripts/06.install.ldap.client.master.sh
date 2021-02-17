@@ -21,7 +21,6 @@ install_client_packages() {
 }
 
 prepare_ldap_client() {
-    source /etc/parallelcluster/cfnconfig
     source /home/.ldap
     authconfig --enableldap \
                --enableldapauth \

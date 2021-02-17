@@ -21,8 +21,6 @@ install_server_packages() {
 }
 
 prepare_ldap_server() {
-    # Load environment variables from ParallelCluster
-    source /etc/parallelcluster/cfnconfig
     # Start the server
     systemctl start slapd
     systemctl enable slapd

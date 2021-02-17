@@ -21,7 +21,6 @@ install_client_packages() {
 }
 
 prepare_ldap_client() {
-    source /etc/parallelcluster/cfnconfig
     source /home/.ldap
     authconfig --enableldap \
                --enableldapauth \
@@ -35,13 +34,13 @@ prepare_ldap_client() {
 # main
 # ----------------------------------------------------------------------------
 main() {
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.ldap.client.master.sh: START" >&2
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.ldap.client.compute.sh: START" >&2
 
     source /etc/parallelcluster/cfnconfig
     install_client_packages
     prepare_ldap_client
 
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.ldap.client.master.sh: STOP" >&2
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.ldap.client.compute.sh: STOP" >&2
 }
 
 main "$@"
