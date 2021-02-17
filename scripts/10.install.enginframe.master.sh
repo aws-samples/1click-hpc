@@ -29,7 +29,7 @@ export efadminPassword=$(jq --arg default "Change_this!" -r '.post_install.engin
 
 
 #to be removed when ..latest.. is available
-export ef_version="2020.0-r91"
+export ef_version="2020.0-r197"
 
 set -x
 set -e
