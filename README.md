@@ -1,20 +1,26 @@
 <h1> ParallelCluster post-install samples</h1>
 This repository gather some <a href=https://docs.aws.amazon.com/parallelcluster/latest/ug/what-is-aws-parallelcluster.html><b>ParallelCluster</b></a> post-install samples for common HPC-related operations.
 <br>Primary ParallelCluster script sets the environment and launches secondary scripts according to their naming convention.
-<br>All those scripts are meant to be stored on an S3 bucket. See more details in the Requirements section below.
+<br>All those scripts are meant to be stored in an S3 bucket. See more details in the Requirements section below.
 
 At the moment we are including:
-1. *01.install.enginframe.master.sh*
+1. *install.ldap.server.master.sh*
+    <br>Script installing OpenLDAP server on the head node.
+2.  *install.ldap.client.master.sh*
+    <br>Script installing OpenLDAP client on the head node.
+3.  *install.ldap.client.compute.sh*
+    <br>Script installing OpenLDAP client on the compute nodes.
+4. *install.enginframe.master.sh*
     <br>Script installing <a href="https://www.nice-software.com"><b>NICE EnginFrame</b></a> HPC portal on the head node.
-2. *02.install.dcv.broker.master.sh*
+5. *install.dcv.broker.master.sh*
     <br>Script installing <a href="https://docs.aws.amazon.com/dcv/latest/sm-admin/what-is-sm.html"><b>DCV Session Manager Broker</b></a> on the head node.
-3. *03.install.dcv.Slurm.master.sh*
+6. *install.dcv.Slurm.master.sh*
     <br>Alternative to the previous, this script enables support for DCV sessions using Slurm instead of the DCV Session Manager Broker.
-4. *04.install.dcv-server.compute.sh*
+7. *install.dcv-server.compute.sh*
     <br>Script Configuring <a href="https://aws.amazon.com/hpc/dcv/"><b>DCV Server</b></a> on compute nodes.
-5. *05.install.dcv-sm-agent.compute.sh*
+8. *install.dcv-sm-agent.compute.sh*
     <br>Script installing and configuring <a href="https://docs.aws.amazon.com/dcv/latest/sm-admin/agent.html"><b>DCV Session Manager Agent</b></a>
-6. *06.install.dcv.slurm.compute.sh*
+9. *install.dcv.slurm.compute.sh*
     <br>Alternative to the previous, this script enables support for DCV sessions using Slurm instead of the DCV Session Manager Agent.
 
 <h2 id='PfT9CA6xURy'>Software and Services used</h2>
