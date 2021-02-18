@@ -34,7 +34,7 @@ Mappings:
 #      instanceType: t3.micro
 #      PCConfig: config.limited-EC2.sample
     ap-northeast-1:
-      instanceType: t2.micro
+      instanceType: t3.micro
       PCConfig: config.noFSX.sample
 
 Resources:
