@@ -53,7 +53,7 @@ runScripts() {
 findSharedDir() {
     fsx=$(mount | grep lustre | awk '{print $3}')
     if [[ -z "$fsx" ]]; then
-        echo "$cfn_shared_dir"
+        echo "$cfn_shared_dir" | awk -F , '{print $1}'
     else
         echo "$fsx"
     fi
