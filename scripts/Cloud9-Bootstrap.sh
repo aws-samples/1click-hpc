@@ -33,6 +33,7 @@ echo "export MASTER_PUBLIC_IP='${MASTER_PUBLIC_IP}'" >> /home/ec2-user/.bashrc
 sudo rm -f /etc/update-motd.d/*
 sudo wget https://raw.githubusercontent.com/aws-samples/aws-pcluster-post-samples/development/scripts/motd -O /etc/update-motd.d/10-HPC
 sudo chmod +x /etc/update-motd.d/10-HPC
+echo 'run-parts /etc/update-motd.d/' >> /home/ec2-user/.bash_profile
 
 #attach the ParallelCluster SG to the Cloud9 instance (for FSx or NFS)
 INSTANCE_ID=$(curl http://169.254.169.254/latest/meta-data/instance-id)
@@ -40,9 +41,8 @@ SG_CLOUD9=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query Reser
 SG_MASTER=$(aws cloudformation describe-stack-resources --stack-name parallelcluster-$CLUSTER_NAME --logical-resource-id ComputeSecurityGroup --query "StackResources[*].PhysicalResourceId" --output text)
 aws ec2 modify-instance-attribute --instance-id $INSTANCE_ID --groups $SG_CLOUD9 $SG_MASTER
 
-#if FSx is available, mount it
-if [[ ${PC_CONFIG} != *"noFSX"* ]];then
-  
+if grep -q "^fsx_settings" "${PC_CONFIG}"; then
+
   #install Lustre client
   sudo yum -y install lustre-client
   
