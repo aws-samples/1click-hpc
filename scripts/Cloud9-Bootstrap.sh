@@ -29,7 +29,8 @@ rm ${PC_CONFIG}
 export MASTER_PUBLIC_IP=$(/home/ec2-user/.local/bin/pcluster status ${CLUSTER_NAME} | grep MasterPublicIP | sed 's/MasterPublicIP: //')
 
 # Modify the Message Of The Day
-sudo bash -c "cat <<\EOF > /etc/motd
+sudo rm -f /etc/update-motd.d/*
+sudo bash -c "cat <<\EOF > /etc/update-motd.d/10-HPC
 
  ██╗  ██╗██████╗  ██████╗     ██████╗██╗     ██╗   ██╗███████╗████████╗███████╗██████╗ 
  ██║  ██║██╔══██╗██╔════╝    ██╔════╝██║     ██║   ██║██╔════╝╚══██╔══╝██╔════╝██╔══██╗
@@ -53,9 +54,6 @@ sudo bash -c "cat <<\EOF > /etc/motd
  $ pcluster ssh ${CLUSTER_NAME}
 
 EOF"
-
-echo 'cat /etc/motd' >> /home/ec2-user/.bash_profile
-
 
 #attach the ParallelCluster SG to the Cloud9 instance (for FSx or NFS)
 INSTANCE_ID=$(curl http://169.254.169.254/latest/meta-data/instance-id)
