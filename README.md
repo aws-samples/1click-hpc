@@ -94,7 +94,7 @@ If this is your first approach to AWS ParallelCluster, either go back to the sec
 [cluster yourcluster]
 ...
 post_install = https://raw.githubusercontent.com/aws-samples/aws-pcluster-post-samples/development/scripts/post.install.sh
-post_install_args = "01.install.enginframe.master.sh 03.install.dcv.slurm.master.sh 04.install.dcv-server.compute.sh 06.install.dcv.slurm.compute.sh"
+post_install_args = "10.install.enginframe.master.sh 20.install.dcv.slurm.master.sh 25.install.dcv-server.compute.sh 35.install.dcv.slurm.compute.sh"
 tags = {"EnginFrame" : "true"}
 ...
 ```
