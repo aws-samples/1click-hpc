@@ -38,9 +38,9 @@ base_os = alinux2
 ebs_settings = shared
 queue_settings = batch-efa, batch, dcv-gpu, dcv
 post_install = ${POST_INSTALL}
-post_install_args = ${POST_INSTALL_ARGS}"
+post_install_args = "${POST_INSTALL_ARGS}"
 tags = {"EnginFrame" : "true"}
-extra_json = {     "post_install": {    "enginframe": {      "nice_root": "/fsx/nice",      "ef_admin": "ec2-user",      "ef_conf_root": "/fsx/nice/enginframe/conf",      "ef_data_root": "/fsx/nice/enginframe/data",      "ef_spooler": "/fsx/nice/enginframe/spoolers",      "ef_repository": "/fsx/nice/enginframe/repository",      "ef_admin_pass": "Change_this!"    },    "dcvsm": {      "agent_broker_port": 8445,      "broker_ca": "/home/ec2-user/dcvsmbroker_ca.pem",      "client_broker_port": 8446    },    "dcv": {      "dcv_queue_keyword": "dcv"    }  }}
+extra_json = {     "post_install": {    "enginframe": {      "nice_root": "${SHARED_FS_DIR}/nice",      "ef_admin": "ec2-user",      "ef_conf_root": "${NICE_ROOT}/enginframe/conf",      "ef_data_root": "${NICE_ROOT}/enginframe/data",      "ef_spooler": "${NICE_ROOT}/enginframe/spoolers",      "ef_repository": "${NICE_ROOT}/enginframe/repository",      "ef_admin_pass": "Change_this!"    },    "dcvsm": {      "agent_broker_port": 8445,      "broker_ca": "/home/ec2-user/dcvsmbroker_ca.pem",      "client_broker_port": 8446    },    "dcv": {      "dcv_queue_keyword": "dcv"    }  }}
 
 [ebs shared]
 shared_dir = /shared
