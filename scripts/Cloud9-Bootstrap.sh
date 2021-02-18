@@ -26,34 +26,12 @@ rm ${PC_CONFIG}
 
 #Create the cluster
 /home/ec2-user/.local/bin/pcluster create -c cluster.config ${CLUSTER_NAME} --norollback
-export MASTER_PUBLIC_IP=$(/home/ec2-user/.local/bin/pcluster status ${CLUSTER_NAME} | grep MasterPublicIP | sed 's/MasterPublicIP: //')
+MASTER_PUBLIC_IP=$(/home/ec2-user/.local/bin/pcluster status ${CLUSTER_NAME} | grep MasterPublicIP | sed 's/MasterPublicIP: //')
+echo "export MASTER_PUBLIC_IP='${MASTER_PUBLIC_IP}'" >> /home/ec2-user/.bashrc
 
 # Modify the Message Of The Day
 sudo rm -f /etc/update-motd.d/*
-sudo bash -c "cat <<\EOF > /etc/update-motd.d/10-HPC
-
- ██╗  ██╗██████╗  ██████╗     ██████╗██╗     ██╗   ██╗███████╗████████╗███████╗██████╗ 
- ██║  ██║██╔══██╗██╔════╝    ██╔════╝██║     ██║   ██║██╔════╝╚══██╔══╝██╔════╝██╔══██╗
- ███████║██████╔╝██║         ██║     ██║     ██║   ██║███████╗   ██║   █████╗  ██████╔╝
- ██╔══██║██╔═══╝ ██║         ██║     ██║     ██║   ██║╚════██║   ██║   ██╔══╝  ██╔══██╗
- ██║  ██║██║     ╚██████╗    ╚██████╗███████╗╚██████╔╝███████║   ██║   ███████╗██║  ██║
- ╚═╝  ╚═╝╚═╝      ╚═════╝     ╚═════╝╚══════╝ ╚═════╝ ╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
-                                                                                      
-                  ██████╗ ███╗   ██╗     █████╗ ██╗    ██╗███████╗                     
-                 ██╔═══██╗████╗  ██║    ██╔══██╗██║    ██║██╔════╝                     
-                 ██║   ██║██╔██╗ ██║    ███████║██║ █╗ ██║███████╗                     
-                 ██║   ██║██║╚██╗██║    ██╔══██║██║███╗██║╚════██║                     
-                 ╚██████╔╝██║ ╚████║    ██║  ██║╚███╔███╔╝███████║                     
-                  ╚═════╝ ╚═╝  ╚═══╝    ╚═╝  ╚═╝ ╚══╝╚══╝ ╚══════╝                     
-                                                                                      
-
- You can connect to your HPC cluster using the EnginFrame web portal:
- https://$(/home/ec2-user/.local/bin/pcluster status ${CLUSTER_NAME} | grep MasterPublicIP | sed 's/MasterPublicIP: //'):8443/enginframe
- 
- Or, You can ssh into the Head-node:
- $ pcluster ssh ${CLUSTER_NAME}
-
-EOF"
+sudo wget https://raw.githubusercontent.com/aws-samples/aws-pcluster-post-samples/development/scripts/motd -O /etc/update-motd.d/10-HPC
 sudo chmod +x /etc/update-motd.d/10-HPC
 
 #attach the ParallelCluster SG to the Cloud9 instance (for FSx or NFS)
