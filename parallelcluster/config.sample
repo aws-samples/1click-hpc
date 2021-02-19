@@ -33,7 +33,7 @@ key_name = ${KEY_PAIR}
 vpc_settings = my-vpc
 master_instance_type=c5.2xlarge
 scheduler=slurm
-s3_read_write_resource=arn:aws:s3:::${S3_BUCKET}*
+s3_read_write_resource=arn:aws:s3:::*
 base_os = alinux2
 fsx_settings = parallel-fs
 queue_settings = batch-efa, batch, dcv-gpu, dcv
@@ -49,6 +49,7 @@ import_path = s3://${S3_BUCKET}
 imported_file_chunk_size = 1024
 export_path = s3://${S3_BUCKET}
 deployment_type = SCRATCH_2
+auto_import_policy = NEW_CHANGED
 
 
 [queue batch]
