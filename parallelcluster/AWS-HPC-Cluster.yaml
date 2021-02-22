@@ -120,7 +120,9 @@ Resources:
       Targets:
         - Key: tag:SSMBootstrap
           Values:
-          - Active
+          - !Sub
+            - ${AWS::StackName}-${RANDOM}
+            - RANDOM: !Select [0, !Split ['-', !Select [2, !Split ['/', !Ref 'AWS::StackId' ]]]]
 
   VPC:
     Type: "AWS::EC2::VPC"
@@ -200,10 +202,9 @@ Resources:
       Tags: 
         - 
           Key: SSMBootstrap
-          Value: Active
-        - 
-          Key: Environment
-          Value: AWS Example
+          Value: !Sub 
+            - ${AWS::StackName}-${RANDOM}
+            - RANDOM: !Select [0, !Split ['-', !Select [2, !Split ['/', !Ref 'AWS::StackId' ]]]]
 
   Cloud9SSMDocument: 
     Type: AWS::SSM::Document
@@ -215,7 +216,7 @@ Resources:
         description: Bootstrap Cloud9 Instance
         mainSteps:
         - action: aws:runShellScript
-          name: ExampleC9bootstrap
+          name: C9bootstrap
           inputs:
             runCommand:
             - "#!/bin/bash"
@@ -346,7 +347,7 @@ Resources:
     - Cloud9BootstrapInstanceLambda
     Properties:
       Handle: !Ref WaitHandle
-      Timeout: 1800
+      Timeout: 3600
 
   LambdaGetMasterIP:
     Type: AWS::Lambda::Function
