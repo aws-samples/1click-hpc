@@ -91,6 +91,39 @@ installEnginFrame() {
     sed -i \
         "s/^kernel.server.tomcat.https.ef.hostname = .*$/kernel.server.tomcat.https.ef.hostname = $(hostname -s)/" \
         /tmp/packages/efinstall.config
+
+     if [[ $myscripts == *"ldap"* ]]; then
+
+      sed -i \
+        "s/^default.auth.mgr = .*$/default.auth.mgr = ldap/" \
+        /tmp/packages/efinstall.config
+
+      sed -i \
+        's/^##ldap.ldapsearch.*$/ldap.ldapsearch = \/usr\/bin\/ldapsearch/' \
+        /tmp/packages/efinstall.config
+
+      sed -i \
+        's/^##ldap.server =.*$/ldap.server = '"$(hostname -s)"'/' \
+        /tmp/packages/efinstall.config
+    
+      sed -i \
+        's/^##ldap.port =.*$/ldap.port = 389/' \
+        /tmp/packages/efinstall.config
+    
+      sed -i \
+        's/^##ldap.secure =.*$/ldap.secure = false/' \
+        /tmp/packages/efinstall.config
+ 
+      sed -i \
+        's/^##ldap.simple.auth =.*$/ldap.simple.auth = true/' \
+        /tmp/packages/efinstall.config
+    
+      sed -i \
+        "s/^##ldap.base =.*$/ldap.base = '"ou=Users,dc=${stack_name},dc=internal"'/" \
+        /tmp/packages/efinstall.config 
+    fi
+    
+    
     # add EnginFrame users
     adduser efnobody
     printf "${efadminPassword}" | passwd ec2-user --stdin

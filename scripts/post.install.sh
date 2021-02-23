@@ -80,6 +80,6 @@ export SHARED_FS_DIR=$(findSharedDir)
 # get post install arguments
 export ec2user_home=$(getent passwd | grep ec2-user | sed 's/^.*:.*:.*:.*:.*:\(.*\):.*$/\1/')
 export dna_json="/etc/chef/dna.json"
-myscripts="${@:2}"
+export myscripts="${@:2}"
 
 main "$@"
