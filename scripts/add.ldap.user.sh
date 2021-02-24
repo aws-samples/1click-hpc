@@ -51,7 +51,7 @@ uidNumber: $((nextId+1))
 EOF
 
 
-ldapadd "${args[@]}" <<'EOF'
+ldapadd "${args[@]}" <<EOF
 dn: uid=${USERNAME},ou=Users,dc=${stack_name},dc=internal
 objectClass: top
 objectClass: account
@@ -66,4 +66,6 @@ loginShell: /bin/bash
 EOF
 
 # Set a temporary password for the user
-ldappasswd -H ldap://localhost:389 "${args[@]}" -s ${PASS} uid=${USERNAME},ou=Users,dc=${stack_name},dc=internal 
+ldappasswd -H ldap://localhost:389 "${args[@]}" -s ${PASS} uid=${USERNAME},ou=Users,dc=${stack_name},dc=internal
+
+sudo -H -u ${USERNAME} bash -c "ssh-keygen -q -t rsa -b 4096 -N \"\" -f ~/.ssh/id_rsa; cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys"
