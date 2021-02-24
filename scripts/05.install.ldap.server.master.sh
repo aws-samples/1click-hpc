@@ -16,6 +16,11 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+set -x
+set -e
+
+source /etc/parallelcluster/cfnconfig
+
 args=(-x -W -D "cn=ldapadmin,dc=${stack_name},dc=internal" -y /root/.ldappasswd)
 
 install_server_packages() {
@@ -92,7 +97,7 @@ dc: ${stack_name}
 objectClass: top
 objectClass: domain
 
-dn: cn=ldapadmin ,dc=${stack_name},dc=internal
+dn: cn=ldapadmin,dc=${stack_name},dc=internal
 objectClass: organizationalRole
 cn: ldapadmin
 description: LDAP Admin
@@ -117,16 +122,22 @@ EOF
     echo "ldap_server=$(hostname)" > /home/.ldap
 }
 
+
+downlaod_ldap_tools() {
+    wget -P /usr/sbin/ "https://raw.githubusercontent.com/aws-samples/aws-pcluster-post-samples/development/scripts/add.ldap.user.sh"    || exit 1
+    wget -P /usr/sbin/ "https://raw.githubusercontent.com/aws-samples/aws-pcluster-post-samples/development/scripts/remove.ldap.user.sh" || exit 1
+    chmod 755 /usr/sbin/add.ldap.user.sh
+    chmod 755 /usr/sbin/remove.ldap.user.sh  
+}
+
 # main
 # ----------------------------------------------------------------------------
 main() {
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.ldap.server.master.sh: START" >&2
     
-    source /etc/parallelcluster/cfnconfig
     install_server_packages
     prepare_ldap_server
-    wget -P /usr/sbin/ "https://raw.githubusercontent.com/aws-samples/aws-pcluster-post-samples/development/scripts/add.ldap.user.sh"    || exit 1
-    wget -P /usr/sbin/ "https://raw.githubusercontent.com/aws-samples/aws-pcluster-post-samples/development/scripts/remove.ldap.user.sh" || exit 1
+    downlaod_ldap_tools
     
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.ldap.server.master.sh: STOP" >&2
 }
