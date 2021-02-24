@@ -17,21 +17,41 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 # Only take action if two arguments are provided
-if [ $# -eq 2 ] && [ "$2" -eq "$2" ] 2>/dev/null && [ "$2" -gt 1000 ]; then
+if [[ $# -eq 2 ]] && [[ -n "$1" ]]; then
   USERNAME=$1
-  USERID=$2
+  PASS=$2
 else
-  echo "Usage: `basename $0` <user-name> <user-id>"
+  echo "Usage: `basename $0` <user-name>"
   echo "<user-name> must be a string"
-  echo "<user-id> must be an integer greater than 1000"
   exit 1
 fi
 
 # Load env vars which identify instance type
 .  /etc/parallelcluster/cfnconfig
 
-# Write a minimal LDAP object configuration for a user
-cat <<-EOF > /tmp/${USERNAME}.ldif
+args=(-x -W -D "cn=ldapadmin,dc=${stack_name},dc=internal" -y /root/.ldappasswd)
+
+storedId=$(ldapsearch "${args[@]}" "(&(objectClass=uidNext)(cn=uidNext))" "uidNumber" | awk '$1=="uidNumber:" {print $2}')
+nextId="${storedId}"
+while :; do
+  name=$(ldapsearch "${args[@]}" "(&(objectClass=posixAccount)(uidNumber=${nextId}))" name | awk '$1=="name:" {print $2}')
+  [[ -z $name ]] && break
+  echo "[warning] uidNumber <${nextId}> is used by <${name}>">&2
+  ((nextId++))
+done
+
+ldapmodify "${args[@]}" <<EOF
+dn: cn=uidNext,dc=${stack_name},dc=internal
+changetype: modify
+delete: uidNumber
+uidNumber: ${storedId}
+-
+add: uidNumber
+uidNumber: $((nextId+1))
+EOF
+
+
+ldapadd "${args[@]}" <<'EOF'
 dn: uid=${USERNAME},ou=Users,dc=${stack_name},dc=internal
 objectClass: top
 objectClass: account
@@ -39,20 +59,11 @@ objectClass: posixAccount
 objectClass: shadowAccount
 cn: ${USERNAME}
 uid: ${USERNAME}
-uidNumber: ${USERID}
+uidNumber: ${nextId}
 gidNumber: 100
 homeDirectory: /home/${USERNAME}
 loginShell: /bin/bash
 EOF
 
-# Add the user to LDAP
-ldapadd -x -W -D "cn=ldapadmin,dc=${stack_name},dc=internal" -f /tmp/${USERNAME}.ldif -y /root/.ldappasswd
-
-# Tidy up and verify the entry was successful
-rm /tmp/${USERNAME}.ldif
-getent passwd $1
-
 # Set a temporary password for the user
-TMPPASS=$(echo $RANDOM | md5sum | awk '{ print $1 }')
-ldappasswd -H ldap://localhost:389 -x -D "cn=ldapadmin,dc=${stack_name},dc=internal" -W -s ${TMPPASS} uid=${USERNAME},ou=Users,dc=${stack_name},dc=internal -y /root/.ldappasswd
-echo "Temporary password for ${USERNAME}: ${TMPPASS}"
+ldappasswd -H ldap://localhost:389 "${args[@]}" -s ${PASS} uid=${USERNAME},ou=Users,dc=${stack_name},dc=internal 
