@@ -125,7 +125,9 @@ main() {
     source /etc/parallelcluster/cfnconfig
     install_server_packages
     prepare_ldap_server
-
+    wget -P /usr/sbin/ "https://raw.githubusercontent.com/aws-samples/aws-pcluster-post-samples/development/scripts/add.ldap.user.sh"    || exit 1
+    wget -P /usr/sbin/ "https://raw.githubusercontent.com/aws-samples/aws-pcluster-post-samples/development/scripts/remove.ldap.user.sh" || exit 1
+    
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.ldap.server.master.sh: STOP" >&2
 }
 
