@@ -16,6 +16,8 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+args=(-x -W -D "cn=ldapadmin,dc=${stack_name},dc=internal" -y /root/.ldappasswd)
+
 install_server_packages() {
     yum -y install openldap compat-openldap openldap-clients openldap-servers openldap-servers-sql openldap-devel
 }
@@ -31,6 +33,11 @@ prepare_ldap_server() {
     LDAP_HASH=$(slappasswd -T /root/.ldappasswd)
     # Initial LDAP setup specification
     cat <<-EOF > /root/ldapdb.ldif
+dn: olcDatabase={1}monitor,cn=config
+changetype: modify
+replace: olcAccess
+olcAccess: {0}to * by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external, cn=auth" read by dn.base="cn=ldapadmin,dc=${stack_name},dc=internal" read by * none
+
 dn: olcDatabase={2}hdb,cn=config
 changetype: modify
 replace: olcSuffix
@@ -57,6 +64,21 @@ olcAccess: {1}to *
 EOF
     # Apply LDAP settings
     ldapmodify -Y EXTERNAL -H ldapi:/// -f /root/ldapdb.ldif
+    
+    ldapadd -Y EXTERNAL -H ldapi:/// <<'EOF'
+dn: cn=idnext,cn=schema,cn=config
+objectClass: olcSchemaConfig
+cn: idnext
+olcObjectClasses: {0}( 1.3.6.1.4.1.7165.1.2.2.3
+  NAME 'uidNext' SUP top STRUCTURAL
+  DESC 'Next available UNIX uid'
+  MUST ( uidNumber $ cn ) )
+olcObjectClasses: {1}( 1.3.6.1.4.1.7165.1.2.2.4
+  NAME 'gidNext' SUP top STRUCTURAL
+  DESC 'Next available UNIX gid'
+  MUST ( gidNumber $ cn ) )
+EOF
+
     # Apply LDAP database settings
     cp /usr/share/openldap-servers/DB_CONFIG.example /var/lib/ldap/DB_CONFIG
     chown ldap:ldap /var/lib/ldap/*
@@ -78,15 +100,21 @@ description: LDAP Admin
 dn: ou=Users,dc=${stack_name},dc=internal
 objectClass: organizationalUnit
 ou: Users
+
+dn: cn=uidNext,dc=${stack_name},dc=internal
+objectClass: uidNext
+cn: uidNext
+uidNumber: 2001
+
+dn: cn=gidNext,dc=${stack_name},dc=internal
+objectClass: gidNext
+cn: gidNext
+gidNumber: 2001
 EOF
     # Apply the directory structure
-    ldapadd -x -W -D "cn=ldapadmin,dc=${stack_name},dc=internal" -f /root/struct.ldif -y /root/.ldappasswd
+    ldapadd "${args[@]}" -f /root/struct.ldif 
     # Save the controller hostname to a shared location for later use
     echo "ldap_server=$(hostname)" > /home/.ldap
-}
-
-restart_scheduler() {
-    systemctl restart slurmctld
 }
 
 # main
@@ -97,7 +125,6 @@ main() {
     source /etc/parallelcluster/cfnconfig
     install_server_packages
     prepare_ldap_server
-    restart_scheduler
 
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.ldap.server.master.sh: STOP" >&2
 }
