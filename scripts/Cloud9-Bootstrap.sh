@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -x
-exec >/tmp/bootstrap.log; exec 2>&1
+exec >/home/ec2-user/environment/bootstrap.log; exec 2>&1
 
 #source user profile and move to the home dir
 . /home/ec2-user/.bashrc
