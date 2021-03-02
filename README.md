@@ -1,7 +1,8 @@
-<h1> ParallelCluster post-install samples</h1>
+# ParallelCluster post-install samples
 This repository gather some <a href=https://docs.aws.amazon.com/parallelcluster/latest/ug/what-is-aws-parallelcluster.html><b>ParallelCluster</b></a> post-install samples for common HPC-related operations.
 <br>Primary ParallelCluster script sets the environment and launches secondary scripts according to their naming convention.
-<br>All those scripts are meant to be stored in an S3 bucket. See more details in the Requirements section below.
+<br>All those scripts are automatically downlaoded from thie [Git-Hub repo](https://github.com/aws-samples/aws-pcluster-post-samples) .
+<br>In case a deeper customization of the scripts is needed, the scripts can be stored in an S3 bucket. See more details in the Requirements section below.
 
 At the moment we are including:
 1. *install.ldap.server.master.sh*
@@ -23,7 +24,8 @@ At the moment we are including:
 9. *install.dcv.slurm.compute.sh*
     <br>Alternative to the previous, this script enables support for DCV sessions using Slurm instead of the DCV Session Manager Agent.
 
-<h2 id='PfT9CA6xURy'>Software and Services used</h2>
+<details>
+<summary>Software and Services used (Click to expand)</summary>
 <b>AWS ParallelCluster</b> is an open source cluster management tool that simplifies deploying and managing HPC clusters with Amazon FSx for Lustre, EFA, a variety of job schedulers, and the MPI library of your choice. AWS ParallelCluster simplifies cluster orchestration on AWS so that HPC environments become easy-to-use even for if you’re new to the cloud. <br/>
 <br/>
 <b>NICE EnginFrame</b> is the leading grid-enabled application portal for user-friendly submission,control and monitoring of HPC jobs and interactive remote sessions.It includes sophisticated data management for all stages of HPC job lifetime and is integrated with most popular job schedulers and middleware tools to submit, monitor, and manage jobs.<br/>
@@ -31,7 +33,7 @@ At the moment we are including:
 <b>NICE DCV</b>  is a remote visualization technology that enables users to securely connect to graphic-intensive 3D applications hosted on a remote, high-performance server. With NICE DCV, you can make a server's high-performance graphics processing capabilities available to multiple remote users by creating secure client sessions. <br/>
 <br/>
 <b>NICE DCV Session Manager</b> is set of two software packages (an Agent and a Broker) and an application programming interface (API) that makes it easy for developers and independent software vendors (ISVs) to build front-end applications that programmatically create and manage the lifecycle of NICE DCV sessions across a fleet of NICE DCV servers. <br/>
-
+</details>
 
 # 1-Click Deployment
 For Users who have no experience with AWS and no experience building an HPC Cluster, here an easy way to start.

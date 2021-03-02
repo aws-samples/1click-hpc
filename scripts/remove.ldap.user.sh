@@ -20,4 +20,6 @@ source /etc/parallelcluster/cfnconfig
 
 USERNAME=$1
 
-ldapdelete -x -W -D "cn=ldapadmin,dc=${stack_name},dc=internal" -y /root/.ldappasswd "uid=${USERNAME},ou=Users,dc=${stack_name},dc=internal"
+sudo ldapdelete -x -W -D "cn=ldapadmin,dc=${stack_name},dc=internal" -y /root/.ldappasswd "uid=${USERNAME},ou=Users,dc=${stack_name},dc=internal"
+sudo chown -R root:root "/home/${USERNAME}"
+sudo mv /home/${USERNAME} "/home/${USERNAME}.$(date '+%Y-%m-%d-%H-%M-%S').BAK"

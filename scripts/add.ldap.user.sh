@@ -36,11 +36,10 @@ nextId="${storedId}"
 while :; do
   name=$(ldapsearch "${args[@]}" "(&(objectClass=posixAccount)(uidNumber=${nextId}))" name | awk '$1=="name:" {print $2}')
   [[ -z $name ]] && break
-  echo "[warning] uidNumber <${nextId}> is used by <${name}>">&2
   ((nextId++))
 done
 
-ldapmodify "${args[@]}" <<EOF
+ldapmodify "${args[@]}" <<EOF >/dev/null
 dn: cn=uidNext,dc=${stack_name},dc=internal
 changetype: modify
 delete: uidNumber
@@ -50,8 +49,7 @@ add: uidNumber
 uidNumber: $((nextId+1))
 EOF
 
-
-ldapadd "${args[@]}" <<EOF
+ldapadd "${args[@]}" <<EOF >/dev/null 2>test
 dn: uid=${USERNAME},ou=Users,dc=${stack_name},dc=internal
 objectClass: top
 objectClass: account
@@ -65,7 +63,13 @@ homeDirectory: /home/${USERNAME}
 loginShell: /bin/bash
 EOF
 
+if grep -q "Already exists" "test"; then
+    rm -f test
+    echo "User already exists."
+    exit -1
+fi
+
 # Set a temporary password for the user
-ldappasswd -H ldap://localhost:389 "${args[@]}" -s ${PASS} uid=${USERNAME},ou=Users,dc=${stack_name},dc=internal
+ldappasswd -H ldap://localhost:389 "${args[@]}" -s ${PASS} uid=${USERNAME},ou=Users,dc=${stack_name},dc=internal 
 
 sudo -H -u ${USERNAME} bash -c "ssh-keygen -q -t rsa -b 4096 -N \"\" -f ~/.ssh/id_rsa; cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys"
