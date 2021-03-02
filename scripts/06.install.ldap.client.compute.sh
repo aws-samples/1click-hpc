@@ -32,6 +32,7 @@ prepare_ldap_client() {
                --enablemkhomedir \
                --update
     systemctl restart nslcd
+    systemctl restart dbus
 }
 
 # main
