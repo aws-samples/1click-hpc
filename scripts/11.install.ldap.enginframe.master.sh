@@ -39,7 +39,6 @@ configureEnginFrame() {
     mv "${EF_ROOT}/plugins/applications/bin/applications.manage.users.ui" "${EF_ROOT}/plugins/applications/bin/applications.manage.users.ui.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
     wget -P "${EF_ROOT}/plugins/applications/bin/" "${post_install_base}/enginframe/applications.manage.users.ui" || exit 1
     
-    mv "${EF_ROOT}/plugins/user-group-manager/lib/xml/com.enginframe.ldap-user-group-manager.xml" "${EF_ROOT}/plugins/user-group-manager/lib/xml/com.enginframe.ldap-user-group-manager.xml.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
     wget -P "${EF_ROOT}/plugins/user-group-manager/lib/xml/" "${post_install_base}/enginframe/com.enginframe.ldap-user-group-manager.xml" || exit 1
     
     mv "${EF_ROOT}/plugins/user-group-manager/lib/xml/com.enginframe.user-group-manager.xml" "${EF_ROOT}/plugins/user-group-manager/lib/xml/com.enginframe.user-group-manager.xml.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
