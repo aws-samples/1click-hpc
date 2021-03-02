@@ -124,8 +124,8 @@ EOF
 
 
 downlaod_ldap_tools() {
-    wget -P /usr/sbin/ "https://raw.githubusercontent.com/aws-samples/aws-pcluster-post-samples/development/scripts/add.ldap.user.sh"    || exit 1
-    wget -P /usr/sbin/ "https://raw.githubusercontent.com/aws-samples/aws-pcluster-post-samples/development/scripts/remove.ldap.user.sh" || exit 1
+    wget -P /usr/sbin/ "${post_install_url}/add.ldap.user.sh"    || exit 1
+    wget -P /usr/sbin/ "${post_install_url}/remove.ldap.user.sh" || exit 1
     chmod 755 /usr/sbin/add.ldap.user.sh
     chmod 755 /usr/sbin/remove.ldap.user.sh  
 }
