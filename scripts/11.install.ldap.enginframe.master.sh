@@ -35,20 +35,33 @@ configureEnginFrame() {
 
     mv "${EF_ROOT}/plugins/applications/WEBAPP/applications.admin.xml" "${EF_ROOT}/plugins/applications/WEBAPP/applications.admin.xml.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
     wget -P "${EF_ROOT}/plugins/applications/WEBAPP/" "${post_install_base}/enginframe/applications.admin.xml" || exit 1
+    ### FIX: DO NOT TO HARDCODE usernames
+    chown ec2-user:efnobody "${EF_ROOT}/plugins/applications/WEBAPP/applications.admin.xml"
     
     mv "${EF_ROOT}/plugins/applications/bin/applications.manage.users.ui" "${EF_ROOT}/plugins/applications/bin/applications.manage.users.ui.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
     wget -P "${EF_ROOT}/plugins/applications/bin/" "${post_install_base}/enginframe/applications.manage.users.ui" || exit 1
+    chmod 755 "${EF_ROOT}/plugins/applications/bin/applications.manage.users.ui"
+    ### FIX: DO NOT TO HARDCODE usernames
+    chown ec2-user:efnobody "${EF_ROOT}/plugins/applications/bin/applications.manage.users.ui"
     
     wget -P "${EF_ROOT}/plugins/user-group-manager/lib/xml/" "${post_install_base}/enginframe/com.enginframe.ldap-user-group-manager.xml" || exit 1
+    ### FIX: DO NOT TO HARDCODE usernames
+    chown ec2-user:efnobody "${EF_ROOT}/plugins/user-group-manager/lib/xml/com.enginframe.ldap-user-group-manager.xml"
     
     mv "${EF_ROOT}/plugins/user-group-manager/lib/xml/com.enginframe.user-group-manager.xml" "${EF_ROOT}/plugins/user-group-manager/lib/xml/com.enginframe.user-group-manager.xml.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
     wget -P "${EF_ROOT}/plugins/user-group-manager/lib/xml/" "${post_install_base}/enginframe/com.enginframe.user-group-manager.xml" || exit 1
+    ### FIX: DO NOT TO HARDCODE usernames
+    chown ec2-user:efnobody "${EF_ROOT}/plugins/user-group-manager/lib/xml/com.enginframe.user-group-manager.xml"
     
     mv "${EF_ROOT}/plugins/applications/WEBAPP/js/widgets/hydrogen.manage-users.js" "${EF_ROOT}/plugins/applications/WEBAPP/js/widgets/hydrogen.manage-users.js.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
     wget -P "${EF_ROOT}/plugins/applications/WEBAPP/js/widgets/" "${post_install_base}/enginframe/hydrogen.manage-users.js" || exit 1
+    ### FIX: DO NOT TO HARDCODE usernames
+    chown ec2-user:efnobody "${EF_ROOT}/plugins/applications/WEBAPP/js/widgets/hydrogen.manage-users.js"
     
     mv "${EF_ROOT}/plugins/vdi/WEBAPP/vdi.admin.xml" "${EF_ROOT}/plugins/vdi/WEBAPP/vdi.admin.xml.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
     wget -P "${EF_ROOT}/plugins/vdi/WEBAPP/" "${post_install_base}/enginframe/vdi.admin.xml" || exit 1
+    ### FIX: DO NOT TO HARDCODE usernames
+    chown ec2-user:efnobody "${EF_ROOT}/plugins/vdi/WEBAPP/vdi.admin.xml"
 
     sed -i \
         "s/^HY_CONNECT_SESSION_MAX_WAIT=.*$/HY_CONNECT_SESSION_MAX_WAIT='600'/" \
