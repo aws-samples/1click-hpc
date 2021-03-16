@@ -20,6 +20,7 @@ source '/etc/parallelcluster/cfnconfig'
 export NICE_ROOT=$(jq --arg default "${SHARED_FS_DIR}/nice" -r '.post_install.enginframe | if has("nice_root") then .nice_root else $default end' "${dna_json}")
 export EF_CONF_ROOT=$(jq --arg default "${NICE_ROOT}/enginframe/conf" -r '.post_install.enginframe | if has("ef_conf_root") then .ef_conf_root else $default end' "${dna_json}")
 export EF_DATA_ROOT=$(jq --arg default "${NICE_ROOT}/enginframe/data" -r '.post_install.enginframe | if has("ef_data_root") then .ef_data_root else $default end' "${dna_json}")
+export AWS_DEFAULT_REGION=${cfn_region}
 
 set -x
 set -e
@@ -31,6 +32,9 @@ INTERACTIVE_SESSION_STARTING_HOOK=${EF_DATA_ROOT}/plugins/interactive/bin/alb.se
 INTERACTIVE_SESSION_CLOSING_HOOK=${EF_DATA_ROOT}/plugins/interactive/bin/alb.session.closing.hook.sh
 EOF
     
+    alb_name="$(echo $stack_name | sed 's/parallelcluster-//')"
+    ALB_PUBLIC_DNS_NAME=$(aws elbv2 describe-load-balancers --names Development-22 --query "LoadBalancers[? LoadBalancerName == '${alb_name}'].DNSName" --output text)
+
     pattern='^ALB_PUBLIC_DNS_NAME=.*$'
     replace="ALB_PUBLIC_DNS_NAME=${ALB_PUBLIC_DNS_NAME}"
     sed -i -e "s|${pattern}|${replace}|" "${EF_DATA_ROOT}/plugins/interactive/bin/alb.session.starting.hook.sh"
