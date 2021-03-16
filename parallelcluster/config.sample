@@ -40,6 +40,7 @@ queue_settings = batch-efa, batch, dcv-gpu, dcv
 post_install = ${POST_INSTALL}
 post_install_args = "${POST_INSTALL_ARGS}"
 tags = {"EnginFrame" : "true"}
+additional_iam_policies = arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
 extra_json = {     "post_install": {    "enginframe": {      "ef_admin": "ec2-user",      "ef_admin_pass": "Change_this!"    },    "dcvsm": {      "agent_broker_port": 8445,      "broker_ca": "/home/ec2-user/dcvsmbroker_ca.pem",      "client_broker_port": 8446    },    "dcv": {      "dcv_queue_keyword": "dcv"    }  }}
 
 [fsx parallel-fs]
