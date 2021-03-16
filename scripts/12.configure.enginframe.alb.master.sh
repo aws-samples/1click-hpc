@@ -32,14 +32,14 @@ INTERACTIVE_SESSION_CLOSING_HOOK=${EF_DATA_ROOT}/plugins/interactive/bin/alb.ses
 EOF
     
     pattern='^ALB_PUBLIC_DNS_NAME=.*$'
-    replace="ALB_PUBLIC_DNS_NAME=${XXXXXX}"
-    sed -i -e "s|${pattern}|${replace}|" '${EF_DATA_ROOT}/plugins/interactive/bin/alb.session.starting.hook.sh'
-    sed -i -e "s|${pattern}|${replace}|" '${EF_DATA_ROOT}/plugins/interactive/bin/alb.session.closing.hook.sh'
+    replace="ALB_PUBLIC_DNS_NAME=${ALB_PUBLIC_DNS_NAME}"
+    sed -i -e "s|${pattern}|${replace}|" "${EF_DATA_ROOT}/plugins/interactive/bin/alb.session.starting.hook.sh"
+    sed -i -e "s|${pattern}|${replace}|" "${EF_DATA_ROOT}/plugins/interactive/bin/alb.session.closing.hook.sh"
 
     pattern='^export AWS_DEFAULT_REGION=.*$'
     replace="export AWS_DEFAULT_REGION=${cfn_region}"
-    sed -i -e "s|${pattern}|${replace}|" '${EF_DATA_ROOT}/plugins/interactive/bin/alb.session.starting.hook.sh'
-    sed -i -e "s|${pattern}|${replace}|" '${EF_DATA_ROOT}/plugins/interactive/bin/alb.session.closing.hook.sh'
+    sed -i -e "s|${pattern}|${replace}|" "${EF_DATA_ROOT}/plugins/interactive/bin/alb.session.starting.hook.sh"
+    sed -i -e "s|${pattern}|${replace}|" "${EF_DATA_ROOT}/plugins/interactive/bin/alb.session.closing.hook.sh"
 
 }
 
