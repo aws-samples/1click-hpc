@@ -18,7 +18,7 @@ cat << EOF
                                                                                       
 
  You can connect to your HPC cluster using the EnginFrame web portal:
- https://${MASTER_PUBLIC_IP}:8443/enginframe
+ https://${ALB_PUBLIC_DNS_NAME}/enginframe
  
  Or, You can ssh into the Head-node:
  $ pcluster ssh ${CLUSTER_NAME}
