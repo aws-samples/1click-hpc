@@ -105,8 +105,9 @@ main() {
         --query "LoadBalancers[].VpcId" --output text)
     [ -n "${_vpc_id}" ] || _die "Unable to detect VPC of the ALB (${_alb_host})."
 
+    _private_ip=$(getent hosts  ${_target_host} | awk '{ print $1 }')
     # detect InstanceId by private DNS name and VPC
-    local -- _instance_id=$(aws ec2 describe-instances --filters "Name=private-dns-name,Values=${_target_host_filter}" \
+    local -- _instance_id=$(aws ec2 describe-instances --filters "Name=private-ip-address,Values=${_private_ip}" \
         --query "Reservations[].Instances[? VpcId == '${_vpc_id}'].InstanceId" --output text)
     [ -n "${_instance_id}" ] || _die "Unable to get Instance Id for the given Private DNS name filter (${_target_host_filter}) in the VPC (${_vpc_id})."
 
