@@ -28,7 +28,7 @@ configureDCVforALB() {
     cp '/etc/dcv/dcv.conf' "/etc/dcv/dcv.conf.$(date --iso=s --utc)"
     WEB_URL_PATH="$(ec2-metadata -i| awk '{print $2}')"
     pattern='^ *#web-url-path*=.*$'
-    replace="web-url-path=\"${WEB_URL_PATH}\""
+    replace="web-url-path=/\"${WEB_URL_PATH}\""
     sed -i -e "s|${pattern}|${replace}|" "/etc/dcv/dcv.conf"
 }
 
