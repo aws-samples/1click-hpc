@@ -33,7 +33,7 @@ INTERACTIVE_SESSION_CLOSING_HOOK=${EF_DATA_ROOT}/plugins/interactive/bin/alb.ses
 EOF
     
     alb_name="$(echo $stack_name | sed 's/parallelcluster-//')"
-    ALB_PUBLIC_DNS_NAME=$(aws elbv2 describe-load-balancers --names Development-22 --query "LoadBalancers[? LoadBalancerName == '${alb_name}'].DNSName" --output text)
+    ALB_PUBLIC_DNS_NAME=$(aws elbv2 describe-load-balancers --names ${alb_name} --query "LoadBalancers[? LoadBalancerName == '${alb_name}'].DNSName" --output text)
 
     pattern='^ALB_PUBLIC_DNS_NAME=.*$'
     replace="ALB_PUBLIC_DNS_NAME=${ALB_PUBLIC_DNS_NAME}"
