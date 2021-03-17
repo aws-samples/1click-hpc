@@ -42,9 +42,6 @@ Resources:
   Cloud9Role:
     Type: AWS::IAM::Role
     Properties:
-      Tags:
-        - Key: Environment
-          Value: AWS Example
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -143,21 +140,32 @@ Resources:
       MapPublicIpOnLaunch: true
       Tags:
       - Key: Name
-        Value: !Sub '${AWS::StackName}-Public-Subnet'
-  
-  InternetGateway:
-    Type: AWS::EC2::InternetGateway
-    DependsOn: VPC
-  AttachGateway:
-    Type: AWS::EC2::VPCGatewayAttachment
-    DependsOn: InternetGateway
+        Value: !Sub '${AWS::StackName}-Public-SubnetA'
+
+  PublicSubnetB:
+    Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
-      InternetGatewayId: !Ref InternetGateway
+      CidrBlock: 10.0.16.0/20
+      AvailabilityZone: !Select [ 2, !GetAZs ]
+      MapPublicIpOnLaunch: true
+      Tags:
+      - Key: Name
+        Value: !Sub '${AWS::StackName}-Public-SubnetB'
+
+  InternetGatewayA:
+    Type: AWS::EC2::InternetGateway
+    DependsOn: VPC
+  AttachGatewayA:
+    Type: AWS::EC2::VPCGatewayAttachment
+    DependsOn: InternetGatewayA
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGatewayA
 
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
-    DependsOn: AttachGateway
+    DependsOn: AttachGatewayA
     Properties:
       VpcId: !Ref VPC
       Tags:
@@ -165,34 +173,49 @@ Resources:
         Value: Public
   PublicRoute1:
     Type: AWS::EC2::Route
-    DependsOn: AttachGateway
+    DependsOn: AttachGatewayA
     Properties:
       RouteTableId: !Ref PublicRouteTable
       DestinationCidrBlock: 0.0.0.0/0
-      GatewayId: !Ref InternetGateway
+      GatewayId: !Ref InternetGatewayA
   
   PublicSubnetARouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PublicSubnetA
       RouteTableId: !Ref PublicRouteTable
-      
+
+  ALBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: 'Allow https and http'
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+
   PCAdditionalSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: 'Allow https over 8443 (for EnginFrame)'
+      GroupDescription: 'Allow 8443 from the ALB'
       VpcId: !Ref VPC
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: 8443
         ToPort: 8443
-        CidrIp: 0.0.0.0/0
+        SourceSecurityGroupId: !Ref ALBSecurityGroup
 
   Cloud9:
     Type: 'AWS::Cloud9::EnvironmentEC2'
     DependsOn: 
      - Cloud9BootstrapAssociation
-     - AttachGateway
+     - AttachGatewayA
     Properties:
       Name: !Ref 'AWS::StackName'
       Description: 'Cloud9 IDE for AWS ParallelCluster'
@@ -227,9 +250,12 @@ Resources:
             - !Sub echo "export S3_BUCKET=${Cloud9OutputBucket}" >> /home/ec2-user/.bashrc
             - !Sub echo "export VPC_ID=${VPC}" >> /home/ec2-user/.bashrc
             - !Sub echo "export SUBNET_ID=${PublicSubnetA}" >> /home/ec2-user/.bashrc
-            - !Sub echo "export ADDITIONAL_SG=${PCAdditionalSecurityGroup}" >> /home/ec2-user/.bashrc
             - !Sub echo "export CLUSTER_NAME=${AWS::StackName}" >> /home/ec2-user/.bashrc
+            - !Sub echo "export ADDITIONAL_SG=${PCAdditionalSecurityGroup}" >> /home/ec2-user/.bashrc
             - !Sub echo "export WAIT_HANDLE='${WaitHandle}'" >> /home/ec2-user/.bashrc
+            - !Sub 
+              - echo "export ALB_PUBLIC_DNS_NAME='${ALB}'" >> /home/ec2-user/.bashrc
+              - ALB: !GetAtt ApplicationLoadBalancer.DNSName
             - !Sub
               - echo "export KEY_PAIR=\"${AWS::StackName}-${RANDOM}\"" >> /home/ec2-user/.bashrc
               - RANDOM: !Select [0, !Split ['-', !Select [2, !Split ['/', !Ref 'AWS::StackId' ]]]]
@@ -242,6 +268,7 @@ Resources:
             - chmod -x /home/ec2-user/environment/Cloud9-Bootstrap.sh
             - sudo -H -u ec2-user bash -c "bash /home/ec2-user/environment/Cloud9-Bootstrap.sh"
 
+
   Cloud9BootstrapInstanceLambda:
     Description: Bootstrap Cloud9 instance
     Type: Custom::Cloud9BootstrapInstanceLambda
@@ -250,10 +277,8 @@ Resources:
     - Cloud9
     - Cloud9InstanceProfile
     - LambdaExecutionRole
+    - ApplicationLoadBalancer
     Properties:
-      Tags:
-        - Key: Environment
-          Value: AWS Example
       ServiceToken:
         Fn::GetAtt:
         - Cloud9BootstrapInstanceLambdaFunction
@@ -274,9 +299,6 @@ Resources:
   Cloud9BootstrapInstanceLambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
-      Tags:
-        - Key: Environment
-          Value: AWS Example
       Handler: index.lambda_handler
       Role: !GetAtt LambdaExecutionRole.Arn
       Runtime: python3.6
@@ -427,6 +449,187 @@ Resources:
         - ''
         - - !GetAtt S3BucketName.OutputString
 
+  S3Endpoint:
+    Type: AWS::EC2::VPCEndpoint
+    DependsOn: 
+      - VPC
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: s3
+            Effect: Allow
+            Principal: '*'
+            Action: s3:*
+            Resource: '*'
+      RouteTableIds: 
+        - !Ref PublicRouteTable
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.s3'
+      VpcEndpointType: Gateway
+      VpcId: !Ref VPC
+
+  LBInit:
+    Type: Custom::LBInit
+    DependsOn: 
+      - ApplicationLoadBalancer
+    Properties:
+      ServiceToken: !GetAtt LBInitLambda.Arn
+      DNSName: !GetAtt ApplicationLoadBalancer.DNSName
+
+  LBInitLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Create ALB Certificate
+      Timeout: '300'
+      Runtime: python3.7
+      Handler: index.handler
+      Role: !GetAtt 'LBInitRole.Arn'
+      Code:
+        ZipFile: |
+          import boto3
+          import os
+          import subprocess
+          import time
+          import cfnresponse
+          from botocore.exceptions import ClientError
+          def handler(event, context):
+              data = {}
+              try:
+                  if event['RequestType'] == 'Create':
+                      IamCertificateArn = create_certificate(event)
+                      data['IamCertificateArn'] = IamCertificateArn
+                  elif event['RequestType'] == 'Delete':
+                      delete_certificate(event)
+                  cfnresponse.send(event, context, cfnresponse.SUCCESS, data)
+              except ClientError as e:
+                  data['ClientError'] = e.response['Error']['Code']
+                  cfnresponse.send(event, context, cfnresponse.FAILED, data)
+              except Exception as e:
+                  data['Exception'] = str(e)
+                  cfnresponse.send(event, context, cfnresponse.FAILED, data)
+          def create_certificate(event):
+              DNSName = event['ResourceProperties']['DNSName']
+              os.chdir('/tmp')
+              config = open('/tmp/openssl.cnf', 'w+')
+              config.write('[req]\nprompt=no\ndistinguished_name=enginframe\nx509_extensions=v3_req\n')
+              config.write('[enginframe]\nC=US\nST=WA\nL=Seattle\nO=AWS WWSO\nOU=HPC\nCN=EnginFrame\n')
+              config.write('[v3_req]\nkeyUsage=keyEncipherment,dataEncipherment,digitalSignature\nextendedKeyUsage=serverAuth\nsubjectAltName=@alt_names\n')
+              config.write('[alt_names]\nDNS.1={}\n'.format(DNSName))
+              config.close()
+              os.environ['RANDFILE']='/tmp/.rnd'
+              subprocess.run([
+                  'openssl', 'req', '-new', '-x509', '-nodes',
+                  '-newkey', 'rsa:2048', '-days', '3650',
+                  '-keyout', '/tmp/key.pem', '-out', '/tmp/crt.pem',
+                  '-config', '/tmp/openssl.cnf'
+              ])
+              os.remove('/tmp/openssl.cnf')
+              keyfile = open('/tmp/key.pem', 'r')
+              key = keyfile.read()
+              keyfile.close()
+              os.remove('/tmp/key.pem')
+              crtfile = open('/tmp/crt.pem', 'r')
+              crt = crtfile.read()
+              crtfile.close()
+              os.remove('/tmp/crt.pem')
+              iam = boto3.client('iam')
+              response = iam.upload_server_certificate(
+                  ServerCertificateName=DNSName,
+                  CertificateBody=crt,
+                  PrivateKey=key
+              )
+              time.sleep(10)
+              return response['ServerCertificateMetadata']['Arn']
+          def delete_certificate(event):
+              time.sleep(10)
+              DNSName = event['ResourceProperties']['DNSName']
+              iam = boto3.client('iam')
+              response = iam.delete_server_certificate(ServerCertificateName=DNSName)
+
+  LBInitRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - !Sub 'lambda.${AWS::URLSuffix}'
+      ManagedPolicyArns:
+        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+      Policies:
+        - PolicyName: EFLoadBalancer
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: iam
+                Effect: Allow
+                Action:
+                  - iam:UploadServerCertificate
+                  - iam:DeleteServerCertificate
+                Resource: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:server-certificate/${ApplicationLoadBalancer.DNSName}'
+
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Sub '${AWS::StackName}'
+      Subnets: 
+        - !Ref PublicSubnetA
+        - !Ref PublicSubnetB
+      SecurityGroups:
+        - !Ref ALBSecurityGroup
+
+
+  HTTPSListener:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties:
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
+      Port: 443
+      Protocol: "HTTPS"
+      SslPolicy: "ELBSecurityPolicy-2016-08"
+      Certificates:
+        - CertificateArn: !GetAtt LBInit.IamCertificateArn
+      DefaultActions: 
+        - 
+          Order: 1
+          TargetGroupArn: !Ref TargetGroup
+          Type: "forward"
+
+  HTTPListener:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties:
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
+      Port: 80
+      Protocol: "HTTP"
+      DefaultActions: 
+        - 
+          Order: 1
+          RedirectConfig: 
+            Protocol: "HTTPS"
+            Port: "443"
+            Host: "#{host}"
+            Path: "/#{path}"
+            Query: "#{query}"
+            StatusCode: "HTTP_301"
+          Type: "redirect"
+
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    DependsOn: 
+      - MasterIP
+    Properties:
+      Name: !Sub '${AWS::StackName}'
+      VpcId: !Ref VPC
+      Port: 8443
+      Protocol: HTTPS
+      Targets:
+        - Id: !Sub '${MasterIP.MasterPrivateIP}'
+      TargetType: ip
+
 Outputs:
 
   Cloud9URL:
@@ -434,4 +637,6 @@ Outputs:
     Value: !Sub 'https://${AWS::Region}.console.aws.amazon.com/cloud9/ide/${Cloud9}'
   EnginFrameURL:
     Description: "EnginFrame HPC Portal, default username: ec2-user , default password: Change_this!"
-    Value: !Sub 'https://${MasterIP.MasterPublicIP}:8443/enginframe'
+    Value: !Sub 
+      - 'https://${ALB}/enginframe'
+      - ALB: !GetAtt ApplicationLoadBalancer.DNSName
