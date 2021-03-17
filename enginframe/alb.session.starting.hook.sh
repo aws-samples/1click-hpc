@@ -80,18 +80,16 @@ main() {
     local -- _session_id=$1
     local -- _alb_host=$2
     local -- _alb_port=$3
-    local -- _target_host=$4
+    local -- _instance_id=$4
     local -- _target_port=$5
     local -- _target_web_url_path=$6
 
     [ -z "${_session_id}" ] && _die "Missing input Session Id parameter."
     [ -z "${_alb_host}" ] && _die "Missing input ALB Host parameter."
     [ -z "${_alb_port}" ] && _die "Missing input ALB Port parameter."
-    [ -z "${_target_host}" ] && _die "Missing input Target Host parameter."
+    [ -z "${_instance_id}" ] && _die "Missing input InstanceID."
     [ -z "${_target_port}" ] && _die "Missing input Target Port parameter."
     [ -z "${_target_web_url_path}" ] && _die "Missing input Target Web Url Path parameter."
-
-    local -- _target_host_filter=$([[ ${_target_host} == *\.* ]] && echo "${_target_host}" || echo "${_target_host}.*")
 
     # check if AWS Cli is in the path
     aws help >/dev/null || _die "AWS Cli is not installed."
@@ -104,13 +102,6 @@ main() {
     local -- _vpc_id=$(aws elbv2 describe-load-balancers --load-balancer-arns "${_alb_arn}" \
         --query "LoadBalancers[].VpcId" --output text)
     [ -n "${_vpc_id}" ] || _die "Unable to detect VPC of the ALB (${_alb_host})."
-
-
-    _private_ip=$(getent hosts  ${_target_host} | awk '{ print $1 }')
-    # detect InstanceId by private DNS name and VPC
-    local -- _instance_id=$(aws ec2 describe-instances --filters "Name=private-ip-address,Values=${_private_ip}" \
-        --query "Reservations[].Instances[? VpcId == '${_vpc_id}'].InstanceId" --output text)
-    [ -n "${_instance_id}" ] || _die "Unable to get Instance Id for the given Private DNS name filter (${_target_host_filter}) in the VPC (${_vpc_id})."
 
     # check if Listener exist
     local -- _listener_arn=$(aws elbv2 describe-listeners --load-balancer-arn "${_alb_arn}" \
@@ -159,7 +150,7 @@ main() {
 
 # Check it's a DCV 2017 interactive session.
 if [ "${INTERACTIVE_SESSION_REMOTE}" = "dcv2" ]; then
-    main "${INTERACTIVE_SESSION_REMOTE_SESSION_ID}" "${ALB_PUBLIC_DNS_NAME}" "${ALB_PORT}" "${INTERACTIVE_SESSION_EXECUTION_HOST}" "${INTERACTIVE_DEFAULT_DCV2_WEB_PORT}" "${INTERACTIVE_SESSION_DCV2_WEBURLPATH}"
+    main "${INTERACTIVE_SESSION_REMOTE_SESSION_ID}" "${ALB_PUBLIC_DNS_NAME}" "${ALB_PORT}" "${INTERACTIVE_SESSION_DCV2_WEBURLPATH:1}" "${INTERACTIVE_DEFAULT_DCV2_WEB_PORT}" "${INTERACTIVE_SESSION_DCV2_WEBURLPATH}"
 fi
 
 # ex:ts=4:sw=4:et:ft=sh:
