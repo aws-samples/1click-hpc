@@ -31,7 +31,11 @@ configureEF4ALB() {
 INTERACTIVE_SESSION_STARTING_HOOK=${EF_DATA_ROOT}/plugins/interactive/bin/alb.session.starting.hook.sh
 INTERACTIVE_SESSION_CLOSING_HOOK=${EF_DATA_ROOT}/plugins/interactive/bin/alb.session.closing.hook.sh
 EOF
-    
+
+    cat <<-EOF >> ${EF_CONF_ROOT}/enginframe/agent.conf
+ef.download.server.url=https://127.0.0.1:8443/enginframe/download
+EOF
+
     alb_name="$(echo $stack_name | sed 's/parallelcluster-//')"
     ALB_PUBLIC_DNS_NAME=$(aws elbv2 describe-load-balancers --names ${alb_name} --query "LoadBalancers[? LoadBalancerName == '${alb_name}'].DNSName" --output text)
 
