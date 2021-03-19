@@ -51,6 +51,15 @@ installDCVGLonG4() {
     systemctl enable slurmd
 }
 
+fixNat() {
+
+    #fix the nat
+    h1=$(hostname)
+    h2="${h1//./\\.}"
+    sed -i "/^${h2} .*$/d" "${EF_NAT_CONF}"
+    echo "$h1 $(ec2-metadata -p| awk '{print $2}')" >> "${EF_NAT_CONF}"
+}
+
 # main
 # ----------------------------------------------------------------------------
 main() {
