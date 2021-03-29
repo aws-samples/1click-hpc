@@ -29,7 +29,7 @@ Click the link below corresponding to your preferred [AWS Region](https://aws.am
 
 
 ## Step 2
-1. Just change the "Stack Name" as you like (please do not user capital letters) 
+1. Just change the "Stack Name" as you like.
 2. Check the checkbox to acknowledge the IAM resources creations.
 3. Click the "Create Stack" botton.
 </br>
@@ -57,7 +57,7 @@ If you haven't customize the EnginFrame configuration, you can use the default U
 </br>
 ```Password: Change_this!```
 </br>
-<blockquote id='PfT9CA19ub2'><b>Note:</b> Please make sure you the default password right after the first login.</blockquote>
+<blockquote id='PfT9CA19ub2'><b>Note:</b> Please make sure you change the default password right after the first login.</blockquote>
 </br>
 
 ![Step5](docs/step5.png?raw=true "Step 5")
