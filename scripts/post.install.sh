@@ -30,7 +30,7 @@ runScripts() {
     echo "Getting packages from ${post_install_url}"
     for script in ${myscripts}; do
         if [[ ${proto} == "https://" ]]; then
-            wget -P /tmp/scripts "${post_install_url}/${script}" || exit 1 
+            wget -nv -P /tmp/scripts "${post_install_url}/${script}" || exit 1 
         elif [[ ${proto} == "s3://" ]]; then
             aws s3 cp ${post_install_url}/${script} /tmp/scripts/ || exit 1
         else

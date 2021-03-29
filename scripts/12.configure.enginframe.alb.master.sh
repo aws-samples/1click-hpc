@@ -54,12 +54,12 @@ EOF
 
 downlaodALBhooks() {
                             
-    wget -P "${EF_DATA_ROOT}/plugins/interactive/bin/" "${post_install_base}/enginframe/alb.session.closing.hook.sh" || exit 1
+    wget -nv -P "${EF_DATA_ROOT}/plugins/interactive/bin/" "${post_install_base}/enginframe/alb.session.closing.hook.sh" || exit 1
     ### FIX: DO NOT TO HARDCODE usernames
     chown ec2-user:efnobody "${EF_DATA_ROOT}/plugins/interactive/bin/alb.session.closing.hook.sh"
     chmod +x "${EF_DATA_ROOT}/plugins/interactive/bin/alb.session.closing.hook.sh"
     
-    wget -P "${EF_DATA_ROOT}/plugins/interactive/bin/" "${post_install_base}/enginframe/alb.session.starting.hook.sh" || exit 1
+    wget -nv -P "${EF_DATA_ROOT}/plugins/interactive/bin/" "${post_install_base}/enginframe/alb.session.starting.hook.sh" || exit 1
     ### FIX: DO NOT TO HARDCODE usernames
     chown ec2-user:efnobody "${EF_DATA_ROOT}/plugins/interactive/bin/alb.session.starting.hook.sh"
     chmod +x "${EF_DATA_ROOT}/plugins/interactive/bin/alb.session.starting.hook.sh"

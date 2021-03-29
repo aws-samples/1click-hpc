@@ -41,11 +41,11 @@ installEnginFrame() {
     # install pre-requisites
     yum -y install java-latest-openjdk
     # get the EF package from the official repository
-    wget -P /tmp/packages https://dn3uclhgxk1jt.cloudfront.net/enginframe/packages/2020.0/enginframe-${ef_version}.jar || exit 1
+    wget -nv -P /tmp/packages https://dn3uclhgxk1jt.cloudfront.net/enginframe/packages/2020.0/enginframe-${ef_version}.jar || exit 1
     
     
     if [[ ${proto} == "https://" ]]; then
-        wget -P /tmp/packages "${post_install_base}/packages/efinstall.config" || exit 1
+        wget -nv -P /tmp/packages "${post_install_base}/packages/efinstall.config" || exit 1
     elif [[ ${proto} == "s3://" ]]; then
         aws s3 cp "${post_install_base}/packages/efinstall.config" /tmp/packages/ || exit 1
     else
