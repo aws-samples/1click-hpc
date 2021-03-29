@@ -19,7 +19,7 @@ fi
 sudo chmod 400 /home/ec2-user/.ssh/id_rsa
 
 #download the AWS ParallelCluster configuration file and substitute env varaible.
-wget https://raw.githubusercontent.com/aws-samples/aws-pcluster-post-samples/development/parallelcluster/${PC_CONFIG}
+wget https://raw.githubusercontent.com/aws-samples/1click-enginframe/main/parallelcluster/${PC_CONFIG}
 /usr/bin/envsubst < ${PC_CONFIG} > cluster.config
 sudo chown -R ec2-user:ec2-user /home/ec2-user/
 rm ${PC_CONFIG}
@@ -31,7 +31,7 @@ echo "export MASTER_PUBLIC_IP='${MASTER_PUBLIC_IP}'" >> /home/ec2-user/.bashrc
 
 # Modify the Message Of The Day
 sudo rm -f /etc/update-motd.d/*
-sudo wget https://raw.githubusercontent.com/aws-samples/aws-pcluster-post-samples/development/scripts/motd -O /etc/update-motd.d/10-HPC
+sudo wget https://raw.githubusercontent.com/aws-samples/1click-enginframe/main/scripts/motd -O /etc/update-motd.d/10-HPC
 sudo chmod +x /etc/update-motd.d/10-HPC
 echo 'run-parts /etc/update-motd.d' >> /home/ec2-user/.bash_profile
 
