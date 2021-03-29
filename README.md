@@ -1,5 +1,5 @@
 # 1Click-EnginFrame
-This project aims at building an HPC Cluster using the followig HPC related AWS services:
+This project aims at building - with just one click - an HPC Cluster using the followig AWS HPC services:
  * <b>AWS ParallelCluster</b> is an open source cluster management tool that simplifies deploying and managing HPC clusters.
  * <b>NICE EnginFrame</b> the leading HPC application portal for user-friendly submission,control and monitoring of batch jobs and interactive remote sessions.
  * <b>NICE DCV</b> a remote visualization technology that enables users to securely connect to graphic-intensive 3D applications hosted on a remote, high-performance server.
@@ -8,7 +8,6 @@ This project aims at building an HPC Cluster using the followig HPC related AWS 
 
 # Architecture
 ![Architecture](docs/EnginFrame-1Click-Arch.png?raw=true "Architecture")
-
 
 # Get Started
 ## Step 1
