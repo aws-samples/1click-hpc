@@ -62,7 +62,7 @@ If you haven't customize the EnginFrame configuration, you can use the default U
 ![Step5](docs/step5.png?raw=true "Step 5")
 
 
-# Addition Doc
+# Additional Docs
 
 https://github.com/aws-samples/1click-hpc/tree/main/docs
 
