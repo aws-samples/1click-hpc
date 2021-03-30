@@ -262,9 +262,9 @@ Resources:
             - !Sub 
               - echo "export PC_CONFIG=${PCConfigFile}" >> /home/ec2-user/.bashrc
               - PCConfigFile: !FindInMap [RegionMap, !Ref "AWS::Region", PCConfig]
-            - echo "export POST_INSTALL=\"https://raw.githubusercontent.com/aws-samples/1click-enginframe/main/scripts/post.install.sh\"" >> /home/ec2-user/.bashrc
+            - echo "export POST_INSTALL=\"https://raw.githubusercontent.com/aws-samples/1click-hpc/main/scripts/post.install.sh\"" >> /home/ec2-user/.bashrc
             - cd /home/ec2-user/environment
-            - wget -nv https://raw.githubusercontent.com/aws-samples/1click-enginframe/main/scripts/Cloud9-Bootstrap.sh
+            - wget -nv https://raw.githubusercontent.com/aws-samples/1click-hpc/main/scripts/Cloud9-Bootstrap.sh
             - chmod -x /home/ec2-user/environment/Cloud9-Bootstrap.sh
             - sudo -H -u ec2-user bash -c "bash /home/ec2-user/environment/Cloud9-Bootstrap.sh"
 

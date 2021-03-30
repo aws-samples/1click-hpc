@@ -64,7 +64,7 @@ If you haven't customize the EnginFrame configuration, you can use the default U
 
 # Addition Doc
 
-https://github.com/aws-samples/1click-enginframe/tree/main/docs
+https://github.com/aws-samples/1click-hpc/tree/main/docs
 
 # License
 

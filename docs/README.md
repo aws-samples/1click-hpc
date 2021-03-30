@@ -1,7 +1,7 @@
-# 1Click-EnginFrame
+# 1Click-HPC
 This repository gather some <a href=https://docs.aws.amazon.com/parallelcluster/latest/ug/what-is-aws-parallelcluster.html><b>ParallelCluster</b></a> post-install samples for common HPC-related operations.
-<br>Primary ParallelCluster [post.install](https://github.com/aws-samples/1click-enginframe/blob/main/scripts/post.install.sh) sets the environment and launches secondary scripts according to their naming convention.
-<br>All those scripts are automatically downlaoded from thie [Git-Hub repo](https://github.com/aws-samples/1click-enginframe) .
+<br>Primary ParallelCluster [post.install](https://github.com/aws-samples/1click-hpc/blob/main/scripts/post.install.sh) sets the environment and launches secondary scripts according to their naming convention.
+<br>All those scripts are automatically downlaoded from thie [Git-Hub repo](https://github.com/aws-samples/1click-hpc) .
 <br>In case a deeper customization of the scripts is needed, the scripts can be stored in an S3 bucket. See more details in the Requirements section below.
 
 At the moment we are including:
@@ -95,7 +95,7 @@ If this is your first approach to AWS ParallelCluster, either go back to the sec
 ```ini
 [cluster yourcluster]
 ...
-post_install = https://raw.githubusercontent.com/aws-samples/1click-enginframe/main/scripts/post.install.sh
+post_install = https://raw.githubusercontent.com/aws-samples/1click-hpc/main/scripts/post.install.sh
 post_install_args = "10.install.enginframe.master.sh 20.install.dcv.slurm.master.sh 25.install.dcv-server.compute.sh 35.install.dcv.slurm.compute.sh"
 tags = {"EnginFrame" : "true"}
 ...
