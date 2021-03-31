@@ -141,6 +141,9 @@ main() {
         --query "Rules[0].RuleArn" --output text)
         [ -n "${_rule_arn}" ] || _die "Unable to create Rule for the Listener (${_listener_arn}), Target Group (${_target_group_arn}) and target path (${_target_path})."
     fi
+    
+    #avoid 404 ALB error
+    sleep 10
 
     # set output variables
     export INTERACTIVE_SESSION_TARGET_HOST="${_alb_host}"

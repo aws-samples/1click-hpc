@@ -73,7 +73,7 @@ _help() {
 # - $6 target-web-url-path (it must start with the "/" character)
 main() {
     # parse input parameters
-    if [[ $# -lt 6 ]] ; then
+    if [[ $# -lt 3 ]] ; then
         _help
         exit 0
     fi
