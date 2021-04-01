@@ -44,7 +44,7 @@ Click the link below corresponding to your preferred [AWS Region](https://aws.am
 
 ## Step 4
 1. Go to the "outputs" tab
-2. Click the "EnginFrameURL" to access your HPC Clsuter using the EnginFrame portal.
+2. Click the "EnginFrameURL" to access your HPC Cluster using the EnginFrame portal.
 3. Alternatively, Click the "Cloud9URL" if you wish to connect to your Cloud9 Instance and then ssh into your Cluster form there.
 </br>
 
