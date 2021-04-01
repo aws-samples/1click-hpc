@@ -41,6 +41,9 @@ SG_CLOUD9=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query Reser
 SG_MASTER=$(aws cloudformation describe-stack-resources --stack-name parallelcluster-$CLUSTER_NAME --logical-resource-id ComputeSecurityGroup --query "StackResources[*].PhysicalResourceId" --output text)
 aws ec2 modify-instance-attribute --instance-id $INSTANCE_ID --groups $SG_CLOUD9 $SG_MASTER
 
+#increase the maximum number of files that can be handled by file watcher,
+sudo bash -c 'echo "fs.inotify.max_user_watches=524288" >> /etc/sysctl.conf' && sudo sysctl -p
+
 if grep -q "^fsx_settings" "cluster.config"; then
 
   #install Lustre client
