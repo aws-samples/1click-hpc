@@ -41,6 +41,8 @@ Mappings:
 #    eu-south-1:
 #      instanceType: c5.xlarge
 #      PCConfig: config.limited-EC2.sample
+#      ZoneId1: eus1-az3
+#      ZoneId2: eus1-az2
     ap-east-1:
       instanceType: c5.xlarge
       PCConfig: config.limited-EC2.sample
@@ -381,6 +383,13 @@ Resources:
               else:
                   cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
 
+  LogGroupCloud9BootstrapInstanceLambdaFunction:
+    Type: AWS::Logs::LogGroup
+    DependsOn: Cloud9BootstrapInstanceLambdaFunction
+    DeletionPolicy: Delete
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${Cloud9BootstrapInstanceLambdaFunction}
+      RetentionInDays: 7
 
   WaitHandle:
     Type: AWS::CloudFormation::WaitConditionHandle
@@ -429,6 +438,14 @@ Resources:
       Timeout: 10
       MemorySize: 128
 
+  LogGroupLambdaGetMasterIP:
+    Type: AWS::Logs::LogGroup
+    DependsOn: LambdaGetMasterIP
+    DeletionPolicy: Delete
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${LambdaGetMasterIP}
+      RetentionInDays: 7
+
   MasterIP:
     Description: Get master IP
     Type: Custom::MasterIP
@@ -455,6 +472,14 @@ Resources:
               output = event['ResourceProperties'].get('InputString', '').lower()                
               responseData = {'OutputString': output}                                            
               cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
+
+  LogGroupLowerCaseLambda:
+    Type: AWS::Logs::LogGroup
+    DependsOn: LowerCaseLambda
+    DeletionPolicy: Delete
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${LowerCaseLambda}
+      RetentionInDays: 7
 
   S3BucketName:
     Type: Custom::Lowercase
@@ -498,6 +523,14 @@ Resources:
     Properties:
       ServiceToken: !GetAtt LBInitLambda.Arn
       DNSName: !GetAtt ApplicationLoadBalancer.DNSName
+
+  LogGroupLBInitLambda:
+    Type: AWS::Logs::LogGroup
+    DependsOn: LBInitLambda
+    DeletionPolicy: Delete
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${LBInitLambda}
+      RetentionInDays: 7
 
   LBInitLambda:
     Type: AWS::Lambda::Function
@@ -665,8 +698,9 @@ Resources:
       ServiceToken: !GetAtt GetAZLambdaFunction.Arn
       ZoneId: !FindInMap [RegionMap, !Ref "AWS::Region", ZoneId2]
 
-  LogGroup:
+  LogGroupGetAZLambdaFunction:
     Type: AWS::Logs::LogGroup
+    DependsOn: GetAZLambdaFunction
     DeletionPolicy: Delete
     Properties:
       LogGroupName: !Sub /aws/lambda/${GetAZLambdaFunction}
