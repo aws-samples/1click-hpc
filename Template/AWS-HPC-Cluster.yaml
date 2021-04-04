@@ -6,36 +6,54 @@ Mappings:
     us-east-1:
       instanceType: c5.xlarge
       PCConfig: config.sample
+      ZoneId1: use1-az1
+      ZoneId2: use1-az4
     us-east-2:
       instanceType: c5.xlarge
       PCConfig: config.sample
+      ZoneId1: use2-az2
+      ZoneId2: use2-az3
     us-west-1:
       instanceType: c5.xlarge
       PCConfig: config.sample
+      ZoneId1: usw1-az1
+      ZoneId2: usw1-az3
     us-west-2:
       instanceType: c5.xlarge
       PCConfig: config.sample
+      ZoneId1: usw2-az1
+      ZoneId2: usw2-az2
     eu-central-1:
       instanceType: c5.xlarge
       PCConfig: config.sample
+      ZoneId1: euc1-az3
+      ZoneId2: euc1-az2
     eu-west-1:
       instanceType: c5.xlarge
       PCConfig: config.sample
+      ZoneId1: euw1-az1
+      ZoneId2: euw1-az2
     eu-north-1:
       instanceType: c5.xlarge
       PCConfig: config.limited-EC2.sample
+      ZoneId1: eun1-az2
+      ZoneId2: eun1-az1
 #    eu-south-1:
-#      instanceType: t3.micro
+#      instanceType: c5.xlarge
 #      PCConfig: config.limited-EC2.sample
     ap-east-1:
       instanceType: c5.xlarge
       PCConfig: config.limited-EC2.sample
+      ZoneId1: ape1-az3
+      ZoneId2: ape1-az2
 #    me-south-1:
-#      instanceType: t3.micro
+#      instanceType: c5.xlarge
 #      PCConfig: config.limited-EC2.sample
     ap-northeast-1:
       instanceType: c5.xlarge
       PCConfig: config.noFSX.sample
+      ZoneId1: apne1-az4
+      ZoneId2: apne1-az1
 
 Resources:
 
@@ -136,7 +154,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       CidrBlock: 10.0.0.0/20
-      AvailabilityZone: !Select [ 1, !GetAZs ]
+      AvailabilityZone: !GetAtt AvailabiltyZone1.ZoneName
       MapPublicIpOnLaunch: true
       Tags:
       - Key: Name
@@ -147,7 +165,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       CidrBlock: 10.0.16.0/20
-      AvailabilityZone: !Select [ 2, !GetAZs ]
+      AvailabilityZone: !GetAtt AvailabiltyZone2.ZoneName
       MapPublicIpOnLaunch: true
       Tags:
       - Key: Name
@@ -629,6 +647,90 @@ Resources:
       Targets:
         - Id: !Sub '${MasterIP.MasterPrivateIP}'
       TargetType: ip
+
+  AvailabiltyZone1:
+    Type: Custom::AvailabiltyZone
+    Properties:
+      ServiceToken: !GetAtt GetAZLambdaFunction.Arn
+      ZoneId: !FindInMap [RegionMap, !Ref "AWS::Region", ZoneId1]
+
+  AvailabiltyZone2:
+    Type: Custom::AvailabiltyZone
+    Properties:
+      ServiceToken: !GetAtt GetAZLambdaFunction.Arn
+      ZoneId: !FindInMap [RegionMap, !Ref "AWS::Region", ZoneId2]
+
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Delete
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${GetAZLambdaFunction}
+      RetentionInDays: 7
+
+  GetAZLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: GetAZLambdaFunction
+      Timeout: 60
+      Runtime: python3.7
+      Handler: index.handler
+      Role: !GetAtt GetAZLambdaRole.Arn
+      Code:
+        ZipFile: |
+          import cfnresponse
+          from json import dumps
+          from boto3 import client
+          EC2 = client('ec2')
+          def handler(event, context):
+              if event['RequestType'] in ('Create', 'Update'):
+                  print(dumps(event, default=str))
+                  data = {}
+                  try:
+                      response = EC2.describe_availability_zones(
+                          Filters=[{'Name': 'zone-id', 'Values': [event['ResourceProperties']['ZoneId']]}]
+                      )
+                      print(dumps(response, default=str))
+                      data['ZoneName'] = response['AvailabilityZones'][0]['ZoneName']
+                  except Exception as error:
+                      cfnresponse.send(event, context, cfnresponse.FAILED, {}, reason=error)
+                  finally:
+                      cfnresponse.send(event, context, cfnresponse.SUCCESS, data)
+              else:
+                  cfnresponse.send(event, context, cfnresponse.SUCCESS, {})
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-GetAZLambdaFunction
+
+  GetAZLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      Description: GetAZLambdaFunction
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - sts:AssumeRole
+            Principal:
+              Service:
+                - !Sub 'lambda.${AWS::URLSuffix}'
+      ManagedPolicyArns:
+        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+      Policies:
+        - PolicyName: GetAZLambdaFunction
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: ec2
+                Effect: Allow
+                Action:
+                  - ec2:DescribeAvailabilityZones
+                Resource:
+                  - '*'
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-GetAZLambdaFunction
 
 Outputs:
 
