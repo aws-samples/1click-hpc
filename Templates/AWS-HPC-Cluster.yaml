@@ -54,6 +54,11 @@ Mappings:
       PCConfig: config.noFSX.sample
       ZoneId1: apne1-az4
       ZoneId2: apne1-az1
+    ap-south-1:
+      instanceType: c5.xlarge
+      PCConfig: config.limited-EC2.sample
+      ZoneId1: aps1-az2
+      ZoneId2: aps1-az3
 
 Resources:
 
