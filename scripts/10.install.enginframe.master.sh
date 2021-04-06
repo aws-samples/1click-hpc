@@ -92,8 +92,8 @@ installEnginFrame() {
         "s/^kernel.server.tomcat.https.ef.hostname = .*$/kernel.server.tomcat.https.ef.hostname = $(hostname -s)/" \
         /tmp/packages/efinstall.config
 
-    # add EnginFrame users
-    adduser efnobody
+    # add EnginFrame users if not already exist
+    id -u efnobody &>/dev/null || adduser efnobody
     printf "${efadminPassword}" | passwd ec2-user --stdin
 
     # finally, launch EnginFrame installer

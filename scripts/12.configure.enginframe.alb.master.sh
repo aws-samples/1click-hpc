@@ -53,14 +53,20 @@ EOF
 
 
 downlaodALBhooks() {
-                            
-    wget -nv -P "${EF_DATA_ROOT}/plugins/interactive/bin/" "${post_install_base}/enginframe/alb.session.closing.hook.sh" || exit 1
+    
+    if [[ ${proto} == "https://" ]]; then
+        wget -nv -P "${EF_DATA_ROOT}/plugins/interactive/bin/" "${post_install_base}/enginframe/alb.session.closing.hook.sh" || exit 1
+        wget -nv -P "${EF_DATA_ROOT}/plugins/interactive/bin/" "${post_install_base}/enginframe/alb.session.starting.hook.sh" || exit 1
+    elif [[ ${proto} == "s3://" ]]; then
+        aws s3 cp "${post_install_base}/enginframe/alb.session.closing.hook.sh" "${EF_DATA_ROOT}/plugins/interactive/bin/" || exit 1
+        aws s3 cp "${post_install_base}/enginframe/alb.session.starting.hook.sh" "${EF_DATA_ROOT}/plugins/interactive/bin/" || exit 1
+    else
+        exit 1
+    fi
+    
     ### FIX: DO NOT TO HARDCODE usernames
     chown ec2-user:efnobody "${EF_DATA_ROOT}/plugins/interactive/bin/alb.session.closing.hook.sh"
     chmod +x "${EF_DATA_ROOT}/plugins/interactive/bin/alb.session.closing.hook.sh"
-    
-    wget -nv -P "${EF_DATA_ROOT}/plugins/interactive/bin/" "${post_install_base}/enginframe/alb.session.starting.hook.sh" || exit 1
-    ### FIX: DO NOT TO HARDCODE usernames
     chown ec2-user:efnobody "${EF_DATA_ROOT}/plugins/interactive/bin/alb.session.starting.hook.sh"
     chmod +x "${EF_DATA_ROOT}/plugins/interactive/bin/alb.session.starting.hook.sh"
 }

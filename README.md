@@ -1,5 +1,5 @@
 # 1Click-HPC
-This project aims at building - with just one click - an HPC Cluster using the followig AWS HPC services:
+This project aims at speeding up the deployment of an HPC Cluster. With just one click, a cluster will be started with the following AWS HPC services:
  * <b>AWS ParallelCluster</b> is an open source cluster management tool that simplifies deploying and managing HPC clusters.
  * <b>NICE EnginFrame</b> the leading HPC application portal for user-friendly submission,control and monitoring of batch jobs and interactive remote sessions.
  * <b>NICE DCV</b> a remote visualization technology that enables users to securely connect to graphic-intensive 3D applications hosted on a remote, high-performance server.

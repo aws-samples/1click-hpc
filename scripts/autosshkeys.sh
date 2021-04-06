@@ -16,13 +16,16 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-source /etc/parallelcluster/cfnconfig
-
-ldap_home="/home/efnobody"
-ldap_pass="${ldap_home}/.ldappasswd"
-
-USERNAME=$1
-
-ldapdelete -x -W -D "cn=ldapadmin,dc=${stack_name},dc=internal" -y "${ldap_pass}" "uid=${USERNAME},ou=Users,dc=${stack_name},dc=internal"
-#sudo chown -R root:root "/home/${USERNAME}"
-#sudo mv /home/${USERNAME} "/home/${USERNAME}.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
+if [[ ! -d ${HOME}/.ssh ]] \
+|| [[ ! -f ${HOME}/.ssh/id_rsa ]] \
+|| [[ ! -f ${HOME}/.ssh/id_rsa.pub ]] \
+|| [[ ! -f ${HOME}/.ssh/authorized_keys ]]; then
+  mkdir -p "${HOME}/.ssh"
+  ssh-keygen -q -t rsa -b 4096 -N "" -f ${HOME}/.ssh/id_rsa; 
+  cat ${HOME}/.ssh/id_rsa.pub >> ${HOME}/.ssh/authorized_keys
+  chown -R "${user}:${group}" "${HOME}/.ssh"
+  chmod 700 "${HOME}/.ssh"
+  chmod 600 "${HOME}/.ssh/id_rsa"
+  chmod 600 "${HOME}/.ssh/id_rsa.pub"
+  chmod 600 "${HOME}/.ssh/authorized_keys"
+fi

@@ -18,18 +18,20 @@
 
 # Only take action if two arguments are provided
 if [[ $# -eq 2 ]] && [[ -n "$1" ]]; then
-  USERNAME=$1
-  PASS=$2
+  USERNAME="${1}"
+  PASS="${2}"
 else
-  echo "Usage: `basename $0` <user-name>"
+  echo "Usage: `basename $0` <user-name> <password>"
   echo "<user-name> must be a string"
   exit 1
 fi
 
 # Load env vars which identify instance type
 .  /etc/parallelcluster/cfnconfig
+ldap_home="/home/efnobody"
+ldap_pass="${ldap_home}/.ldappasswd"
 
-args=(-x -W -D "cn=ldapadmin,dc=${stack_name},dc=internal" -y /root/.ldappasswd)
+args=(-x -W -D "cn=ldapadmin,dc=${stack_name},dc=internal" -y "${ldap_pass}")
 
 storedId=$(ldapsearch "${args[@]}" "(&(objectClass=uidNext)(cn=uidNext))" "uidNumber" | awk '$1=="uidNumber:" {print $2}')
 nextId="${storedId}"
@@ -49,7 +51,7 @@ add: uidNumber
 uidNumber: $((nextId+1))
 EOF
 
-ldapadd "${args[@]}" <<EOF >/dev/null 2>test
+ldapadd "${args[@]}" <<EOF >/dev/null
 dn: uid=${USERNAME},ou=Users,dc=${stack_name},dc=internal
 objectClass: top
 objectClass: account
@@ -70,6 +72,4 @@ if grep -q "Already exists" "test"; then
 fi
 
 # Set a temporary password for the user
-ldappasswd -H ldap://localhost:389 "${args[@]}" -s ${PASS} uid=${USERNAME},ou=Users,dc=${stack_name},dc=internal 
-
-sudo -H -u ${USERNAME} bash -c "ssh-keygen -q -t rsa -b 4096 -N \"\" -f ~/.ssh/id_rsa; cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys"
+ldappasswd -H ldap://localhost:389 "${args[@]}" -s ${PASS} uid=${USERNAME},ou=Users,dc=${stack_name},dc=internal

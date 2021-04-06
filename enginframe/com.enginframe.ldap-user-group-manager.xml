@@ -13,7 +13,6 @@
 -->
 <ef:agent id="com.enginframe.ldap-user-group-manager" authority="${EF_DEFAULT_AUTHORITY}" xmlns:ef="http://www.enginframe.com/2000/EnginFrame">
   <ef:name>The EnginFrame LDAP User Group services</ef:name>
-  <ef:location host="${EF_AGENT_HOST}" port="${EF_AGENT_PORT}"/>
   <ef:spooler server="${EF_SPOOLER_DIR}" ttl="-1" />
 
   <ef:folder id="root">
@@ -25,7 +24,9 @@
             <ef:option id="password" type="text"></ef:option>
             <ef:option id="re_password" type="text"></ef:option>
             <ef:action id="add" label="Add User" result="text/plain"><![CDATA[
-                if [[ ${#password} -lt 8 ]]; then
+                if [[ -d /home/${userName} ]]; then
+                    output="User ${userName} already exists. Please contact your System Administrator." >&2
+                elif [[ ${#password} -lt 8 ]]; then
                     output="The new password must have at least 8 characters" >&2
                 elif [[ ! ${password} =~ [[:upper:]]+ ]]; then
                     output="The new password must contain at least one uppercase character" >&2
@@ -36,7 +37,7 @@
                 elif [[ ${password} != ${re_password} ]]; then
                     output="Passwords do not match" >&2
                 else
-                    output=$(sudo /usr/sbin/add.ldap.user.sh "${userName}" "${password}")
+                    output=$(/usr/sbin/add.ldap.user.sh "${userName}" "${password}")
                     if [[ $? -eq 0 ]]; then
                         output="success"
                     fi
@@ -51,7 +52,7 @@
             <ef:action id="add" label="Add User" result="text/plain"><![CDATA[
                 for userName in $userNames
                   do
-                    sudo /usr/sbin/remove.ldap.user.sh $userName >/dev/null 2>&1 
+                    /usr/sbin/remove.ldap.user.sh $userName >/dev/null 2>&1 
                 done
             ]]></ef:action>
         </ef:service>

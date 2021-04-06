@@ -34,39 +34,55 @@ export EF_ROOT="${EF_TOP}/${EF_VERSION}/enginframe"
 configureEnginFrame() {
 
     mv "${EF_ROOT}/plugins/applications/WEBAPP/applications.admin.xml" "${EF_ROOT}/plugins/applications/WEBAPP/applications.admin.xml.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
-    wget -nv -P "${EF_ROOT}/plugins/applications/WEBAPP/" "${post_install_base}/enginframe/applications.admin.xml" || exit 1
+    mv "${EF_ROOT}/plugins/applications/bin/applications.manage.users.ui" "${EF_ROOT}/plugins/applications/bin/applications.manage.users.ui.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
+    mv "${EF_ROOT}/plugins/user-group-manager/lib/xml/com.enginframe.user-group-manager.xml" "${EF_ROOT}/plugins/user-group-manager/lib/xml/com.enginframe.user-group-manager.xml.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
+    mv "${EF_ROOT}/plugins/applications/WEBAPP/js/widgets/hydrogen.manage-users.js" "${EF_ROOT}/plugins/applications/WEBAPP/js/widgets/hydrogen.manage-users.js.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
+    mv "${EF_ROOT}/plugins/vdi/WEBAPP/vdi.admin.xml" "${EF_ROOT}/plugins/vdi/WEBAPP/vdi.admin.xml.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
+    mv "${EF_ROOT}/plugins/themes/lib/xsl/nice-jump/layout.templates.xsl" "${EF_ROOT}/plugins/themes/lib/xsl/nice-jump/layout.templates.xsl.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
+    mv "${EF_ROOT}/plugins/applications/WEBAPP/applications.xml" "${EF_ROOT}/plugins/applications/WEBAPP/applications.xml.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
+
+
+
+    if [[ ${proto} == "https://" ]]; then
+        wget -nv -P "${EF_ROOT}/plugins/applications/WEBAPP/" "${post_install_base}/enginframe/applications.admin.xml" || exit 1
+        wget -nv -P "${EF_ROOT}/plugins/applications/bin/" "${post_install_base}/enginframe/applications.manage.users.ui" || exit 1
+        wget -nv -P "${EF_ROOT}/plugins/user-group-manager/lib/xml/" "${post_install_base}/enginframe/com.enginframe.ldap-user-group-manager.xml" || exit 1
+        wget -nv -P "${EF_ROOT}/plugins/user-group-manager/lib/xml/" "${post_install_base}/enginframe/com.enginframe.user-group-manager.xml" || exit 1
+        wget -nv -P "${EF_ROOT}/plugins/applications/WEBAPP/js/widgets/" "${post_install_base}/enginframe/hydrogen.manage-users.js" || exit 1
+        wget -nv -P "${EF_ROOT}/plugins/vdi/WEBAPP/" "${post_install_base}/enginframe/vdi.admin.xml" || exit 1
+        wget -nv -P "${EF_ROOT}/plugins/themes/lib/xsl/nice-jump/" "${post_install_base}/enginframe/layout.templates.xsl" || exit 1
+        wget -nv -P "${EF_ROOT}/plugins/applications/WEBAPP/" "${post_install_base}/enginframe/applications.xml" || exit 1
+
+    
+    elif [[ ${proto} == "s3://" ]]; then
+        aws s3 cp "${post_install_base}/enginframe/applications.admin.xml" "${EF_ROOT}/plugins/applications/WEBAPP/" || exit 1
+        aws s3 cp "${post_install_base}/enginframe/applications.manage.users.ui" "${EF_ROOT}/plugins/applications/bin/" || exit 1
+        aws s3 cp "${post_install_base}/enginframe/com.enginframe.ldap-user-group-manager.xml" "${EF_ROOT}/plugins/user-group-manager/lib/xml/" || exit 1
+        aws s3 cp "${post_install_base}/enginframe/com.enginframe.user-group-manager.xml" "${EF_ROOT}/plugins/user-group-manager/lib/xml/" || exit 1
+        aws s3 cp "${post_install_base}/enginframe/hydrogen.manage-users.js" "${EF_ROOT}/plugins/applications/WEBAPP/js/widgets/" || exit 1
+        aws s3 cp "${post_install_base}/enginframe/vdi.admin.xml" "${EF_ROOT}/plugins/vdi/WEBAPP/" || exit 1
+        aws s3 cp "${post_install_base}/enginframe/layout.templates.xsl" "${EF_ROOT}/plugins/themes/lib/xsl/nice-jump/" || exit 1
+        aws s3 cp "${post_install_base}/enginframe/applications.xml" "${EF_ROOT}/plugins/applications/WEBAPP/"  || exit 1
+
+    else
+        exit 1
+    fi
+
     ### FIX: DO NOT TO HARDCODE usernames
     chown ec2-user:efnobody "${EF_ROOT}/plugins/applications/WEBAPP/applications.admin.xml"
-    
-    mv "${EF_ROOT}/plugins/applications/bin/applications.manage.users.ui" "${EF_ROOT}/plugins/applications/bin/applications.manage.users.ui.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
-    wget -nv -P "${EF_ROOT}/plugins/applications/bin/" "${post_install_base}/enginframe/applications.manage.users.ui" || exit 1
-    chmod 755 "${EF_ROOT}/plugins/applications/bin/applications.manage.users.ui"
-    ### FIX: DO NOT TO HARDCODE usernames
     chown ec2-user:efnobody "${EF_ROOT}/plugins/applications/bin/applications.manage.users.ui"
-    
-    wget -nv -P "${EF_ROOT}/plugins/user-group-manager/lib/xml/" "${post_install_base}/enginframe/com.enginframe.ldap-user-group-manager.xml" || exit 1
-    ### FIX: DO NOT TO HARDCODE usernames
     chown ec2-user:efnobody "${EF_ROOT}/plugins/user-group-manager/lib/xml/com.enginframe.ldap-user-group-manager.xml"
-    
-    mv "${EF_ROOT}/plugins/user-group-manager/lib/xml/com.enginframe.user-group-manager.xml" "${EF_ROOT}/plugins/user-group-manager/lib/xml/com.enginframe.user-group-manager.xml.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
-    wget -nv -P "${EF_ROOT}/plugins/user-group-manager/lib/xml/" "${post_install_base}/enginframe/com.enginframe.user-group-manager.xml" || exit 1
-    ### FIX: DO NOT TO HARDCODE usernames
     chown ec2-user:efnobody "${EF_ROOT}/plugins/user-group-manager/lib/xml/com.enginframe.user-group-manager.xml"
-    
-    mv "${EF_ROOT}/plugins/applications/WEBAPP/js/widgets/hydrogen.manage-users.js" "${EF_ROOT}/plugins/applications/WEBAPP/js/widgets/hydrogen.manage-users.js.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
-    wget -nv -P "${EF_ROOT}/plugins/applications/WEBAPP/js/widgets/" "${post_install_base}/enginframe/hydrogen.manage-users.js" || exit 1
-    ### FIX: DO NOT TO HARDCODE usernames
     chown ec2-user:efnobody "${EF_ROOT}/plugins/applications/WEBAPP/js/widgets/hydrogen.manage-users.js"
-    
-    mv "${EF_ROOT}/plugins/vdi/WEBAPP/vdi.admin.xml" "${EF_ROOT}/plugins/vdi/WEBAPP/vdi.admin.xml.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
-    wget -nv -P "${EF_ROOT}/plugins/vdi/WEBAPP/" "${post_install_base}/enginframe/vdi.admin.xml" || exit 1
-    ### FIX: DO NOT TO HARDCODE usernames
     chown ec2-user:efnobody "${EF_ROOT}/plugins/vdi/WEBAPP/vdi.admin.xml"
+    chown ec2-user:efnobody "${EF_ROOT}/plugins/themes/lib/xsl/nice-jump/layout.templates.xsl"
+    chown ec2-user:efnobody "${EF_ROOT}/plugins/applications/WEBAPP/applications.xml"
+    
+    chmod 755 "${EF_ROOT}/plugins/applications/bin/applications.manage.users.ui"
 
     sed -i \
         "s/^HY_CONNECT_SESSION_MAX_WAIT=.*$/HY_CONNECT_SESSION_MAX_WAIT='600'/" \
         "${EF_ROOT}/plugins/hydrogen/conf/ui.hydrogen.conf"             
-
 }
 
 startEnginFrame() {

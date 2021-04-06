@@ -21,23 +21,33 @@ set -e
 
 source /etc/parallelcluster/cfnconfig
 
-args=(-x -W -D "cn=ldapadmin,dc=${stack_name},dc=internal" -y /root/.ldappasswd)
+ldap_home="/home/efnobody"
+ldap_pass="${ldap_home}/.ldappasswd"
+
+args=(-x -W -D "cn=ldapadmin,dc=${stack_name},dc=internal" -y "${ldap_pass}")
 
 install_server_packages() {
     yum -y install openldap compat-openldap openldap-clients openldap-servers openldap-servers-sql openldap-devel
 }
 
 prepare_ldap_server() {
+    
+    # add EnginFrame users if not already exist
+    id -u efnobody &>/dev/null || adduser efnobody
+    
     # Start the server
     systemctl start slapd
     systemctl enable slapd
     # Generate a random string to use as the password
-    echo $RANDOM | md5sum | awk '{ print $1 }' > /root/.ldappasswd
-    chmod 400 /root/.ldappasswd
+    echo $RANDOM | md5sum | awk '{ print $1 }' > "${ldap_pass}"
+    chmod 400 "${ldap_pass}"
+    chown efnobody:efnobody "${ldap_pass}"
+    
     # Use the password to generate a ldap password hash
-    LDAP_HASH=$(slappasswd -T /root/.ldappasswd)
+    LDAP_HASH=$(slappasswd -T "${ldap_pass}")
+    
     # Initial LDAP setup specification
-    cat <<-EOF > /root/ldapdb.ldif
+    cat <<-EOF > ${ldap_home}/ldapdb.ldif
 dn: olcDatabase={1}monitor,cn=config
 changetype: modify
 replace: olcAccess
@@ -68,7 +78,8 @@ olcAccess: {1}to *
   by * read
 EOF
     # Apply LDAP settings
-    ldapmodify -Y EXTERNAL -H ldapi:/// -f /root/ldapdb.ldif
+    ldapmodify -Y EXTERNAL -H ldapi:/// -f "${ldap_home}/ldapdb.ldif"
+    chown efnobody:efnobody "${ldap_home}/ldapdb.ldif"
     
     ldapadd -Y EXTERNAL -H ldapi:/// <<'EOF'
 dn: cn=idnext,cn=schema,cn=config
@@ -91,7 +102,7 @@ EOF
     ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/cosine.ldif
     ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/nis.ldif
     # Specify a minimal directory structure
-    cat <<-EOF > /root/struct.ldif
+    cat <<-EOF > ${ldap_home}/struct.ldif
 dn: dc=${stack_name},dc=internal
 dc: ${stack_name}
 objectClass: top
@@ -117,17 +128,34 @@ cn: gidNext
 gidNumber: 2001
 EOF
     # Apply the directory structure
-    ldapadd "${args[@]}" -f /root/struct.ldif 
+    ldapadd "${args[@]}" -f "${ldap_home}/struct.ldif"
+    chown efnobody:efnobody "${ldap_home}/struct.ldif"
+    
     # Save the controller hostname to a shared location for later use
     echo "ldap_server=$(hostname)" > /home/.ldap
 }
 
 
 downlaod_ldap_tools() {
-    wget -nv -P /usr/sbin/ "${post_install_url}/add.ldap.user.sh"    || exit 1
-    wget -nv -P /usr/sbin/ "${post_install_url}/remove.ldap.user.sh" || exit 1
+    
+    if [[ ${proto} == "https://" ]]; then
+        wget -nv -P /usr/sbin/ "${post_install_url}/add.ldap.user.sh"    || exit 1
+        wget -nv -P /usr/sbin/ "${post_install_url}/remove.ldap.user.sh" || exit 1
+        wget -nv -P /usr/sbin/ "${post_install_url}/passwd.ldap.user.sh" || exit 1
+        wget -nv -P /etc/profile.d/ "${post_install_url}/autosshkeys.sh" || exit 1
+    elif [[ ${proto} == "s3://" ]]; then
+        aws s3 cp "${post_install_url}/add.ldap.user.sh" /usr/sbin/ || exit 1
+        aws s3 cp "${post_install_url}/remove.ldap.user.sh" /usr/sbin/ || exit 1
+        aws s3 cp "${post_install_url}/passwd.ldap.user.sh" /usr/sbin/ || exit 1
+        aws s3 cp "${post_install_url}/autosshkeys.sh" /etc/profile.d/ || exit 1
+    else
+        exit 1
+    fi
+    
     chmod 755 /usr/sbin/add.ldap.user.sh
-    chmod 755 /usr/sbin/remove.ldap.user.sh  
+    chmod 755 /usr/sbin/remove.ldap.user.sh
+    chmod 755 /usr/sbin/passwd.ldap.user.sh
+    chmod 755 /etc/profile.d/autosshkeys.sh
 }
 
 # main
