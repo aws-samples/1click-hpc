@@ -1,6 +1,15 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: AWS ParallelCluster Quickstart
 
+Parameters:
+    EfAdminPassword:
+      Description: 'Min 8 chars, three of: lowercase, uppercase, number and symbols'
+      Type: String
+      MinLength: '8'
+      MaxLength: '255'
+      AllowedPattern: (?=^.{8,255}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*
+      NoEcho: 'true'
+
 Mappings: 
   RegionMap: 
     us-east-1:
@@ -278,6 +287,7 @@ Resources:
             - !Sub echo "export CLUSTER_NAME=${AWS::StackName}" >> /home/ec2-user/.bashrc
             - !Sub echo "export ADDITIONAL_SG=${PCAdditionalSecurityGroup}" >> /home/ec2-user/.bashrc
             - !Sub echo "export WAIT_HANDLE='${WaitHandle}'" >> /home/ec2-user/.bashrc
+            - !Sub echo "export EXTRA_JSON='extra_json = {\"post_install\":{\"enginframe\":{\"ef_admin_pass\":\"${EfAdminPassword}\"}}}'" >> /home/ec2-user/.bashrc
             - !Sub 
               - echo "export ALB_PUBLIC_DNS_NAME='${ALB}'" >> /home/ec2-user/.bashrc
               - ALB: !GetAtt ApplicationLoadBalancer.DNSName
