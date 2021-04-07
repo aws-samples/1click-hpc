@@ -55,15 +55,26 @@ Click the link below corresponding to your preferred [AWS Region](https://aws.am
 ![Step4](docs/step4.png?raw=true "Step 4")
 
 ## Step 5
-If you haven't customize the EnginFrame configuration, you can use the default Username and the password you chose.
+You can login on EnginFrame by using "ec2-user" as username and the password you chose.
 ```Username: ec2-user```
 </br>
 ```Password: *********```
 </br>
-<blockquote id='PfT9CA19ub2'><b>Note:</b> Please make sure you change the password right after the first login.</blockquote>
-</br>
 
 ![Step5](docs/step5.png?raw=true "Step 5")
+
+## Step 6
+After you login, you are redirected to the "list Spoolers" page.
+Spoolers are scratch area located in the /fsx FileSystem that are managed by EnginFrame and used as the HPC jobs execution directory.
+</br>
+
+![Step6](docs/step6.png?raw=true "Step 6")
+
+## Step 7
+We would reccomend to immediatelly change the password by using the service as below.
+</br>
+
+![Step7](docs/step7.png?raw=true "Step 7")
 
 
 # Additional Docs
