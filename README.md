@@ -32,6 +32,7 @@ Click the link below corresponding to your preferred [AWS Region](https://aws.am
 
 ## Step 2
 1. Just change the "Stack Name" as you like.
+2. Enter the password for the Admin user "ec2-user":
 2. Check the checkbox to acknowledge the IAM resources creations.
 3. Click the "Create Stack" botton.
 </br>
@@ -39,27 +40,27 @@ Click the link below corresponding to your preferred [AWS Region](https://aws.am
 ![Step2](docs/step2.png?raw=true "Step 2")
 
 ## Step 3
-1. Wait until all the resources are created 
-2. Click on the "Stack Name"
+1. Click on the "Stack Name" to monitor the cluster creation steps.
+2. Wait until all the resources are created 
 </br>
 
 ![Step3](docs/step3.png?raw=true "Step 3")
 
 ## Step 4
-1. Go to the "outputs" tab
+1. When the cluster creation is completed, go to the "outputs" tab
 2. Click the "EnginFrameURL" to access your HPC Cluster using the EnginFrame portal.
-3. Alternatively, Click the "Cloud9URL" if you wish to connect to your Cloud9 Instance and then ssh into your Cluster form there.
+3. Alternatively, Click the "Cloud9URL" if you wish to connect to your Cloud9 Instance and then ssh into your cluster form there.
 </br>
 
 ![Step4](docs/step4.png?raw=true "Step 4")
 
 ## Step 5
-If you haven't customize the EnginFrame configuration, you can use the default Username and Password.
+If you haven't customize the EnginFrame configuration, you can use the default Username and the password you chose.
 ```Username: ec2-user```
 </br>
-```Password: Change_this!```
+```Password: *********```
 </br>
-<blockquote id='PfT9CA19ub2'><b>Note:</b> Please make sure you change the default password right after the first login.</blockquote>
+<blockquote id='PfT9CA19ub2'><b>Note:</b> Please make sure you change the password right after the first login.</blockquote>
 </br>
 
 ![Step5](docs/step5.png?raw=true "Step 5")
