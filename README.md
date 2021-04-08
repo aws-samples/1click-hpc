@@ -4,7 +4,7 @@ This project aims at speeding up the deployment of an HPC Cluster. With just one
  * <b>NICE EnginFrame</b> the leading HPC application portal for user-friendly submission,control and monitoring of batch jobs and interactive remote sessions.
  * <b>NICE DCV</b> a remote visualization technology that enables users to securely connect to graphic-intensive 3D applications hosted on a remote, high-performance server.
  * <b>Amazon FSx for Lustre</b> a fully managed service that provides cost-effective, high-performance, scalable storage for HPC workloads. 
- * <b>Elasit Fabric Adapter (EFA)</b> a network interface for Amazon EC2 instances that enables HPC applications requiring high levels of inter-node communications at scale on AWS.
+ * <b>Elastic Fabric Adapter (EFA)</b> a network interface for Amazon EC2 instances that enables HPC applications requiring high levels of inter-node communications at scale on AWS.
 
 # Architecture
 ![Architecture](docs/EnginFrame-1Click-Arch.png?raw=true "Architecture")
