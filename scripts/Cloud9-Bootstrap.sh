@@ -26,8 +26,8 @@ rm ${PC_CONFIG}
 
 #Create the cluster
 /home/ec2-user/.local/bin/pcluster create -c cluster.config ${CLUSTER_NAME} --norollback
-MASTER_PUBLIC_IP=$(/home/ec2-user/.local/bin/pcluster status ${CLUSTER_NAME} | grep MasterPublicIP | sed 's/MasterPublicIP: //')
-echo "export MASTER_PUBLIC_IP='${MASTER_PUBLIC_IP}'" >> /home/ec2-user/.bashrc
+MASTER_PRIVATE_IP=$(/home/ec2-user/.local/bin/pcluster status ${CLUSTER_NAME} | grep MasterPrivateIP | sed 's/MasterPublicIP: //')
+echo "export MASTER_PPRIVATE_IP='${MASTER_PRIVATE_IP}'" >> /home/ec2-user/.bashrc
 
 # Modify the Message Of The Day
 sudo rm -f /etc/update-motd.d/*
@@ -68,5 +68,5 @@ fi
 
 # send SUCCESFUL to the wait handle
 curl -X PUT -H 'Content-Type:' \
-    --data-binary "{\"Status\" : \"SUCCESS\",\"Reason\" : \"Configuration Complete\",\"UniqueId\" : \"$MASTER_PUBLIC_IP\",\"Data\" : \"$MASTER_PUBLIC_IP\"}" \
+    --data-binary "{\"Status\" : \"SUCCESS\",\"Reason\" : \"Configuration Complete\",\"UniqueId\" : \"$MASTER_PRIVATE_IP\",\"Data\" : \"$MASTER_PRIVATE_IP\"}" \
     "${WAIT_HANDLE}"

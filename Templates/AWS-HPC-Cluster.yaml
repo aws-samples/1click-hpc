@@ -181,7 +181,7 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
-      CidrBlock: 10.0.0.0/20
+      CidrBlock: 10.0.0.0/18
       AvailabilityZone: !GetAtt AvailabiltyZone1.ZoneName
       MapPublicIpOnLaunch: true
       Tags:
@@ -192,7 +192,7 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
-      CidrBlock: 10.0.16.0/20
+      CidrBlock: 10.0.64.0/18
       AvailabilityZone: !GetAtt AvailabiltyZone2.ZoneName
       MapPublicIpOnLaunch: true
       Tags:
@@ -216,7 +216,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
       - Key: Name
-        Value: Public
+        Value: !Sub '${AWS::StackName}-Public-Route-AB'
   PublicRoute1:
     Type: AWS::EC2::Route
     DependsOn: AttachGatewayA
@@ -236,6 +236,50 @@ Resources:
     Properties:
       SubnetId: !Ref PublicSubnetB
       RouteTableId: !Ref PublicRouteTable
+
+  PrivateSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !GetAtt AvailabiltyZone1.ZoneName
+      CidrBlock: 10.0.128.0/18
+      MapPublicIpOnLaunch: false
+      Tags:
+      - Key: Name
+        Value: !Sub '${AWS::StackName}-Private-SubnetA'
+
+  NatGatewayAEIP:
+    Type: AWS::EC2::EIP
+    DependsOn: AttachGatewayA
+    Properties:
+      Domain: vpc
+
+  NatGatewayA:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NatGatewayAEIP.AllocationId
+      SubnetId: !Ref PublicSubnetA
+
+  PrivateRouteTableA:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-Private-Route-A'
+
+  DefaultPrivateRouteA:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTableA
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGatewayA
+
+  PrivateSubnetARouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTableA
+      SubnetId: !Ref PrivateSubnetA
 
   ALBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -301,7 +345,7 @@ Resources:
             - !Sub echo "export AWS_REGION_NAME=${AWS::Region}" >> /home/ec2-user/.bashrc
             - !Sub echo "export S3_BUCKET=${Cloud9OutputBucket}" >> /home/ec2-user/.bashrc
             - !Sub echo "export VPC_ID=${VPC}" >> /home/ec2-user/.bashrc
-            - !Sub echo "export SUBNET_ID=${PublicSubnetA}" >> /home/ec2-user/.bashrc
+            - !Sub echo "export SUBNET_ID=${PrivateSubnetA}" >> /home/ec2-user/.bashrc
             - !Sub echo "export CLUSTER_NAME=${AWS::StackName}" >> /home/ec2-user/.bashrc
             - !Sub echo "export ADDITIONAL_SG=${PCAdditionalSecurityGroup}" >> /home/ec2-user/.bashrc
             - !Sub echo "export WAIT_HANDLE='${WaitHandle}'" >> /home/ec2-user/.bashrc
@@ -540,6 +584,7 @@ Resources:
             Resource: '*'
       RouteTableIds: 
         - !Ref PublicRouteTable
+        - !Ref PrivateRouteTableA
       ServiceName: !Sub 'com.amazonaws.${AWS::Region}.s3'
       VpcEndpointType: Gateway
       VpcId: !Ref VPC

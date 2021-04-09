@@ -26,7 +26,7 @@ update_check = true
 vpc_id = ${VPC_ID}
 master_subnet_id = ${SUBNET_ID}
 additional_sg = ${ADDITIONAL_SG}
-
+use_public_ips = false
 
 [cluster default]
 key_name = ${KEY_PAIR}
