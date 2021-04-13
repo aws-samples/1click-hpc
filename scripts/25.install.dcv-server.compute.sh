@@ -37,7 +37,8 @@ installSimpleExternalAuth() {
 }
 
 installDCVGLonG4() {
-    
+
+    systemctl stop dcvserver.service
     systemctl disable slurmd  
     systemctl isolate multi-user.target
     
@@ -45,9 +46,10 @@ installDCVGLonG4() {
     nvidia-persistenced
     nvidia-smi -ac 5001,1590
                          
-    yum -y install nice-dcv-*/nice-dcv-gltest*.rpm nice-dcv-*/nice-dcv-gl-*.x86_64.rpm
+    yum -y install nice-dcv-*/nice-dcv-gl*.rpm nice-dcv-*/nice-dcv-server*.rpm nice-dcv-*/nice-xdcv*.rpm
     
     systemctl isolate graphical.target
+    systemctl start dcvserver.service
     systemctl enable slurmd
 }
 
