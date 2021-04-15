@@ -52,6 +52,8 @@ configureEnginFrame() {
         wget -nv -P "${EF_ROOT}/plugins/vdi/WEBAPP/" "${post_install_base}/enginframe/vdi.admin.xml" || exit 1
         wget -nv -P "${EF_ROOT}/plugins/themes/lib/xsl/nice-jump/" "${post_install_base}/enginframe/layout.templates.xsl" || exit 1
         wget -nv -P "${EF_ROOT}/plugins/applications/WEBAPP/" "${post_install_base}/enginframe/applications.xml" || exit 1
+        wget -nv -P "${EF_ROOT}/plugins/applications/bin/" "${post_install_base}/enginframe/fm.browse.ui" || exit 1
+
 
     
     elif [[ ${proto} == "s3://" ]]; then
@@ -63,6 +65,7 @@ configureEnginFrame() {
         aws s3 cp "${post_install_base}/enginframe/vdi.admin.xml" "${EF_ROOT}/plugins/vdi/WEBAPP/" || exit 1
         aws s3 cp "${post_install_base}/enginframe/layout.templates.xsl" "${EF_ROOT}/plugins/themes/lib/xsl/nice-jump/" || exit 1
         aws s3 cp "${post_install_base}/enginframe/applications.xml" "${EF_ROOT}/plugins/applications/WEBAPP/"  || exit 1
+        aws s3 cp "${post_install_base}/enginframe/fm.browse.ui" "${EF_ROOT}/plugins/applications/bin/" || exit 1
 
     else
         exit 1
@@ -77,8 +80,10 @@ configureEnginFrame() {
     chown ec2-user:efnobody "${EF_ROOT}/plugins/vdi/WEBAPP/vdi.admin.xml"
     chown ec2-user:efnobody "${EF_ROOT}/plugins/themes/lib/xsl/nice-jump/layout.templates.xsl"
     chown ec2-user:efnobody "${EF_ROOT}/plugins/applications/WEBAPP/applications.xml"
+    chown ec2-user:efnobody "${EF_ROOT}/plugins/applications/bin/fm.browse.ui"
     
     chmod 755 "${EF_ROOT}/plugins/applications/bin/applications.manage.users.ui"
+    chmod 755 "${EF_ROOT}/plugins/applications/bin/fm.browse.ui"
 
     sed -i \
         "s/^HY_CONNECT_SESSION_MAX_WAIT=.*$/HY_CONNECT_SESSION_MAX_WAIT='600'/" \
