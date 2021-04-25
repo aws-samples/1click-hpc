@@ -8,7 +8,7 @@ exec >/home/ec2-user/environment/bootstrap.log; exec 2>&1
 cd /home/ec2-user/environment
 
 #install AWS ParallelCluster
-pip install --user -U boto boto3 botocore awscli aws-sam-cli aws-parallelcluster
+pip3 install --user -U boto boto3 botocore awscli aws-sam-cli aws-parallelcluster
 
 #Create the key pair (remove the existing one if it has the same name)
 aws ec2 create-key-pair --key-name ${KEY_PAIR} --query KeyMaterial --output text > /home/ec2-user/.ssh/id_rsa
@@ -19,7 +19,7 @@ fi
 sudo chmod 400 /home/ec2-user/.ssh/id_rsa
 
 #download the AWS ParallelCluster configuration file and substitute env varaible.
-wget -nv https://raw.githubusercontent.com/aws-samples/1click-hpc/main/parallelcluster/${PC_CONFIG}
+aws s3 cp "s3://${S3_BUCKET}/1click-hpc/parallelcluster/${PC_CONFIG}" . --region "${AWS_REGION_NAME}"
 /usr/bin/envsubst < ${PC_CONFIG} > cluster.config
 sudo chown -R ec2-user:ec2-user /home/ec2-user/
 rm ${PC_CONFIG}
@@ -31,7 +31,7 @@ echo "export MASTER_PPRIVATE_IP='${MASTER_PRIVATE_IP}'" >> /home/ec2-user/.bashr
 
 # Modify the Message Of The Day
 sudo rm -f /etc/update-motd.d/*
-sudo wget -nv https://raw.githubusercontent.com/aws-samples/1click-hpc/main/scripts/motd -O /etc/update-motd.d/10-HPC
+sudo aws s3 cp "s3://${S3_BUCKET}/1click-hpc/scripts/motd"  /etc/update-motd.d/10-HPC || exit 1
 sudo chmod +x /etc/update-motd.d/10-HPC
 echo 'run-parts /etc/update-motd.d' >> /home/ec2-user/.bash_profile
 
@@ -47,7 +47,7 @@ sudo bash -c 'echo "fs.inotify.max_user_watches=524288" >> /etc/sysctl.conf' && 
 if grep -q "^fsx_settings" "cluster.config"; then
 
   #install Lustre client
-  sudo yum -y install lustre-client
+  sudo amazon-linux-extras install -y lustre2.10
   
   #mount the same FSx created for the HPC Cluster
   mkdir fsx

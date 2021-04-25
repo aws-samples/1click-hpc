@@ -39,7 +39,7 @@ fsx_settings = parallel-fs
 queue_settings = batch-efa, batch, dcv-gpu, dcv
 post_install = ${POST_INSTALL}
 post_install_args = "${POST_INSTALL_ARGS}"
-tags = {"EnginFrame" : "true"}
+tags = {"EnginFrame" : "true", "1Click-HPC" : "true", "1Click-HPC-version" : "0.1", "1Click-HPC-Template" : "standard" }
 additional_iam_policies = arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
 ${EXTRA_JSON}
 
@@ -54,7 +54,7 @@ auto_import_policy = NEW_CHANGED
 
 
 [queue batch]
-compute_resource_settings = c5-24xlarge, z1d-12xlarge
+compute_resource_settings = c5-24xlarge, r5-24xlarge, z1d-12xlarge
 placement_group = DYNAMIC
 enable_efa = false
 disable_hyperthreading = true
@@ -85,19 +85,19 @@ compute_type = ondemand
 instance_type = c5.24xlarge
 min_count = 0
 initial_count = 0
-max_count = 20
+max_count = 200
 
 [compute_resource z1d-12xlarge]
 instance_type = z1d.12xlarge
 min_count = 0
 initial_count = 0
-max_count = 30
+max_count = 50
 
 [compute_resource c5n-18xlarge]
 instance_type = c5n.18xlarge
 min_count = 0
 initial_count = 0
-max_count = 100
+max_count = 300
 
 [compute_resource m5zn-12xlarge]
 instance_type = m5zn.12xlarge
@@ -109,28 +109,34 @@ max_count = 100
 instance_type = g4dn.xlarge
 min_count = 0
 initial_count = 0
-max_count = 10
+max_count = 100
 
 [compute_resource g4dn-4xlarge]
 instance_type = g4dn.4xlarge
 min_count = 0
 initial_count = 0
-max_count = 10
+max_count = 100
 
 [compute_resource g4dn-16xlarge]
 instance_type = g4dn.16xlarge
 min_count = 0
 initial_count = 0
-max_count = 10
+max_count = 100
 
 [compute_resource c5-2xlarge]
 instance_type = c5.2xlarge
 min_count = 0
 initial_count = 0
-max_count = 10
+max_count = 100
 
 [compute_resource m5-24xlarge]
 instance_type = m5.24xlarge
 min_count = 0
 initial_count = 0
-max_count = 50
+max_count = 200
+
+[compute_resource r5-24xlarge]
+instance_type = r5.24xlarge
+min_count = 0
+initial_count = 0
+max_count = 200

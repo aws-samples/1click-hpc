@@ -228,7 +228,8 @@ Resources:
     Properties:
       Name: !Ref 'AWS::StackName'
       Description: 'Cloud9 IDE for AWS ParallelCluster'
-      AutomaticStopTimeMinutes: 60
+      AutomaticStopTimeMinutes: 120
+      ImageId: amazonlinux-2-x86_64
       InstanceType: !FindInMap [RegionMap, !Ref "AWS::Region", instanceType]
       SubnetId: !Ref PublicSubnetA
       Tags: 
@@ -243,7 +244,7 @@ Resources:
     Properties: 
       Content: Yaml
       DocumentType: Command
-      Content: 
+      Content:
         schemaVersion: '2.2'
         description: Bootstrap Cloud9 Instance
         mainSteps:
@@ -272,11 +273,12 @@ Resources:
             - !Sub 
               - echo "export PC_CONFIG=${PCConfigFile}" >> /home/ec2-user/.bashrc
               - PCConfigFile: !FindInMap [RegionMap, !Ref "AWS::Region", PCConfig]
-            - echo "export POST_INSTALL=\"https://raw.githubusercontent.com/aws-samples/1click-hpc/main/scripts/post.install.sh\"" >> /home/ec2-user/.bashrc
+            - !Sub echo "export POST_INSTALL=\"s3://${Cloud9OutputBucket}/1click-hpc/scripts/post.install.sh\"" >> /home/ec2-user/.bashrc
             - cd /home/ec2-user/environment
-            - wget -nv https://raw.githubusercontent.com/aws-samples/1click-hpc/main/scripts/Cloud9-Bootstrap.sh
-            - chmod -x /home/ec2-user/environment/Cloud9-Bootstrap.sh
-            - sudo -H -u ec2-user bash -c "bash /home/ec2-user/environment/Cloud9-Bootstrap.sh"
+            - git clone "https://github.com/aws-samples/1click-hpc.git"
+            - !Sub aws s3 cp --recursive 1click-hpc "s3://${Cloud9OutputBucket}/1click-hpc"
+            - chmod -x /home/ec2-user/environment/1click-hpc/scripts/Cloud9-Bootstrap.sh
+            - sudo -H -u ec2-user bash -c "bash /home/ec2-user/environment/1click-hpc/scripts/Cloud9-Bootstrap.sh"
 
   Cloud9BootstrapInstanceLambda:
     Description: Bootstrap Cloud9 instance
