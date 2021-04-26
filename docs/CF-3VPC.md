@@ -1,0 +1,22 @@
+# 1Click-HPC within existing VPC (Public & Private) 
+This CloudFormation Template allows you to deploy 1Click-HPC within an existing VPC with 2 Public and 1 Private subnets.
+<br/>
+Please note that the cluster is deployed into the Private subnet. Public subnets are being used to host Cloud9 and the Application Load Balancer.
+<br/>
+Click the link below corresponding to your preferred [AWS Region](https://aws.amazon.com/about-aws/global-infrastructure/regions_az/) .
+
+| Region       | Launch                                                                                                                                                                                                                                                                                                             | 
+|--------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| US  | --- |
+| N. Virginia (us-east-1)   | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/us-east-1.svg)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/quickcreate?templateUrl=https%3A%2F%2Fenginframe.s3.amazonaws.com%2FAWS-HPC-Cluster.PrivateVPC.yaml&stackName=hpc-cluster) |
+| Ohio (us-east-2)   | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/us-east-2.svg)](https://console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/quickcreate?templateUrl=https%3A%2F%2Fenginframe.s3.amazonaws.com%2FAWS-HPC-Cluster.PrivateVPC.yaml&stackName=hpc-cluster) |
+| N. California (us-west-1)   | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/us-west-1.svg)](https://console.aws.amazon.com/cloudformation/home?region=us-west-1#/stacks/quickcreate?templateUrl=https%3A%2F%2Fenginframe.s3.amazonaws.com%2FAWS-HPC-Cluster.PrivateVPC.yaml&stackName=hpc-cluster) |
+| Oregon (us-west-2)   | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/us-west-2.svg)](https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/quickcreate?templateUrl=https%3A%2F%2Fenginframe.s3.amazonaws.com%2FAWS-HPC-Cluster.PrivateVPC.yaml&stackName=hpc-cluster) |
+| EU  |---|
+| Frankfurt (eu-central-1)   | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/eu-central-1.svg)](https://console.aws.amazon.com/cloudformation/home?region=eu-central-1#/stacks/quickcreate?templateUrl=https%3A%2F%2Fenginframe.s3.amazonaws.com%2FAWS-HPC-Cluster.PrivateVPC.yaml&stackName=hpc-cluster) |
+| Ireland (eu-west-1)   | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/eu-west-1.svg)](https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/quickcreate?templateUrl=https%3A%2F%2Fenginframe.s3.amazonaws.com%2FAWS-HPC-Cluster.PrivateVPC.yaml&stackName=hpc-cluster) |
+| Stockholm (eu-north-1)   | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/eu-north-1.svg)](https://console.aws.amazon.com/cloudformation/home?region=eu-north-1#/stacks/quickcreate?templateUrl=https%3A%2F%2Fenginframe.s3.amazonaws.com%2FAWS-HPC-Cluster.PrivateVPC.yaml&stackName=hpc-cluster) |
+| APJ |---|
+| Tokyo (ap-northeast-1)   | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/ap-northeast-1.svg)](https://console.aws.amazon.com/cloudformation/home?region=ap-northeast-1#/stacks/quickcreate?templateUrl=https%3A%2F%2Fenginframe.s3.amazonaws.com%2FAWS-HPC-Cluster.PrivateVPC.yaml&stackName=hpc-cluster) |
+| Hong Kong (ap-east-1)   | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/ap-east-1.svg)](https://console.aws.amazon.com/cloudformation/home?region=ap-east-1#/stacks/quickcreate?templateUrl=https%3A%2F%2Fenginframe.s3.amazonaws.com%2FAWS-HPC-Cluster.PrivateVPC.yaml&stackName=hpc-cluster) |
+| Mumbai (ap-south-1)   | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/ap-south-1.svg)](https://console.aws.amazon.com/cloudformation/home?region=ap-south-1#/stacks/quickcreate?templateUrl=https%3A%2F%2Fenginframe.s3.amazonaws.com%2FAWS-HPC-Cluster.PrivateVPC.yaml&stackName=hpc-cluster) |

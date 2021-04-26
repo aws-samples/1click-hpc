@@ -1,5 +1,5 @@
 # 1Click-HPC
-This project aims at speeding up the deployment of an HPC Cluster. With just one click, a cluster will be started with the following AWS HPC services:
+This project aims at speeding up the deployment of an HPC Cluster. With just one click, a cluster will be created with the following AWS HPC services:
  * <b>AWS ParallelCluster</b> is an open source cluster management tool that simplifies deploying and managing HPC clusters.
  * <b>NICE EnginFrame</b> the leading HPC application portal for user-friendly submission,control and monitoring of batch jobs and interactive remote sessions.
  * <b>NICE DCV</b> a remote visualization technology that enables users to securely connect to graphic-intensive 3D applications hosted on a remote, high-performance server.
@@ -10,8 +10,16 @@ This project aims at speeding up the deployment of an HPC Cluster. With just one
 ![Architecture](docs/EnginFrame-1Click-Arch.png?raw=true "Architecture")
 
 # Get Started
+## Step 0
+ * Do you have an existing VPC (with 2 public subnets) you want to use? if yes, go [here](https://github.com/aws-samples/1click-hpc/blob/main/docs/CF-2VPC.md)
+ * Do you have an existing VPC (with 2 public and 1 private subnets) you want to use? if yes, go [here](https://github.com/aws-samples/1click-hpc/blob/main/docs/CF-3VPC.md)
+ * Do you have an existing FSx for Lustre and VPC (with 2 public subnets) you want to use? if yes, go [here](https://github.com/aws-samples/1click-hpc/blob/main/docs/CF-2VPC.FSx.md)
+ * Do you have an existing FSx for Lustre and VPC (with 2 public and 1 private subnets) you want to use? if yes, go [here](https://github.com/aws-samples/1click-hpc/blob/main/docs/CF-3VPC.FSx.md)
+ * Do you have no idea of what FSx or a VPC is, continue to Step 1.
+
 ## Step 1
 Click the link below corresponding to your preferred [AWS Region](https://aws.amazon.com/about-aws/global-infrastructure/regions_az/) .
+1Click-HPC will take care of creating everything needed for your HPC Cluster.
 
 | Region       | Launch                                                                                                                                                                                                                                                                                                             | 
 |--------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
