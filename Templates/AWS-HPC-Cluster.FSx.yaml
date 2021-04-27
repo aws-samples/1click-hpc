@@ -54,32 +54,32 @@ Mappings:
   RegionMap: 
     us-east-1:
       instanceType: c5.xlarge
-      PCConfig: configFSX.sample
+      PCConfig: config.FSX.sample
       ZoneId1: use1-az1
       ZoneId2: use1-az4
     us-east-2:
       instanceType: c5.xlarge
-      PCConfig: configFSX.sample
+      PCConfig: config.FSX.sample
       ZoneId1: use2-az2
       ZoneId2: use2-az3
     us-west-1:
       instanceType: c5.xlarge
-      PCConfig: configFSX.sample
+      PCConfig: config.FSX.sample
       ZoneId1: usw1-az1
       ZoneId2: usw1-az3
     us-west-2:
       instanceType: c5.xlarge
-      PCConfig: configFSX.sample
+      PCConfig: config.FSX.sample
       ZoneId1: usw2-az1
       ZoneId2: usw2-az2
     eu-central-1:
       instanceType: c5.xlarge
-      PCConfig: configFSX.sample
+      PCConfig: config.FSX.sample
       ZoneId1: euc1-az3
       ZoneId2: euc1-az2
     eu-west-1:
       instanceType: c5.xlarge
-      PCConfig: configFSX.sample
+      PCConfig: config.FSX.sample
       ZoneId1: euw1-az1
       ZoneId2: euw1-az2
     eu-north-1:
