@@ -67,7 +67,7 @@ disable_hyperthreading = true
 compute_type = ondemand
 
 [queue spot-batch-efa]
-compute_resource_settings = spot-c5n-18xlarge, spot-m5zn-12xlarge, spot-r5n-24xlarge
+compute_resource_settings = spot-c5n-18xlarge
 placement_group = DYNAMIC
 enable_efa = true
 disable_hyperthreading = true
@@ -138,18 +138,6 @@ max_count = 200
 
 [compute_resource spot-c5n-18xlarge]
 instance_type = c5n.18xlarge
-min_count = 0
-initial_count = 0
-max_count = 200
-
-[compute_resource spot-m5zn-12xlarge]
-instance_type = m5zn.12xlarge
-min_count = 0
-initial_count = 0
-max_count = 200
-
-[compute_resource spot-r5n-24xlarge]
-instance_type = r5n.24xlarge
 min_count = 0
 initial_count = 0
 max_count = 200
