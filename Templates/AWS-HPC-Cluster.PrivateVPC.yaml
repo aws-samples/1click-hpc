@@ -87,6 +87,11 @@ Mappings:
       PCConfig: config.limited-EC2.sample
       ZoneId1: eun1-az2
       ZoneId2: eun1-az1
+    ca-central-1:
+      instanceType: c5.xlarge
+      PCConfig: config.limited-EC2.sample
+      ZoneId1: cac1-az2
+      ZoneId2: cac1-az1
 #    eu-south-1:
 #      instanceType: c5.xlarge
 #      PCConfig: config.limited-EC2.sample
