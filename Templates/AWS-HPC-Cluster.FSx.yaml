@@ -216,8 +216,10 @@ Resources:
       GroupDescription: 'Allow 8443 from the ALB'
       VpcId: !Ref VPC
       SecurityGroupIngress:
-      - IpProtocol: -1
-        CidrIp: 10.0.0.0/16
+      - IpProtocol: tcp
+        FromPort: 8443
+        ToPort: 8443
+        SourceSecurityGroupId: !Ref ALBSecurityGroup
 
   Cloud9:
     Type: 'AWS::Cloud9::EnvironmentEC2'
