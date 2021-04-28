@@ -295,6 +295,7 @@ Resources:
     - Cloud9InstanceProfile
     - LambdaExecutionRole
     - ApplicationLoadBalancer
+    - LogGroupCloud9BootstrapInstanceLambdaFunction
     Properties:
       ServiceToken:
         Fn::GetAtt:
@@ -377,7 +378,6 @@ Resources:
 
   LogGroupCloud9BootstrapInstanceLambdaFunction:
     Type: AWS::Logs::LogGroup
-    DependsOn: Cloud9BootstrapInstanceLambdaFunction
     DeletionPolicy: Delete
     Properties:
       LogGroupName: !Sub /aws/lambda/${Cloud9BootstrapInstanceLambdaFunction}
@@ -432,7 +432,6 @@ Resources:
 
   LogGroupLambdaGetMasterIP:
     Type: AWS::Logs::LogGroup
-    DependsOn: LambdaGetMasterIP
     DeletionPolicy: Delete
     Properties:
       LogGroupName: !Sub /aws/lambda/${LambdaGetMasterIP}
@@ -443,6 +442,7 @@ Resources:
     Type: Custom::MasterIP
     DependsOn: 
     - WaitCondition
+    - LogGroupLambdaGetMasterIP
     Properties:
       ServiceToken: !GetAtt LambdaGetMasterIP.Arn
       StackName: !Sub parallelcluster-${AWS::StackName}
@@ -467,7 +467,6 @@ Resources:
 
   LogGroupLowerCaseLambda:
     Type: AWS::Logs::LogGroup
-    DependsOn: LowerCaseLambda
     DeletionPolicy: Delete
     Properties:
       LogGroupName: !Sub /aws/lambda/${LowerCaseLambda}
@@ -475,6 +474,7 @@ Resources:
 
   S3BucketName:
     Type: Custom::Lowercase
+    DependsOn: LogGroupLowerCaseLambda
     Properties:
       ServiceToken: !GetAtt LowerCaseLambda.Arn
       InputString: !Sub 
@@ -493,6 +493,7 @@ Resources:
     Type: Custom::LBInit
     DependsOn: 
       - ApplicationLoadBalancer
+      - LogGroupLBInitLambda
     Properties:
       ServiceToken: !GetAtt LBInitLambda.Arn
       DNSName: !GetAtt ApplicationLoadBalancer.DNSName
@@ -661,19 +662,20 @@ Resources:
 
   AvailabiltyZone1:
     Type: Custom::AvailabiltyZone
+    DependsOn: LogGroupGetAZLambdaFunction
     Properties:
       ServiceToken: !GetAtt GetAZLambdaFunction.Arn
       ZoneId: !FindInMap [RegionMap, !Ref "AWS::Region", ZoneId1]
 
   AvailabiltyZone2:
     Type: Custom::AvailabiltyZone
+    DependsOn: LogGroupGetAZLambdaFunction
     Properties:
       ServiceToken: !GetAtt GetAZLambdaFunction.Arn
       ZoneId: !FindInMap [RegionMap, !Ref "AWS::Region", ZoneId2]
 
   LogGroupGetAZLambdaFunction:
     Type: AWS::Logs::LogGroup
-    DependsOn: GetAZLambdaFunction
     DeletionPolicy: Delete
     Properties:
       LogGroupName: !Sub /aws/lambda/${GetAZLambdaFunction}
