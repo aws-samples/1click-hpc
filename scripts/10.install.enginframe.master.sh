@@ -26,8 +26,14 @@ export EF_CONF_ROOT=$(jq --arg default "${NICE_ROOT}/enginframe/conf" -r '.post_
 export EF_DATA_ROOT=$(jq --arg default "${NICE_ROOT}/enginframe/data" -r '.post_install.enginframe | if has("ef_data_root") then .ef_data_root else $default end' "${dna_json}")
 export efadminPassword=$(jq --arg default "Change_this!" -r '.post_install.enginframe | if has("ef_admin_pass") then .ef_admin_pass else $default end' "${dna_json}")
 
+
+
+#to be removed when ..latest.. is available
+export ef_version="2020.0-r197"
+
 set -x
 set -e
+
 
 # install EnginFrame
 # ----------------------------------------------------------------------------
@@ -35,8 +41,9 @@ installEnginFrame() {
     # install pre-requisites
     yum -y install java-latest-openjdk
     # get the EF package from the official repository
-    wget -nv -P /tmp/packages https://dn3uclhgxk1jt.cloudfront.net/enginframe/packages/enginframe-latest.jar || exit 1
-
+    wget -nv -P /tmp/packages https://dn3uclhgxk1jt.cloudfront.net/enginframe/packages/2020.0/enginframe-${ef_version}.jar || exit 1
+    
+    
     if [[ ${proto} == "https://" ]]; then
         wget -nv -P /tmp/packages "${post_install_base}/packages/efinstall.config" || exit 1
     elif [[ ${proto} == "s3://" ]]; then
@@ -47,8 +54,9 @@ installEnginFrame() {
 
     # set permissions and uncompress
     chmod 755 -R /tmp/packages/*
+    enginframe_jar=$(find /tmp/packages -type f -name 'enginframe-[0-9]*.jar')
     # some checks
-    [[ -z enginframe-latest.jar ]] && \
+    [[ -z ${enginframe_jar} ]] && \
         echo "[ERROR] missing enginframe jar" && return 1
     [[ ! -f /tmp/packages/efinstall.config ]] && \
         echo "[ERROR] missing efinstall.config" && return 1
@@ -90,7 +98,7 @@ installEnginFrame() {
 
     # finally, launch EnginFrame installer
     ( cd /tmp/packages
-      java -jar enginframe-latest.jar --text --batch )
+      java -jar "${enginframe_jar}" --text --batch )
 }
 
 startEnginFrame() {
