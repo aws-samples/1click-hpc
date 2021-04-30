@@ -268,6 +268,7 @@ Resources:
             - !Sub echo "export CLUSTER_NAME=${AWS::StackName}" >> /home/ec2-user/.bashrc
             - !Sub echo "export ADDITIONAL_SG=${PCAdditionalSecurityGroup}" >> /home/ec2-user/.bashrc
             - !Sub echo "export WAIT_HANDLE='${WaitHandle}'" >> /home/ec2-user/.bashrc
+            - !Sub echo "export USE_PUBLIC_IPS='use_public_ips = false'" >> /home/ec2-user/.bashrc
             - !Sub echo "export EXTRA_JSON='extra_json = {\"post_install\":{\"enginframe\":{\"ef_admin_pass\":\"${AdminPassword}\"}}}'" >> /home/ec2-user/.bashrc
             - !Sub 
               - echo "export ALB_PUBLIC_DNS_NAME='${ALB}'" >> /home/ec2-user/.bashrc
