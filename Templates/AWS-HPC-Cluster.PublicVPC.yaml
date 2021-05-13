@@ -57,7 +57,7 @@ Mappings:
       ZoneId2: use2-az3
     us-west-1:
       instanceType: c5.xlarge
-      PCConfig: config.sample
+      PCConfig: config.limited-EC2.sample
       ZoneId1: usw1-az1
       ZoneId2: usw1-az3
     us-west-2:
