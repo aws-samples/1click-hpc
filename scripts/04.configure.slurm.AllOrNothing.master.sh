@@ -24,7 +24,7 @@ set -e
 
 #ADD All or Nothing to the Slurm conf
 addAllOrNothingtoSlurmConf() {
-    cat "all_or_nothing_batch = True" >> "${SLURM_RESUME_CONF_FILE}"
+    echo "all_or_nothing_batch = True" >> "${SLURM_RESUME_CONF_FILE}"
 }
 
 restartSlurmDaemon() {
