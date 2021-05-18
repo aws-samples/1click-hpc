@@ -21,6 +21,6 @@ cat << EOF
  https://${ALB_PUBLIC_DNS_NAME}/enginframe
  
  Or, You can ssh into the Head-node:
- $ pcluster ssh ${CLUSTER_NAME}
+ $ ssh ${MASTER_PRIVATE_IP}
 
 EOF
