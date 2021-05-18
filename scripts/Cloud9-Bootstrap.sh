@@ -18,16 +18,21 @@ if [ $? -ne 0 ]; then
 fi
 sudo chmod 400 /home/ec2-user/.ssh/id_rsa
 
+###FIXME one config file per region supported
 #download the AWS ParallelCluster configuration file and substitute env varaible.
 aws s3 cp "s3://${S3_BUCKET}/1click-hpc/parallelcluster/${PC_CONFIG}" . --region "${AWS_REGION_NAME}"
-/usr/bin/envsubst < ${PC_CONFIG} > cluster.config
+/usr/bin/envsubst < 1click-hpc/parallelcluster/${PC_CONFIG} > cluster.config
+/usr/bin/envsubst < 1click-hpc/sacct/mysql/db.config > db.config
+/usr/bin/envsubst '$SLURM_DB_ENDPOINT' < 1click-hpc/sacct/slurm/slurmdbd.conf > slurmdbd.conf
+aws s3 cp db.config "s3://${S3_BUCKET}/1click-hpc/sacct/mysql/db.config" --region "${AWS_REGION_NAME}"
+aws s3 cp slurmdbd.conf "s3://${S3_BUCKET}/1click-hpc/sacct/slurm/slurmdbd.conf" --region "${AWS_REGION_NAME}"
+aws s3 cp slurm_sacct.conf "s3://${S3_BUCKET}/1click-hpc/sacct/slurm/slurm_sacct.conf" --region "${AWS_REGION_NAME}"
 sudo chown -R ec2-user:ec2-user /home/ec2-user/
-rm ${PC_CONFIG}
 
 #Create the cluster
 /home/ec2-user/.local/bin/pcluster create -c cluster.config ${CLUSTER_NAME} --norollback
-MASTER_PRIVATE_IP=$(/home/ec2-user/.local/bin/pcluster status ${CLUSTER_NAME} | grep MasterPrivateIP | sed 's/MasterPublicIP: //')
-echo "export MASTER_PPRIVATE_IP='${MASTER_PRIVATE_IP}'" >> /home/ec2-user/.bashrc
+MASTER_PRIVATE_IP=$(/home/ec2-user/.local/bin/pcluster status ${CLUSTER_NAME} | grep MasterPrivateIP | sed 's/MasterPrivateIP: //')
+echo "export MASTER_PRIVATE_IP='${MASTER_PRIVATE_IP}'" >> /home/ec2-user/.bashrc
 
 # Modify the Message Of The Day
 sudo rm -f /etc/update-motd.d/*
@@ -58,12 +63,14 @@ if grep -q "^fsx_settings" "cluster.config"; then
   sudo mount -t lustre -o noatime,flock $FSX_DNS_NAME@tcp:/$FSX_MOUNT_NAME fsx
   sudo bash -c "echo \"$FSX_DNS_NAME@tcp:/$FSX_MOUNT_NAME /home/ec2-user/environment/fsx lustre defaults,noatime,flock,_netdev 0 0\" >> /etc/fstab"
   sudo chmod 755 fsx
+  sudo chown ec2-user:ec2-user fsx
 else
   mkdir nfs
-  MASTER_PRIVATE_IP=$(/home/ec2-user/.local/bin/pcluster status ${CLUSTER_NAME} | grep MasterPrivateIP | sed 's/MasterPrivateIP: //'    )
   SHARED_DIR=$(cat /home/ec2-user/environment/cluster.config | grep shared_dir | awk '{print $3}')
   sudo mount -t nfs -o hard,intr,noatime,_netdev $MASTER_PRIVATE_IP:$SHARED_DIR /home/ec2-user/environment/nfs
   sudo bash -c "echo \"$MASTER_PRIVATE_IP:$SHARED_DIR /home/ec2-user/environment/nfs nfs hard,intr,noatime,_netdev 0 0\" >> /etc/fstab"
+  sudo chmod 755 nfs
+  sudo chown ec2-user:ec2-user nfs
 fi
 
 # send SUCCESFUL to the wait handle
