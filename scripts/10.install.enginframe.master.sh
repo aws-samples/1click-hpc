@@ -89,7 +89,10 @@ installEnginFrame() {
     id -u efnobody &>/dev/null || adduser efnobody
     printf "${efadminPassword}" | passwd ec2-user --stdin
 
-    rm -rf /fsx/nice
+    if [[ -d "${SHARED_FS_DIR}/nice" ]]; then
+        mv  "${SHARED_FS_DIR}/nice.$(date "+%d-%m-%Y-%H-%M").BAK"
+    fi
+    
     # finally, launch EnginFrame installer
     ( cd /tmp/packages
       java -jar "${enginframe_jar}" --text --batch )
