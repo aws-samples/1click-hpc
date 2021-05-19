@@ -17,8 +17,8 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-export SLURM_RESUME_CONF_FILE="/etc/parallelcluster/slurm_plugin/parallelcluster_slurm_resume.conf"
-export SLURM_ROOT="/opt/slurm/"
+export SLURM_ROOT="/opt/slurm"
+export SLURM_ETC="${SLURM_ROOT}/etc"
 
 set -x
 set -e
@@ -45,15 +45,15 @@ configureSACCT() {
     fi
     
     export HEAD_NODE=$(hostname -s)
-    /usr/bin/envsubst < slurmdbd.conf > "${SLURM_ROOT}/etc/slurmdbd.conf"
-    /usr/bin/envsubst < slurm_sacct.conf > "${SLURM_ROOT}/etc/slurm_sacct.conf"
+    /usr/bin/envsubst < slurmdbd.conf > "${SLURM_ETC}/slurmdbd.conf"
+    /usr/bin/envsubst < slurm_sacct.conf > "${SLURM_ETC}/slurm_sacct.conf"
     
     mysql --defaults-extra-file="db.config" < "grant.mysql"
-    echo "include slurm_sacct.conf" >> "${SLURM_ROOT}/etc/slurm.conf"
+    echo "include slurm_sacct.conf" >> "${SLURM_ETC}/slurm.conf"
 }
 
 restartSlurmDaemons() {
-    /opt/slurm/sbin/slurmdbd
+    $SLURM_ROOT/sbin/slurmdbd
     systemctl restart slurmctld
 }
 
