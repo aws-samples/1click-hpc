@@ -90,7 +90,7 @@ installEnginFrame() {
     printf "${efadminPassword}" | passwd ec2-user --stdin
 
     if [[ -d "${SHARED_FS_DIR}/nice" ]]; then
-        mv  "${SHARED_FS_DIR}/nice.$(date "+%d-%m-%Y-%H-%M").BAK"
+        mv  "${SHARED_FS_DIR}/nice" "${SHARED_FS_DIR}/nice.$(date "+%d-%m-%Y-%H-%M").BAK"
     fi
     
     # finally, launch EnginFrame installer
