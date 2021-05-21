@@ -59,6 +59,7 @@ done
 #fix this
 for host in $instance_id_list
 do
+  #consider API throttling 
   aws ec2 create-tags --region $cfn_region --resources ${host} --tags Key=aws-parallelcluster-username,Value=${SLURM_JOB_USER} Key=aws-parallelcluster-jobid,Value=${SLURM_JOBID} Key=aws-parallelcluster-partition,Value=${SLURM_JOB_PARTITION} ${tags}
 done
 
