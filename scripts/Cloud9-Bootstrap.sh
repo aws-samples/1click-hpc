@@ -8,7 +8,7 @@ exec >/home/ec2-user/environment/bootstrap.log; exec 2>&1
 cd /home/ec2-user/environment
 
 #install AWS ParallelCluster
-pip3 install --user -U jinja2 boto boto3 botocore awscli aws-sam-cli aws-parallelcluster
+pip3 install --user -U aws-parallelcluster
 
 #Create the key pair (remove the existing one if it has the same name)
 aws ec2 create-key-pair --key-name ${KEY_PAIR} --query KeyMaterial --output text > /home/ec2-user/.ssh/id_rsa
