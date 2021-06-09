@@ -9,85 +9,107 @@ Metadata:
           default: ""
         Parameters: 
           - AdminPassword
+          - VpcId
+          - PublicSubnetAId
+          - PublicSubnetBId
+          - PrivateSubnetAId
+          - FSx
     ParameterLabels: 
       AdminPassword: 
-        default: 'Please, enter the password for the user "ec2-user": '
-
+        default: 'Password:'
+      VpcId: 
+        default: 'VPC:'
+      PublicSubnetAId: 
+        default: 'Public Subnet 1:'
+      PublicSubnetBId: 
+        default: 'Public Subnet 2:'
+      PrivateSubnetAId: 
+        default: 'Private Subnet:'
+      FSx: 
+        default: 'FSx:'
+        
 Parameters:
     AdminPassword:
-      Description: 'Min 8 chars, three of: lowercase, uppercase, number and symbols'
+      Description: 'Please, enter the password for the user "ec2-user". Min 8 chars, three of: lowercase, uppercase, number and symbols'
       Type: String
       MinLength: '8'
       MaxLength: '255'
       AllowedPattern: (?=^.{8,255}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*
       NoEcho: 'true'
+      
+    VpcId:
+      Description: 'Please, enter your VPC ID, or just leave "AUTO" if you have no idea of what a VPC ID is.'
+      Type: String
+      AllowedPattern: ^(AUTO|vpc-[0-9a-z]+)$
+      Default: AUTO
+
+    PublicSubnetAId: 
+      Description: 'Please, enter the ID of the Public Subnet you wish to use, or just leave "AUTO" if you have no idea of what a Subnet is.'
+      Type: String
+      AllowedPattern: ^(AUTO|subnet-[0-9a-z]+)$
+      Default : AUTO
+
+    PublicSubnetBId: 
+      Description: 'Please, enter another ID of the Public Subnet you wish to use, or just leave "AUTO" if you have no idea of what a Subnet is.'
+      Type: String
+      AllowedPattern: ^(AUTO|subnet-[0-9a-z]+)$
+      Default : AUTO
+    
+    PrivateSubnetAId:
+      Description: 'Please, enter the ID of the Private Subnet you wish to use, or put NONE if you want to use only Public Subnets, or just leave "AUTO" if you have no idea of what a Subnet is.'
+      Type: String
+      AllowedPattern: ^(AUTO|NONE|subnet-[0-9a-z]+)$
+      Default : AUTO
+      
+    FSx: 
+      Description: 'Please, enter your FSx ID, or just leave "AUTO" if you have no idea of what FSx is.'
+      Type: String
+      AllowedPattern: ^(AUTO|fs-[0-9a-z]+)$
+      Default : AUTO
 
 Mappings: 
   RegionMap: 
     us-east-1:
-      instanceType: c5.xlarge
-      PCConfig: config.sample
       ZoneId1: use1-az1
       ZoneId2: use1-az4
     us-east-2:
-      instanceType: c5.xlarge
-      PCConfig: config.sample
       ZoneId1: use2-az2
       ZoneId2: use2-az3
     us-west-1:
-      instanceType: c5.xlarge
-      PCConfig: config.limited-EC2.sample
       ZoneId1: usw1-az1
       ZoneId2: usw1-az3
     us-west-2:
-      instanceType: c5.xlarge
-      PCConfig: config.sample
       ZoneId1: usw2-az1
       ZoneId2: usw2-az2
     eu-central-1:
-      instanceType: c5.xlarge
-      PCConfig: config.sample
       ZoneId1: euc1-az3
       ZoneId2: euc1-az2
     eu-west-1:
-      instanceType: c5.xlarge
-      PCConfig: config.sample
       ZoneId1: euw1-az1
       ZoneId2: euw1-az2
     eu-north-1:
-      instanceType: c5.xlarge
-      PCConfig: config.limited-EC2.sample
       ZoneId1: eun1-az2
       ZoneId2: eun1-az1
     ca-central-1:
-      instanceType: c5.xlarge
-      PCConfig: config.limited-EC2.sample
       ZoneId1: cac1-az2
       ZoneId2: cac1-az1
 #    eu-south-1:
-#      instanceType: c5.xlarge
-#      PCConfig: config.limited-EC2.sample
 #      ZoneId1: eus1-az3
 #      ZoneId2: eus1-az2
     ap-east-1:
-      instanceType: c5.xlarge
-      PCConfig: config.limited-EC2.sample
       ZoneId1: ape1-az3
       ZoneId2: ape1-az2
-#    me-south-1:
-#      instanceType: c5.xlarge
-#      PCConfig: config.limited-EC2.sample
     ap-northeast-1:
-      instanceType: c5.xlarge
-      PCConfig: config.noFSX.sample
       ZoneId1: apne1-az4
       ZoneId2: apne1-az1
     ap-south-1:
-      instanceType: c5.xlarge
-      PCConfig: config.limited-EC2.sample
       ZoneId1: aps1-az2
       ZoneId2: aps1-az3
 
+Conditions:
+  CreateVpc: !Equals [!Ref VpcId, AUTO]
+  CreatePrivateSubnet: !And [!Condition CreateVpc, !Equals [!Ref PrivateSubnetAId, AUTO]]
+  
 Resources:
 
   Cloud9Role:
@@ -158,7 +180,6 @@ Resources:
 
   Cloud9BootstrapAssociation: 
     Type: AWS::SSM::Association
-    DependsOn: Cloud9OutputBucket 
     Properties: 
       Name: !Ref Cloud9SSMDocument
       OutputLocation: 
@@ -174,6 +195,7 @@ Resources:
 
   VPC:
     Type: "AWS::EC2::VPC"
+    Condition: CreateVpc
     Properties:
       CidrBlock: 10.0.0.0/16
       EnableDnsHostnames: true
@@ -184,6 +206,7 @@ Resources:
 
   PublicSubnetA:
     Type: AWS::EC2::Subnet
+    Condition: CreateVpc
     Properties:
       VpcId: !Ref VPC
       CidrBlock: 10.0.0.0/18
@@ -195,6 +218,7 @@ Resources:
 
   PublicSubnetB:
     Type: AWS::EC2::Subnet
+    Condition: CreateVpc
     Properties:
       VpcId: !Ref VPC
       CidrBlock: 10.0.64.0/18
@@ -206,17 +230,18 @@ Resources:
 
   InternetGatewayA:
     Type: AWS::EC2::InternetGateway
-    DependsOn: VPC
+    Condition: CreateVpc
+    
   AttachGatewayA:
     Type: AWS::EC2::VPCGatewayAttachment
-    DependsOn: InternetGatewayA
+    Condition: CreateVpc
     Properties:
       VpcId: !Ref VPC
       InternetGatewayId: !Ref InternetGatewayA
 
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
-    DependsOn: AttachGatewayA
+    Condition: CreateVpc
     Properties:
       VpcId: !Ref VPC
       Tags:
@@ -224,7 +249,7 @@ Resources:
         Value: !Sub '${AWS::StackName}-Public-Route-AB'
   PublicRoute1:
     Type: AWS::EC2::Route
-    DependsOn: AttachGatewayA
+    Condition: CreateVpc
     Properties:
       RouteTableId: !Ref PublicRouteTable
       DestinationCidrBlock: 0.0.0.0/0
@@ -232,18 +257,21 @@ Resources:
   
   PublicSubnetARouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: CreateVpc
     Properties:
       SubnetId: !Ref PublicSubnetA
       RouteTableId: !Ref PublicRouteTable
 
   PublicSubnetBRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: CreateVpc
     Properties:
       SubnetId: !Ref PublicSubnetB
       RouteTableId: !Ref PublicRouteTable
 
   PrivateSubnetA:
     Type: AWS::EC2::Subnet
+    Condition: CreatePrivateSubnet
     Properties:
       VpcId: !Ref VPC
       AvailabilityZone: !GetAtt AvailabiltyZone1.ZoneName
@@ -255,18 +283,21 @@ Resources:
 
   NatGatewayAEIP:
     Type: AWS::EC2::EIP
+    Condition: CreatePrivateSubnet
     DependsOn: AttachGatewayA
     Properties:
       Domain: vpc
 
   NatGatewayA:
     Type: AWS::EC2::NatGateway
+    Condition: CreatePrivateSubnet
     Properties:
       AllocationId: !GetAtt NatGatewayAEIP.AllocationId
       SubnetId: !Ref PublicSubnetA
 
   PrivateRouteTableA:
     Type: AWS::EC2::RouteTable
+    Condition: CreatePrivateSubnet
     Properties:
       VpcId: !Ref VPC
       Tags:
@@ -275,6 +306,7 @@ Resources:
 
   DefaultPrivateRouteA:
     Type: AWS::EC2::Route
+    Condition: CreatePrivateSubnet
     Properties:
       RouteTableId: !Ref PrivateRouteTableA
       DestinationCidrBlock: 0.0.0.0/0
@@ -282,6 +314,7 @@ Resources:
 
   PrivateSubnetARouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: CreatePrivateSubnet
     Properties:
       RouteTableId: !Ref PrivateRouteTableA
       SubnetId: !Ref PrivateSubnetA
@@ -290,7 +323,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: 'Allow https and http'
-      VpcId: !Ref VPC
+      VpcId: !If [CreateVpc, !Ref VPC, !Ref VpcId]
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: 443
@@ -305,7 +338,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: 'Allow 8443 from the ALB'
-      VpcId: !Ref VPC
+      VpcId: !If [CreateVpc, !Ref VPC, !Ref VpcId]
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: 8443
@@ -316,7 +349,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: 'Allow 3306 from the PC Additional SG'
-      VpcId: !Ref VPC
+      VpcId: !If [CreateVpc, !Ref VPC, !Ref VpcId]
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: 3306
@@ -330,7 +363,7 @@ Resources:
       DBName: 'SlurmDB'
       DBInstanceClass: db.t2.large
       MultiAZ: false
-      AllocatedStorage: 50
+      AllocatedStorage: '50'
       StorageType: gp2
       MaxAllocatedStorage: 5000
       Engine: MySQL
@@ -346,21 +379,21 @@ Resources:
       Properties:
         DBSubnetGroupDescription: SubnetGroup
         SubnetIds: 
-          - !Ref PublicSubnetA
-          - !Ref PublicSubnetB
+          - !If [CreateVpc, !Ref PublicSubnetA, !Ref PublicSubnetAId]
+          - !If [CreateVpc, !Ref PublicSubnetB, !Ref PublicSubnetBId]
 
   Cloud9:
     Type: 'AWS::Cloud9::EnvironmentEC2'
     DependsOn: 
      - Cloud9BootstrapAssociation
-     - AttachGatewayA
+     - SlurmDB
     Properties:
       Name: !Ref 'AWS::StackName'
       Description: 'Cloud9 IDE for AWS ParallelCluster'
       AutomaticStopTimeMinutes: 120
       ImageId: amazonlinux-2-x86_64
-      InstanceType: !FindInMap [RegionMap, !Ref "AWS::Region", instanceType]
-      SubnetId: !Ref PublicSubnetA
+      InstanceType: c5.xlarge
+      SubnetId: !If [CreateVpc, !Ref PublicSubnetA, !Ref PublicSubnetAId]
       Tags: 
         - 
           Key: SSMBootstrap
@@ -371,7 +404,6 @@ Resources:
   Cloud9SSMDocument: 
     Type: AWS::SSM::Document
     Properties: 
-      Content: Yaml
       DocumentType: Command
       Content:
         schemaVersion: '2.2'
@@ -387,12 +419,19 @@ Resources:
             - !Sub echo "export AWS_DEFAULT_REGION=${AWS::Region}" >> /home/ec2-user/.bashrc
             - !Sub echo "export AWS_REGION_NAME=${AWS::Region}" >> /home/ec2-user/.bashrc
             - !Sub echo "export S3_BUCKET=${Cloud9OutputBucket}" >> /home/ec2-user/.bashrc
-            - !Sub echo "export VPC_ID=${VPC}" >> /home/ec2-user/.bashrc
-            - !Sub echo "export SUBNET_ID=${PrivateSubnetA}" >> /home/ec2-user/.bashrc
+            - !Sub
+              - echo "export VPC_ID=${FinalVpcId}" >> /home/ec2-user/.bashrc
+              - FinalVpcId: !If [CreateVpc, !Ref VPC, !Ref VpcId]
+            - !Sub echo "export FSX_ID=${FSx}" >> /home/ec2-user/.bashrc
+            - !Sub
+              - echo "export PUBLIC_SUBNET_ID=${FinalPublicSubnetAId}" >> /home/ec2-user/.bashrc
+              - FinalPublicSubnetAId: !If [CreateVpc, !Ref PublicSubnetA, !Ref PublicSubnetAId]
+            - !Sub
+              - echo "export PRIVATE_SUBNET_ID=${FinalPrivateSubnetAId}" >> /home/ec2-user/.bashrc
+              - FinalPrivateSubnetAId: !If [CreatePrivateSubnet, !Ref PrivateSubnetA, !Ref PrivateSubnetAId]            
             - !Sub echo "export CLUSTER_NAME=${AWS::StackName}" >> /home/ec2-user/.bashrc
             - !Sub echo "export ADDITIONAL_SG=${PCAdditionalSecurityGroup}" >> /home/ec2-user/.bashrc
             - !Sub echo "export WAIT_HANDLE='${WaitHandle}'" >> /home/ec2-user/.bashrc
-            - !Sub echo "export USE_PUBLIC_IPS='use_public_ips = false'" >> /home/ec2-user/.bashrc
             - !Sub 
               - echo "export SLURM_DB_ENDPOINT='${DB_ENDPOINT}'" >> /home/ec2-user/.bashrc
               - DB_ENDPOINT: !GetAtt SlurmDB.Endpoint.Address
@@ -403,9 +442,6 @@ Resources:
             - !Sub
               - echo "export KEY_PAIR=\"${AWS::StackName}-${RANDOM}\"" >> /home/ec2-user/.bashrc
               - RANDOM: !Select [0, !Split ['-', !Select [2, !Split ['/', !Ref 'AWS::StackId' ]]]]
-            - !Sub 
-              - echo "export PC_CONFIG=${PCConfigFile}" >> /home/ec2-user/.bashrc
-              - PCConfigFile: !FindInMap [RegionMap, !Ref "AWS::Region", PCConfig]
             - !Sub echo "export POST_INSTALL=\"s3://${Cloud9OutputBucket}/1click-hpc/scripts/post.install.sh\"" >> /home/ec2-user/.bashrc
             - cd /home/ec2-user/environment
             - git clone "https://github.com/aws-samples/1click-hpc.git"
@@ -414,12 +450,8 @@ Resources:
             - sudo -H -u ec2-user bash -c "bash /home/ec2-user/environment/1click-hpc/scripts/Cloud9-Bootstrap.sh"
 
   Cloud9BootstrapInstanceLambda:
-    Description: Bootstrap Cloud9 instance
     Type: Custom::Cloud9BootstrapInstanceLambda
     DependsOn:
-    - Cloud9BootstrapInstanceLambdaFunction
-    - Cloud9
-    - Cloud9InstanceProfile
     - LambdaExecutionRole
     - ApplicationLoadBalancer
     - LogGroupCloud9BootstrapInstanceLambdaFunction
@@ -448,7 +480,7 @@ Resources:
       Role: !GetAtt LambdaExecutionRole.Arn
       Runtime: python3.6
       MemorySize: 256
-      Timeout: '600'
+      Timeout: 600
       Code:
         ZipFile: |
           from __future__ import print_function
@@ -519,7 +551,7 @@ Resources:
     - Cloud9BootstrapInstanceLambda
     Properties:
       Handle: !Ref WaitHandle
-      Timeout: 3600
+      Timeout: '3600'
 
   LambdaGetMasterIP:
     Type: AWS::Lambda::Function
@@ -565,7 +597,6 @@ Resources:
       RetentionInDays: 7
 
   MasterIP:
-    Description: Get master IP
     Type: Custom::MasterIP
     DependsOn: 
     - WaitCondition
@@ -611,6 +642,7 @@ Resources:
   Cloud9OutputBucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
       BucketName: !Join
         - ''
@@ -618,8 +650,7 @@ Resources:
 
   S3Endpoint:
     Type: AWS::EC2::VPCEndpoint
-    DependsOn: 
-      - VPC
+    Condition: CreateVpc
     Properties:
       PolicyDocument:
         Version: '2012-10-17'
@@ -629,9 +660,9 @@ Resources:
             Principal: '*'
             Action: s3:*
             Resource: '*'
-      RouteTableIds: 
+      RouteTableIds:
         - !Ref PublicRouteTable
-        - !Ref PrivateRouteTableA
+        - !If [CreatePrivateSubnet, !Ref PrivateRouteTableA, !Ref 'AWS::NoValue']
       ServiceName: !Sub 'com.amazonaws.${AWS::Region}.s3'
       VpcEndpointType: Gateway
       VpcId: !Ref VPC
@@ -639,7 +670,6 @@ Resources:
   LBInit:
     Type: Custom::LBInit
     DependsOn: 
-      - ApplicationLoadBalancer
       - LogGroupLBInitLambda
     Properties:
       ServiceToken: !GetAtt LBInitLambda.Arn
@@ -657,7 +687,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Description: Create ALB Certificate
-      Timeout: '300'
+      Timeout: 300
       Runtime: python3.7
       Handler: index.handler
       Role: !GetAtt 'LBInitRole.Arn'
@@ -755,8 +785,8 @@ Resources:
     Properties:
       Name: !Sub '${AWS::StackName}'
       Subnets: 
-        - !Ref PublicSubnetA
-        - !Ref PublicSubnetB
+        - !If [CreateVpc, !Ref PublicSubnetA, !Ref PublicSubnetAId]
+        - !If [CreateVpc, !Ref PublicSubnetB, !Ref PublicSubnetBId]
       SecurityGroups:
         - !Ref ALBSecurityGroup
 
@@ -800,7 +830,7 @@ Resources:
       - MasterIP
     Properties:
       Name: !Sub '${AWS::StackName}'
-      VpcId: !Ref VPC
+      VpcId: !If [CreateVpc, !Ref VPC, !Ref VpcId]
       Port: 8443
       Protocol: HTTPS
       Targets:

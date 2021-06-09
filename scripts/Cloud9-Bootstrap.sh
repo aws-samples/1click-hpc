@@ -7,6 +7,9 @@ exec >/home/ec2-user/environment/bootstrap.log; exec 2>&1
 . /home/ec2-user/.bashrc
 cd /home/ec2-user/environment
 
+#install Lustre client
+sudo amazon-linux-extras install -y lustre2.10
+
 #install AWS ParallelCluster
 pip3 install --user -U aws-parallelcluster
 
@@ -18,12 +21,29 @@ if [ $? -ne 0 ]; then
 fi
 sudo chmod 400 /home/ec2-user/.ssh/id_rsa
 
-###FIXME one config file per region supported
-#download the AWS ParallelCluster configuration file and substitute env varaible.
-aws s3 cp "s3://${S3_BUCKET}/1click-hpc/parallelcluster/${PC_CONFIG}" . --region "${AWS_REGION_NAME}"
-/usr/bin/envsubst < 1click-hpc/parallelcluster/${PC_CONFIG} > cluster.config
-/usr/bin/envsubst < 1click-hpc/sacct/mysql/db.config > db.config
-/usr/bin/envsubst '$SLURM_DB_ENDPOINT' < 1click-hpc/sacct/slurm/slurmdbd.conf > slurmdbd.conf
+if [[ $FSX_ID != "AUTO" ]];then
+  export FSX_TYPE="fsx_settings = existing"
+  echo "export FSX_TYPE=\"fsx_settings = existing\"" >> /home/ec2-user/.bashrc
+else
+  export FSX_TYPE="fsx_settings = new"
+  echo "export FSX_TYPE=\"fsx_settings = new\"" >> /home/ec2-user/.bashrc
+fi
+
+if [[ $PRIVATE_SUBNET_ID == "NONE" ]];then
+  export SUBNET_ID="${PUBLIC_SUBNET_ID}"
+  export USE_PUBLIC_IPS='use_public_ips = true'
+  echo "export SUBNET_ID=\"${PUBLIC_SUBNET_ID}\"" >> /home/ec2-user/.bashrc
+  echo "export USE_PUBLIC_IPS='use_public_ips = true'" >> /home/ec2-user/.bashrc
+else
+  export SUBNET_ID="${PRIVATE_SUBNET_ID}"
+  export USE_PUBLIC_IPS='use_public_ips = false'
+  echo "export SUBNET_ID=\"${PRIVATE_SUBNET_ID}\"" >> /home/ec2-user/.bashrc
+  echo "export USE_PUBLIC_IPS='use_public_ips = false'" >> /home/ec2-user/.bashrc
+fi
+
+/usr/bin/envsubst < "1click-hpc/parallelcluster/config.${AWS_REGION_NAME}.sample" > cluster.config
+/usr/bin/envsubst < "1click-hpc/sacct/mysql/db.config" > db.config
+/usr/bin/envsubst '$SLURM_DB_ENDPOINT' < "1click-hpc/sacct/slurm/slurmdbd.conf" > slurmdbd.conf
 aws s3 cp db.config "s3://${S3_BUCKET}/1click-hpc/sacct/mysql/db.config" --region "${AWS_REGION_NAME}"
 aws s3 cp slurmdbd.conf "s3://${S3_BUCKET}/1click-hpc/sacct/slurm/slurmdbd.conf" --region "${AWS_REGION_NAME}"
 aws s3 cp slurm_sacct.conf "s3://${S3_BUCKET}/1click-hpc/sacct/slurm/slurm_sacct.conf" --region "${AWS_REGION_NAME}"
@@ -49,29 +69,20 @@ aws ec2 modify-instance-attribute --instance-id $INSTANCE_ID --groups $SG_CLOUD9
 #increase the maximum number of files that can be handled by file watcher,
 sudo bash -c 'echo "fs.inotify.max_user_watches=524288" >> /etc/sysctl.conf' && sudo sysctl -p
 
-if grep -q "^fsx_settings" "cluster.config"; then
-
-  #install Lustre client
-  sudo amazon-linux-extras install -y lustre2.10
-  
-  #mount the same FSx created for the HPC Cluster
-  mkdir fsx
+if [[ $FSX_ID == "AUTO" ]];then
   FSX_STACK_NAME=$(aws cloudformation describe-stack-resources --stack-name parallelcluster-$CLUSTER_NAME --logical-resource-id FSXSubstack --query "StackResources[*].PhysicalResourceId" --output text)
   FSX_ID=$(aws cloudformation describe-stacks --stack-name $FSX_STACK_NAME --query "Stacks[*].Outputs[*].OutputValue" --output text)
-  FSX_DNS_NAME=$(aws fsx describe-file-systems --file-system-ids $FSX_ID --query "FileSystems[*].DNSName" --output text)
-  FSX_MOUNT_NAME=$(aws fsx describe-file-systems --file-system-ids $FSX_ID  --query "FileSystems[*].LustreConfiguration.MountName" --output text)
-  sudo mount -t lustre -o noatime,flock $FSX_DNS_NAME@tcp:/$FSX_MOUNT_NAME fsx
-  sudo bash -c "echo \"$FSX_DNS_NAME@tcp:/$FSX_MOUNT_NAME /home/ec2-user/environment/fsx lustre defaults,noatime,flock,_netdev 0 0\" >> /etc/fstab"
-  sudo chmod 755 fsx
-  sudo chown ec2-user:ec2-user fsx
-else
-  mkdir nfs
-  SHARED_DIR=$(cat /home/ec2-user/environment/cluster.config | grep shared_dir | awk '{print $3}')
-  sudo mount -t nfs -o hard,intr,noatime,_netdev $MASTER_PRIVATE_IP:$SHARED_DIR /home/ec2-user/environment/nfs
-  sudo bash -c "echo \"$MASTER_PRIVATE_IP:$SHARED_DIR /home/ec2-user/environment/nfs nfs hard,intr,noatime,_netdev 0 0\" >> /etc/fstab"
-  sudo chmod 755 nfs
-  sudo chown ec2-user:ec2-user nfs
 fi
+
+FSX_DNS_NAME=$(aws fsx describe-file-systems --file-system-ids $FSX_ID --query "FileSystems[*].DNSName" --output text)
+FSX_MOUNT_NAME=$(aws fsx describe-file-systems --file-system-ids $FSX_ID  --query "FileSystems[*].LustreConfiguration.MountName" --output text)
+  
+#mount the same FSx created for the HPC Cluster
+mkdir fsx
+sudo mount -t lustre -o noatime,flock $FSX_DNS_NAME@tcp:/$FSX_MOUNT_NAME fsx
+sudo bash -c "echo \"$FSX_DNS_NAME@tcp:/$FSX_MOUNT_NAME /home/ec2-user/environment/fsx lustre defaults,noatime,flock,_netdev 0 0\" >> /etc/fstab"
+sudo chmod 755 fsx
+sudo chown ec2-user:ec2-user fsx
 
 # send SUCCESFUL to the wait handle
 curl -X PUT -H 'Content-Type:' \

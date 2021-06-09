@@ -10,16 +10,11 @@ This project aims at speeding up the deployment of an HPC Cluster. With just one
 ![Architecture](docs/EnginFrame-1Click-Arch.png?raw=true "Architecture")
 
 # Get Started
-## Step 0
- * Do you have an existing VPC (with 2 public subnets) you want to use? if yes, go [here](https://github.com/aws-samples/1click-hpc/blob/main/docs/CF-2VPC.md)
- * Do you have an existing VPC (with 2 public and 1 private subnets) you want to use? if yes, go [here](https://github.com/aws-samples/1click-hpc/blob/main/docs/CF-3VPC.md)
- * Do you have an existing FSx for Lustre and VPC (with 2 public subnets) you want to use? if yes, go [here](https://github.com/aws-samples/1click-hpc/blob/main/docs/CF-2VPC.FSx.md)
- * Do you have an existing FSx for Lustre and VPC (with 2 public and 1 private subnets) you want to use? if yes, go [here](https://github.com/aws-samples/1click-hpc/blob/main/docs/CF-3VPC.FSx.md)
- * Do you have no idea of what FSx or a VPC is, continue to Step 1.
 
 ## Step 1
 Click the link below corresponding to your preferred [AWS Region](https://aws.amazon.com/about-aws/global-infrastructure/regions_az/) .
-1Click-HPC will take care of creating everything needed for your HPC Cluster.
+You will be asked a few questions about services like VPC, FSx, etc; if you have no idea how to answer or what these services are, just leve the detault values. 
+1Click-HPC will take care of creating everything needed for your HPC Cluster to run.
 
 | Region       | Launch                                                                                                                                                                                                                                                                                                             | 
 |--------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|

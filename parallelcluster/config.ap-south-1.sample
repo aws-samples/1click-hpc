@@ -35,15 +35,15 @@ master_instance_type=c5.2xlarge
 scheduler=slurm
 s3_read_write_resource=arn:aws:s3:::*
 base_os = alinux2
-fsx_settings = parallel-fs
+${FSX_TYPE}
 queue_settings = batch-efa, batch, dcv-gpu, dcv, spot-batch-efa
 post_install = ${POST_INSTALL}
 post_install_args = "${POST_INSTALL_ARGS}"
-tags = {"EnginFrame" : "true", "1Click-HPC" : "true", "1Click-HPC-version" : "0.1", "1Click-HPC-Template" : "standard" }
+tags = {"EnginFrame" : "true", "1Click-HPC" : "true", "1Click-HPC-version" : "0.1", "1Click-HPC-Template" : "limited-ec2" }
 additional_iam_policies = arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
 ${EXTRA_JSON}
 
-[fsx parallel-fs]
+[fsx new]
 shared_dir = /fsx
 storage_capacity = 1200
 import_path = s3://${S3_BUCKET}
@@ -52,23 +52,26 @@ export_path = s3://${S3_BUCKET}
 deployment_type = SCRATCH_2
 auto_import_policy = NEW_CHANGED
 
+[fsx existing]
+shared_dir = /fsx
+fsx_fs_id = ${FSX_ID}
 
 [queue batch]
-compute_resource_settings = c5-24xlarge, r5-24xlarge, z1d-12xlarge
+compute_resource_settings = c5-24xlarge, r5-24xlarge
 placement_group = DYNAMIC
 enable_efa = false
 disable_hyperthreading = true
 compute_type = ondemand
 
 [queue batch-efa]
-compute_resource_settings = c5n-18xlarge, m5zn-12xlarge
+compute_resource_settings = c5n-18xlarge
 placement_group = DYNAMIC
 enable_efa = true
 disable_hyperthreading = true
 compute_type = ondemand
 
 [queue spot-batch-efa]
-compute_resource_settings = spot-c5n-18xlarge, spot-m5zn-12xlarge, spot-r5n-24xlarge
+compute_resource_settings = spot-c5n-18xlarge
 placement_group = DYNAMIC
 enable_efa = true
 disable_hyperthreading = true
@@ -94,23 +97,12 @@ min_count = 0
 initial_count = 0
 max_count = 200
 
-[compute_resource z1d-12xlarge]
-instance_type = z1d.12xlarge
-min_count = 0
-initial_count = 0
-max_count = 50
-
 [compute_resource c5n-18xlarge]
 instance_type = c5n.18xlarge
 min_count = 0
 initial_count = 0
 max_count = 300
 
-[compute_resource m5zn-12xlarge]
-instance_type = m5zn.12xlarge
-min_count = 0
-initial_count = 0
-max_count = 100
 
 [compute_resource g4dn-xlarge]
 instance_type = g4dn.xlarge
@@ -150,18 +142,6 @@ max_count = 200
 
 [compute_resource spot-c5n-18xlarge]
 instance_type = c5n.18xlarge
-min_count = 0
-initial_count = 0
-max_count = 200
-
-[compute_resource spot-m5zn-12xlarge]
-instance_type = m5zn.12xlarge
-min_count = 0
-initial_count = 0
-max_count = 200
-
-[compute_resource spot-r5n-24xlarge]
-instance_type = r5n.24xlarge
 min_count = 0
 initial_count = 0
 max_count = 200
