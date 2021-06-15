@@ -46,7 +46,6 @@ fi
 /usr/bin/envsubst '$SLURM_DB_ENDPOINT' < "1click-hpc/sacct/slurm/slurmdbd.conf" > slurmdbd.conf
 aws s3 cp db.config "s3://${S3_BUCKET}/1click-hpc/sacct/mysql/db.config" --region "${AWS_REGION_NAME}"
 aws s3 cp slurmdbd.conf "s3://${S3_BUCKET}/1click-hpc/sacct/slurm/slurmdbd.conf" --region "${AWS_REGION_NAME}"
-aws s3 cp slurm_sacct.conf "s3://${S3_BUCKET}/1click-hpc/sacct/slurm/slurm_sacct.conf" --region "${AWS_REGION_NAME}"
 sudo chown -R ec2-user:ec2-user /home/ec2-user/
 
 #Create the cluster
