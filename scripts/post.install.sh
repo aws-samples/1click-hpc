@@ -32,7 +32,7 @@ runScripts() {
         if [[ ${proto} == "https://" ]]; then
             wget -nv -P /tmp/scripts "${post_install_url}/${script}" || exit 1 
         elif [[ ${proto} == "s3://" ]]; then
-            aws s3 cp ${post_install_url}/${script} /tmp/scripts/ || exit 1
+            aws s3 cp ${post_install_url}/${script} /tmp/scripts/ --region "${cfn_region}" || exit 1
         else
             exit 1
         fi

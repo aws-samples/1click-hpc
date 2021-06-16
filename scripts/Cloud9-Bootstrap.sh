@@ -55,7 +55,7 @@ echo "export MASTER_PRIVATE_IP='${MASTER_PRIVATE_IP}'" >> /home/ec2-user/.bashrc
 
 # Modify the Message Of The Day
 sudo rm -f /etc/update-motd.d/*
-sudo aws s3 cp "s3://${S3_BUCKET}/1click-hpc/scripts/motd"  /etc/update-motd.d/10-HPC || exit 1
+sudo aws s3 cp "s3://${S3_BUCKET}/1click-hpc/scripts/motd"  /etc/update-motd.d/10-HPC --region "${AWS_REGION_NAME}" || exit 1
 sudo chmod +x /etc/update-motd.d/10-HPC
 echo 'run-parts /etc/update-motd.d' >> /home/ec2-user/.bash_profile
 

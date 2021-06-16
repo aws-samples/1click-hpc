@@ -16,6 +16,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+source /etc/parallelcluster/cfnconfig
 
 export SLURM_ROOT="/opt/slurm"
 export SLURM_ETC="${SLURM_ROOT}/etc"
@@ -36,10 +37,10 @@ configureSACCT() {
         wget -nv -P /tmp/ "${post_install_base}/sacct/slurm/slurm_sacct.conf" || exit 1
 
     elif [[ ${proto} == "s3://" ]]; then
-        aws s3 cp "${post_install_base}/sacct/mysql/db.config" /tmp/ || exit 1
-        aws s3 cp "${post_install_base}/sacct/mysql/grant.mysql" /tmp/ || exit 1
-        aws s3 cp "${post_install_base}/sacct/slurm/slurmdbd.conf" /tmp/ || exit 1
-        aws s3 cp "${post_install_base}/sacct/slurm/slurm_sacct.conf" /tmp/ || exit 1
+        aws s3 cp "${post_install_base}/sacct/mysql/db.config" /tmp/ --region "${cfn_region}" || exit 1
+        aws s3 cp "${post_install_base}/sacct/mysql/grant.mysql" /tmp/ --region "${cfn_region}" || exit 1
+        aws s3 cp "${post_install_base}/sacct/slurm/slurmdbd.conf" /tmp/ --region "${cfn_region}" || exit 1
+        aws s3 cp "${post_install_base}/sacct/slurm/slurm_sacct.conf" /tmp/ --region "${cfn_region}" || exit 1
     else
         exit 1
     fi

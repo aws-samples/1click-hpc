@@ -40,7 +40,7 @@ installEnginFrame() {
     if [[ ${proto} == "https://" ]]; then
         wget -nv -P /tmp/packages "${post_install_base}/packages/efinstall.config" || exit 1
     elif [[ ${proto} == "s3://" ]]; then
-        aws s3 cp "${post_install_base}/packages/efinstall.config" /tmp/packages/ || exit 1
+        aws s3 cp "${post_install_base}/packages/efinstall.config" /tmp/packages/ --region "${cfn_region}" || exit 1
     else
         exit 1
     fi 

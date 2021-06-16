@@ -57,15 +57,15 @@ configureEnginFrame() {
 
     
     elif [[ ${proto} == "s3://" ]]; then
-        aws s3 cp "${post_install_base}/enginframe/applications.admin.xml" "${EF_ROOT}/plugins/applications/WEBAPP/" || exit 1
-        aws s3 cp "${post_install_base}/enginframe/applications.manage.users.ui" "${EF_ROOT}/plugins/applications/bin/" || exit 1
-        aws s3 cp "${post_install_base}/enginframe/com.enginframe.ldap-user-group-manager.xml" "${EF_ROOT}/plugins/user-group-manager/lib/xml/" || exit 1
-        aws s3 cp "${post_install_base}/enginframe/com.enginframe.user-group-manager.xml" "${EF_ROOT}/plugins/user-group-manager/lib/xml/" || exit 1
-        aws s3 cp "${post_install_base}/enginframe/hydrogen.manage-users.js" "${EF_ROOT}/plugins/applications/WEBAPP/js/widgets/" || exit 1
-        aws s3 cp "${post_install_base}/enginframe/vdi.admin.xml" "${EF_ROOT}/plugins/vdi/WEBAPP/" || exit 1
-        aws s3 cp "${post_install_base}/enginframe/layout.templates.xsl" "${EF_ROOT}/plugins/themes/lib/xsl/nice-jump/" || exit 1
-        aws s3 cp "${post_install_base}/enginframe/applications.xml" "${EF_ROOT}/plugins/applications/WEBAPP/"  || exit 1
-        aws s3 cp "${post_install_base}/enginframe/fm.browse.ui" "${EF_ROOT}/plugins/applications/bin/" || exit 1
+        aws s3 cp "${post_install_base}/enginframe/applications.admin.xml" "${EF_ROOT}/plugins/applications/WEBAPP/" --region "${cfn_region}" || exit 1
+        aws s3 cp "${post_install_base}/enginframe/applications.manage.users.ui" "${EF_ROOT}/plugins/applications/bin/" --region "${cfn_region}" || exit 1
+        aws s3 cp "${post_install_base}/enginframe/com.enginframe.ldap-user-group-manager.xml" "${EF_ROOT}/plugins/user-group-manager/lib/xml/" --region "${cfn_region}" || exit 1
+        aws s3 cp "${post_install_base}/enginframe/com.enginframe.user-group-manager.xml" "${EF_ROOT}/plugins/user-group-manager/lib/xml/" --region "${cfn_region}" || exit 1
+        aws s3 cp "${post_install_base}/enginframe/hydrogen.manage-users.js" "${EF_ROOT}/plugins/applications/WEBAPP/js/widgets/" --region "${cfn_region}" || exit 1
+        aws s3 cp "${post_install_base}/enginframe/vdi.admin.xml" "${EF_ROOT}/plugins/vdi/WEBAPP/" --region "${cfn_region}" || exit 1
+        aws s3 cp "${post_install_base}/enginframe/layout.templates.xsl" "${EF_ROOT}/plugins/themes/lib/xsl/nice-jump/" --region "${cfn_region}" || exit 1
+        aws s3 cp "${post_install_base}/enginframe/applications.xml" "${EF_ROOT}/plugins/applications/WEBAPP/" --region "${cfn_region}" || exit 1
+        aws s3 cp "${post_install_base}/enginframe/fm.browse.ui" "${EF_ROOT}/plugins/applications/bin/" --region "${cfn_region}" || exit 1
 
     else
         exit 1

@@ -144,10 +144,10 @@ downlaod_ldap_tools() {
         wget -nv -P /usr/sbin/ "${post_install_url}/passwd.ldap.user.sh" || exit 1
         wget -nv -P /etc/profile.d/ "${post_install_url}/autosshkeys.sh" || exit 1
     elif [[ ${proto} == "s3://" ]]; then
-        aws s3 cp "${post_install_url}/add.ldap.user.sh" /usr/sbin/ || exit 1
-        aws s3 cp "${post_install_url}/remove.ldap.user.sh" /usr/sbin/ || exit 1
-        aws s3 cp "${post_install_url}/passwd.ldap.user.sh" /usr/sbin/ || exit 1
-        aws s3 cp "${post_install_url}/autosshkeys.sh" /etc/profile.d/ || exit 1
+        aws s3 cp "${post_install_url}/add.ldap.user.sh" /usr/sbin/ --region "${cfn_region}" || exit 1
+        aws s3 cp "${post_install_url}/remove.ldap.user.sh" /usr/sbin/ --region "${cfn_region}" || exit 1
+        aws s3 cp "${post_install_url}/passwd.ldap.user.sh" /usr/sbin/ --region "${cfn_region}" || exit 1
+        aws s3 cp "${post_install_url}/autosshkeys.sh" /etc/profile.d/ --region "${cfn_region}" || exit 1
     else
         exit 1
     fi

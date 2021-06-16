@@ -28,7 +28,7 @@ configureSACCT() {
     if [[ ${proto} == "https://" ]]; then
         wget -nv -P "${SLURM_ETC}/" "${post_install_base}/scripts/prologSlurmctld.sh" || exit 1
     elif [[ ${proto} == "s3://" ]]; then
-        aws s3 cp "${post_install_base}/scripts/prologSlurmctld.sh" "${SLURM_ETC}/" || exit 1
+        aws s3 cp "${post_install_base}/scripts/prologSlurmctld.sh" "${SLURM_ETC}/" --region "${cfn_region}" || exit 1
     else
         exit 1
     fi

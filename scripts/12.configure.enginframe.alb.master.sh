@@ -58,8 +58,8 @@ downlaodALBhooks() {
         wget -nv -P "${EF_DATA_ROOT}/plugins/interactive/bin/" "${post_install_base}/enginframe/alb.session.closing.hook.sh" || exit 1
         wget -nv -P "${EF_DATA_ROOT}/plugins/interactive/bin/" "${post_install_base}/enginframe/alb.session.starting.hook.sh" || exit 1
     elif [[ ${proto} == "s3://" ]]; then
-        aws s3 cp "${post_install_base}/enginframe/alb.session.closing.hook.sh" "${EF_DATA_ROOT}/plugins/interactive/bin/" || exit 1
-        aws s3 cp "${post_install_base}/enginframe/alb.session.starting.hook.sh" "${EF_DATA_ROOT}/plugins/interactive/bin/" || exit 1
+        aws s3 cp "${post_install_base}/enginframe/alb.session.closing.hook.sh" "${EF_DATA_ROOT}/plugins/interactive/bin/" --region "${cfn_region}" || exit 1
+        aws s3 cp "${post_install_base}/enginframe/alb.session.starting.hook.sh" "${EF_DATA_ROOT}/plugins/interactive/bin/" --region "${cfn_region}" || exit 1
     else
         exit 1
     fi
