@@ -451,6 +451,7 @@ Resources:
               - echo "export SLURM_DB_ENDPOINT='${DB_ENDPOINT}'" >> /home/ec2-user/.bashrc
               - DB_ENDPOINT: !GetAtt SlurmDB.Endpoint.Address
             - !Sub echo "export EXTRA_JSON='extra_json = {\"post_install\":{\"enginframe\":{\"ef_admin_pass\":\"${AdminPassword}\"}}}'" >> /home/ec2-user/.bashrc
+            - !Sub echo "export SLURM_DB_PASS='${AdminPassword}'" >> /home/ec2-user/.bashrc
             - !Sub 
               - echo "export ALB_PUBLIC_DNS_NAME='${ALB}'" >> /home/ec2-user/.bashrc
               - ALB: !GetAtt ApplicationLoadBalancer.DNSName
