@@ -42,8 +42,8 @@ else
 fi
 
 /usr/bin/envsubst < "1click-hpc/parallelcluster/config.${AWS_REGION_NAME}.sample" > cluster.config
-/usr/bin/envsubst < "1click-hpc/sacct/mysql/db.config" > db.config
-/usr/bin/envsubst '$SLURM_DB_ENDPOINT' < "1click-hpc/sacct/slurm/slurmdbd.conf" > slurmdbd.conf
+/usr/bin/envsubst '${SLURM_DB_ENDPOINT}' < "1click-hpc/sacct/mysql/db.config" > db.config
+/usr/bin/envsubst '${SLURM_DB_ENDPOINT}' < "1click-hpc/sacct/slurm/slurmdbd.conf" > slurmdbd.conf
 aws s3 cp db.config "s3://${S3_BUCKET}/1click-hpc/sacct/mysql/db.config" --region "${AWS_REGION_NAME}"
 aws s3 cp slurmdbd.conf "s3://${S3_BUCKET}/1click-hpc/sacct/slurm/slurmdbd.conf" --region "${AWS_REGION_NAME}"
 sudo chown -R ec2-user:ec2-user /home/ec2-user/

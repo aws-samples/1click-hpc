@@ -87,7 +87,12 @@ installEnginFrame() {
 
     # add EnginFrame users if not already exist
     id -u efnobody &>/dev/null || adduser efnobody
-    printf "${efadminPassword}" | passwd ec2-user --stdin
+
+    if [[ "${efadminPassword}" == "AWS_SECRET_MANAGER" ]]; then
+        aws secretsmanager get-secret-value --secret-id "${stack_name}" --query SecretString --output text --region "${cfn_region}" | passwd ec2-user --stdin
+    else
+        printf "${efadminPassword}" | passwd ec2-user --stdin
+    fi
 
     if [[ -d "${SHARED_FS_DIR}/nice" ]]; then
         mv  "${SHARED_FS_DIR}/nice" "${SHARED_FS_DIR}/nice.$(date "+%d-%m-%Y-%H-%M").BAK"

@@ -30,6 +30,8 @@ installPreReq() {
 
 
 configureSACCT() {
+    #FIXME: the same files on S3 are up to date with parameters expanded by envburst in the C9Bootstrap script.
+    #It does not work when getting the files from Git.
     if [[ ${proto} == "https://" ]]; then
         wget -nv -P /tmp/ "${post_install_base}/sacct/mysql/db.config" || exit 1
         wget -nv -P /tmp/ "${post_install_base}/sacct/mysql/grant.mysql" || exit 1
@@ -46,10 +48,13 @@ configureSACCT() {
     fi
     
     export HEAD_NODE=$(hostname -s)
+    export SLURM_DB_PASS=$(aws secretsmanager get-secret-value --secret-id "${stack_name}" --query SecretString --output text --region "${cfn_region}")
     /usr/bin/envsubst < slurmdbd.conf > "${SLURM_ETC}/slurmdbd.conf"
     /usr/bin/envsubst < slurm_sacct.conf > "${SLURM_ETC}/slurm_sacct.conf"
+    /usr/bin/envsubst < db.config > db.pass.config
     
-    mysql --defaults-extra-file="db.config" < "grant.mysql"
+    mysql --defaults-extra-file="db.pass.config" < "grant.mysql"
+    rm db.pass.config db.config
     echo "include slurm_sacct.conf" >> "${SLURM_ETC}/slurm.conf"
 }
 
