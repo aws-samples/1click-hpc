@@ -113,6 +113,10 @@ Mappings:
       ZoneId1: apne1-az4
       ZoneId2: apne1-az1
       DbInstanceType: db.t2.micro
+    ap-northeast-2:
+      ZoneId1: apne2-az1
+      ZoneId2: apne2-az3
+      DbInstanceType: db.t2.micro
     ap-south-1:
       ZoneId1: aps1-az2
       ZoneId2: aps1-az3
