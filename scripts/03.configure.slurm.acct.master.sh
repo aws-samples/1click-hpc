@@ -56,6 +56,8 @@ configureSACCT() {
     mysql --defaults-extra-file="db.pass.config" < "grant.mysql"
     rm db.pass.config db.config
     echo "include slurm_sacct.conf" >> "${SLURM_ETC}/slurm.conf"
+    chmod 600 /opt/slurm/etc/slurmdbd.conf
+    chown slurm:slurm /opt/slurm/etc/slurmdbd.conf
 }
 
 restartSlurmDaemons() {
