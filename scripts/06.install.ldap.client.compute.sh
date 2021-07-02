@@ -33,6 +33,7 @@ prepare_ldap_client() {
                --update
     systemctl restart nslcd
     systemctl restart dbus
+    systemctl restart systemd-logind
 }
 
 # main
