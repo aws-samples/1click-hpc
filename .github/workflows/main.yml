@@ -1,9 +1,9 @@
-name: Upload Website
+name: CloudFormation Template S3 upload
 
 on:
   push:
     branches:
-    - master
+    - main
 
 jobs:
   deploy:
