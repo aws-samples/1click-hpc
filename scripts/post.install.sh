@@ -30,22 +30,22 @@ runScripts() {
     echo "Getting packages from ${post_install_url}"
     for script in ${myscripts}; do
         if [[ ${proto} == "https://" ]]; then
-            wget -nv -P /tmp/scripts "${post_install_url}/${script}" || exit 1 
+            wget -nv -P "${TMP_MODULES_DIR}" "${post_install_base}/modules/${script}" || exit 1 
         elif [[ ${proto} == "s3://" ]]; then
-            aws s3 cp ${post_install_url}/${script} /tmp/scripts/ --region "${cfn_region}" || exit 1
+            aws s3 cp ${post_install_base}/modules/${script} "${TMP_MODULES_DIR}" --region "${cfn_region}" || exit 1
         else
             exit 1
         fi
     done
 
-    chmod 755 -R /tmp/scripts/*
+    chmod 755 -R "${TMP_MODULES_DIR}"*
     # run scripts according to node type
     if [[ ${cfn_node_type} == MasterServer ]]; then
-        find /tmp/scripts -type f -name '[0-9][0-9]*.master.sh' -print0 | \
+        find "${TMP_MODULES_DIR}" -type f -name '[0-9][0-9]*.master.sh' -print0 | \
             sort -z -n | xargs -0 -I '{}' /bin/bash -c '{}'
     fi
     if [[ ${cfn_node_type} == ComputeFleet ]]; then
-        find /tmp/scripts -type f -name '[0-9][0-9]*.compute.sh' -print0 | \
+        find "${TMP_MODULES_DIR}" -type f -name '[0-9][0-9]*.compute.sh' -print0 | \
             sort -z -n | xargs -0 -I '{}' /bin/bash -c '{}'
     fi
 }
@@ -69,7 +69,7 @@ main() {
 }
 
 export NICE_GPG_KEY_URL=${NICE_GPG_KEY_URL:-"https://d1uj6qtbmh3dt5.cloudfront.net/NICE-GPG-KEY"}
-
+export TMP_MODULES_DIR="/tmp/modules/"
 export post_install_url=$(dirname ${cfn_postinstall})
 export post_install_base=$(dirname "${post_install_url}")
 export proto="$(echo $post_install_url | grep :// | sed -e's,^\(.*://\).*,\1,g')"

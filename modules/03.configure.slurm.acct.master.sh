@@ -21,7 +21,6 @@ source /etc/parallelcluster/cfnconfig
 export SLURM_ROOT="/opt/slurm"
 export SLURM_ETC="${SLURM_ROOT}/etc"
 
-set -x
 set -e
 
 installPreReq() {
