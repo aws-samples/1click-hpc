@@ -6,7 +6,7 @@ Following the instructions below a fully functional and ready to use HPC cluster
 
 ## Step 1
 Click the link below corresponding to your preferred [AWS Region](https://aws.amazon.com/about-aws/global-infrastructure/regions_az/) .
-You will be asked a few questions about services like VPC, FSx, etc; if you have no idea how to answer or what these services are, just leve the detault values. 
+You will be asked a few questions about services like VPC, FSx, etc; if you have no idea how to answer or what these services are, just leave the detault values. 
 1Click-HPC will take care of creating everything needed for your HPC Cluster to run.
 
 | Region       | Launch                                                                                                                                                                                                                                                                                                             | 
