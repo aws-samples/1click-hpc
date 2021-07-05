@@ -51,6 +51,7 @@ imported_file_chunk_size = 1024
 export_path = s3://${S3_BUCKET}
 deployment_type = SCRATCH_2
 auto_import_policy = NEW_CHANGED
+data_compression_type = LZ4
 
 [fsx existing]
 shared_dir = /fsx
