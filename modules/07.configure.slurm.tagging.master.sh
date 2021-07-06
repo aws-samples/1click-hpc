@@ -27,16 +27,16 @@ set -e
 
 configureSACCT() {
     if [[ ${proto} == "https://" ]]; then
-        wget -nv -P "${SLURM_ETC}/" "${post_install_base}/scripts/prologSlurmctld.sh" || exit 1
+        wget -nv -P "${SLURM_ETC}/" "${post_install_base}/scripts/prolog.sh" || exit 1
     elif [[ ${proto} == "s3://" ]]; then
-        aws s3 cp "${post_install_base}/scripts/prologSlurmctld.sh" "${SLURM_ETC}/" --region "${cfn_region}" || exit 1
+        aws s3 cp "${post_install_base}/scripts/prolog.sh" "${SLURM_ETC}/" --region "${cfn_region}" || exit 1
     else
         exit 1
     fi
     
-    chmod +x "${SLURM_ETC}/prologSlurmctld.sh"
+    chmod +x "${SLURM_ETC}/prolog.sh"
     
-    echo "PrologSlurmctld=/opt/slurm/etc/prologSlurmctld.sh" >> "${SLURM_ETC}/slurm.conf"
+    echo "Prolog=/opt/slurm/etc/prolog.sh" >> "${SLURM_ETC}/slurm.conf"
 }
 
 restartSlurmDaemons() {
