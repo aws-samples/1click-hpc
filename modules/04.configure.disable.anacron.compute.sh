@@ -26,12 +26,20 @@ disableAnacron() {
     mv -f --backup /etc/anacrontab.tmp /etc/anacrontab
 }
 
+#temporary fix to manually downgrade CloudWatch: https://github.com/aws/aws-parallelcluster/wiki/Possible-performance-degradation-on-ALinux2-when-using-ParallelCluster-2.11.0-and-custom-AMIs-from-2.6.0-to-2.11.0
+downgradeCW(){
+    systemctl stop amazon-cloudwatch-agent.service
+    yum -y downgrade amazon-cloudwatch-agent-1.247347.4-1.amzn2
+    systemctl start amazon-cloudwatch-agent.service
+    
+}
 
 # main
 # ----------------------------------------------------------------------------
 main() {
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 04.configure.disable.anacron.compute.sh: START" >&2
     disableAnacron
+    downgradeCW
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 04.configure.disable.anacron.compute.sh: STOP" >&2
 }
 
