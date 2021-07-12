@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [[ -f /home/ec2-user/environment/bootstrap.log ]]; then
+    exit 1
+fi
+
 set -x
 exec >/home/ec2-user/environment/bootstrap.log; exec 2>&1
 
@@ -44,8 +48,12 @@ fi
 /usr/bin/envsubst < "1click-hpc/parallelcluster/config.${AWS_REGION_NAME}.sample" > cluster.config
 /usr/bin/envsubst '${SLURM_DB_ENDPOINT}' < "1click-hpc/sacct/mysql/db.config" > db.config
 /usr/bin/envsubst '${SLURM_DB_ENDPOINT}' < "1click-hpc/sacct/slurm/slurmdbd.conf" > slurmdbd.conf
+/usr/bin/envsubst '${S3_BUCKET}' < "1click-hpc/enginframe/fm.browse.ui" > fm.browse.ui
+
 aws s3 cp db.config "s3://${S3_BUCKET}/1click-hpc/sacct/mysql/db.config" --region "${AWS_REGION_NAME}"
 aws s3 cp slurmdbd.conf "s3://${S3_BUCKET}/1click-hpc/sacct/slurm/slurmdbd.conf" --region "${AWS_REGION_NAME}"
+aws s3 cp fm.browse.ui "s3://${S3_BUCKET}/1click-hpc/enginframe/fm.browse.ui" --region "${AWS_REGION_NAME}"
+rm -f db.config slurmdbd.conf fm.browse.ui
 sudo chown -R ec2-user:ec2-user /home/ec2-user/
 
 #Create the cluster

@@ -438,6 +438,7 @@ Resources:
           inputs:
             runCommand:
             - "#!/bin/bash"
+            - if [[ -f /home/ec2-user/environment/lambda.log ]]; then exit 1; fi
             - set -x
             - exec >/home/ec2-user/environment/lambda.log; exec 2>&1 
             - echo LANG=en_US.utf-8 >> /etc/environment
