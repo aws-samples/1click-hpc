@@ -1,0 +1,102 @@
+#!/bin/bash
+# (C) @YEAR@  Amazon Web Services, Inc. or its affiliates.  All Rights Reserved.
+# This  AWS Content  is provided  subject  to the  terms of  the AWS  Customer
+# Agreement  available  at  http://aws.amazon.com/agreement or  other  written
+# agreement between Customer and Amazon  Web Services, Inc.; provided that AWS
+# grants  Customer a  worldwide, royalty-free,  non-exclusive, nontransferable
+# license to use, reproduce, display, perform, and prepare derivative works of
+# this  AWS Content.  Except as  provided  herein, Customer  obtains no  other
+# rights from  AWS, its affiliates,  or their  licensors to this  AWS Content,
+# including without  limitation any related intellectual  property rights. AWS
+# will be the  exclusive owner of any modifications to  or derivative works of
+# this AWS  Content. Customer acknowledges  that this AWS Content  is provided
+# "as is" without  representations or warranties of any  kind. Customer is
+# solely responsible  for testing, deploying, maintaining  and supporting this
+# AWS Content and for determining the  suitability of this AWS Content for its
+# business purposes.
+#------------------------------------------------------------------
+# S3 backend
+# This script produces in its standard output an xml representation
+# of the ls command output.
+#
+# Usage: fm.browse <path>
+#
+# - path:    the current path (relative to vroot)
+#------------------------------------------------------------------
+. "${EF_ROOT}/plugins/ef/lib/functions"
+. "${EF_ROOT}/plugins/fm/fm/backends/common"
+. "${EF_ROOT}/plugins/fm/fm/backends/s3/common"
+_check_parameters() {
+    if [ -z "$1" ]; then
+        fatal "The directory contents could not be displayed." "Missing input parameter: current path"
+    fi
+}
+main() {
+    _check_parameters "$@"
+    local -r _path="$1"
+    local -r _fullpath="${FM_VROOT_PATH}${_path}"
+    if [[ "${FM_VROOT_PATH}" != "/" ]]; then
+        if [[ ! ${_fullpath} == ${FM_VROOT_PATH} ]] && [[ ! ${_fullpath} == ${FM_VROOT_PATH}/* ]]; then
+            echo "The contents of directory \"${_full_canonical_path}\" cannot be displayed. Forbidden access." >&2
+            exit 1
+        fi
+    fi
+    local -r _s3_fullpath=$(echo "${_fullpath}/" | sed "s#^/*##g;s#//#/#g")
+    local -r _s3_bucket="${FM_VROOT_HOST}"
+    local _folders_listing_options
+    local _files_listing_options
+    local _sorted
+    _folders_listing_options="CommonPrefixes"
+    case "$sortBy" in
+    size:asc)
+      _files_listing_options="Contents && sort_by(Contents, &Size)"
+      _sorted="true"
+      ;;
+    size:desc)
+      _files_listing_options="Contents && reverse(sort_by(Contents, &Size))"
+      _sorted="true"
+      ;;
+    modified:asc)
+      _files_listing_options="Contents && sort_by(Contents, &LastModified)"
+      _sorted="true"
+      ;;
+    modified:desc)
+      _files_listing_options="Contents && reverse(sort_by(Contents, &LastModified))"
+      _sorted="true"
+      ;;
+    name:desc)
+      _folders_listing_options="CommonPrefixes && sort_by(CommonPrefixes, &Prefix)"
+      _files_listing_options="Contents && sort_by(Contents, &Key)"
+      _sorted="true"
+      ;;
+    name:asc)
+      _folders_listing_options="CommonPrefixes && reverse(sort_by(CommonPrefixes, &Prefix))"
+      _files_listing_options="Contents && reverse(sort_by(Contents, &Key))"
+      _sorted="true"
+      ;;
+    *)
+      _files_listing_options="Contents"
+      _sorted="false"
+      ;;
+    esac
+    # NOTE: the stdout of "aws s3 ls" is not UTF-8 compatible with pipes ==> let's use s3api
+    _output=$( ${S3_CLI_BIN} --output text s3api list-objects \
+        --bucket "${_s3_bucket}" \
+        --prefix "${_s3_fullpath}" \
+        --no-paginate \
+        --delimiter '/' \
+        --query "[${_folders_listing_options}[].[null,null,Prefix],${_files_listing_options}[].[LastModified, Size, Key]] | []" 2>&1 )
+    if [ $? -ne 0 ]; then
+        fatal "Remote file listing denied" "${_output}"
+    fi
+    echo "${_output}" | "${EF_ROOT}/plugins/fm/lib/ls2xml" \
+        --vroot "${vroot}" \
+        --path "${_path}" \
+        --target "file" \
+        --sortby "${sortBy}" \
+        --filter "${filter}" \
+        --sorted "${_sorted}" \
+        --filtered "false"
+}
+main "$@"
+# ex:ts=2:et:

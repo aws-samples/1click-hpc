@@ -53,9 +53,10 @@ configureEnginFrame() {
         wget -nv -P "${EF_ROOT}/plugins/themes/lib/xsl/nice-jump/" "${post_install_base}/enginframe/layout.templates.xsl" || exit 1
         wget -nv -P "${EF_ROOT}/plugins/applications/WEBAPP/" "${post_install_base}/enginframe/applications.xml" || exit 1
         wget -nv -P "${EF_ROOT}/plugins/applications/bin/" "${post_install_base}/enginframe/fm.browse.ui" || exit 1
+        
+        ### FIX: To Be Removed with the next release of EF
+        wget -nv -P "${EF_ROOT}/plugins/fm/fm/backends/s3/" "${post_install_base}/enginframe/fm.browse" || exit 1
 
-
-    
     elif [[ ${proto} == "s3://" ]]; then
         aws s3 cp "${post_install_base}/enginframe/applications.admin.xml" "${EF_ROOT}/plugins/applications/WEBAPP/" --region "${cfn_region}" || exit 1
         aws s3 cp "${post_install_base}/enginframe/applications.manage.users.ui" "${EF_ROOT}/plugins/applications/bin/" --region "${cfn_region}" || exit 1
@@ -66,6 +67,9 @@ configureEnginFrame() {
         aws s3 cp "${post_install_base}/enginframe/layout.templates.xsl" "${EF_ROOT}/plugins/themes/lib/xsl/nice-jump/" --region "${cfn_region}" || exit 1
         aws s3 cp "${post_install_base}/enginframe/applications.xml" "${EF_ROOT}/plugins/applications/WEBAPP/" --region "${cfn_region}" || exit 1
         aws s3 cp "${post_install_base}/enginframe/fm.browse.ui" "${EF_ROOT}/plugins/applications/bin/" --region "${cfn_region}" || exit 1
+        
+        ### FIX: To Be Removed with the next release of EF
+        aws s3 cp "${post_install_base}/enginframe/fm.browse" "${EF_ROOT}/plugins/fm/fm/backends/s3/" --region "${cfn_region}" || exit 1
 
     else
         exit 1
@@ -82,12 +86,19 @@ configureEnginFrame() {
     chown ec2-user:efnobody "${EF_ROOT}/plugins/applications/WEBAPP/applications.xml"
     chown ec2-user:efnobody "${EF_ROOT}/plugins/applications/bin/fm.browse.ui"
     
+    ### FIX: To Be Removed with the next release of EF
+    chown ec2-user:efnobody "${EF_ROOT}/plugins/fm/fm/backends/s3/fm.browse"
+    
     chmod 755 "${EF_ROOT}/plugins/applications/bin/applications.manage.users.ui"
     chmod 755 "${EF_ROOT}/plugins/applications/bin/fm.browse.ui"
 
+    ### FIX: To Be Removed with the next release of EF
+    chmod 755 "${EF_ROOT}/plugins/fm/fm/backends/s3/fm.browse"
+
     sed -i \
         "s/^HY_CONNECT_SESSION_MAX_WAIT=.*$/HY_CONNECT_SESSION_MAX_WAIT='600'/" \
-        "${EF_ROOT}/plugins/hydrogen/conf/ui.hydrogen.conf"             
+        "${EF_ROOT}/plugins/hydrogen/conf/ui.hydrogen.conf"
+         
 }
 
 startEnginFrame() {
