@@ -33,13 +33,13 @@ export EF_ROOT="${EF_TOP}/${EF_VERSION}/enginframe"
 # ----------------------------------------------------------------------------
 configureEnginFrame() {
 
-    mv "${EF_ROOT}/plugins/applications/WEBAPP/applications.admin.xml" "${EF_ROOT}/plugins/applications/WEBAPP/applications.admin.xml.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
-    mv "${EF_ROOT}/plugins/applications/bin/applications.manage.users.ui" "${EF_ROOT}/plugins/applications/bin/applications.manage.users.ui.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
-    mv "${EF_ROOT}/plugins/user-group-manager/lib/xml/com.enginframe.user-group-manager.xml" "${EF_ROOT}/plugins/user-group-manager/lib/xml/com.enginframe.user-group-manager.xml.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
-    mv "${EF_ROOT}/plugins/applications/WEBAPP/js/widgets/hydrogen.manage-users.js" "${EF_ROOT}/plugins/applications/WEBAPP/js/widgets/hydrogen.manage-users.js.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
-    mv "${EF_ROOT}/plugins/vdi/WEBAPP/vdi.admin.xml" "${EF_ROOT}/plugins/vdi/WEBAPP/vdi.admin.xml.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
-    mv "${EF_ROOT}/plugins/themes/lib/xsl/nice-jump/layout.templates.xsl" "${EF_ROOT}/plugins/themes/lib/xsl/nice-jump/layout.templates.xsl.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
-    mv "${EF_ROOT}/plugins/applications/WEBAPP/applications.xml" "${EF_ROOT}/plugins/applications/WEBAPP/applications.xml.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
+    mv -f "${EF_ROOT}/plugins/applications/WEBAPP/applications.admin.xml" "${EF_ROOT}/plugins/applications/WEBAPP/applications.admin.xml.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
+    mv -f "${EF_ROOT}/plugins/applications/bin/applications.manage.users.ui" "${EF_ROOT}/plugins/applications/bin/applications.manage.users.ui.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
+    mv -f "${EF_ROOT}/plugins/user-group-manager/lib/xml/com.enginframe.user-group-manager.xml" "${EF_ROOT}/plugins/user-group-manager/lib/xml/com.enginframe.user-group-manager.xml.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
+    mv -f "${EF_ROOT}/plugins/applications/WEBAPP/js/widgets/hydrogen.manage-users.js" "${EF_ROOT}/plugins/applications/WEBAPP/js/widgets/hydrogen.manage-users.js.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
+    mv -f "${EF_ROOT}/plugins/vdi/WEBAPP/vdi.admin.xml" "${EF_ROOT}/plugins/vdi/WEBAPP/vdi.admin.xml.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
+    mv -f "${EF_ROOT}/plugins/themes/lib/xsl/nice-jump/layout.templates.xsl" "${EF_ROOT}/plugins/themes/lib/xsl/nice-jump/layout.templates.xsl.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
+    mv -f "${EF_ROOT}/plugins/applications/WEBAPP/applications.xml" "${EF_ROOT}/plugins/applications/WEBAPP/applications.xml.$(date '+%Y-%m-%d-%H-%M-%S').BAK"
 
 
 

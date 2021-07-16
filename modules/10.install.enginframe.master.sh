@@ -95,7 +95,7 @@ installEnginFrame() {
     fi
 
     if [[ -d "${SHARED_FS_DIR}/nice" ]]; then
-        mv  "${SHARED_FS_DIR}/nice" "${SHARED_FS_DIR}/nice.$(date "+%d-%m-%Y-%H-%M").BAK"
+        mv  -f "${SHARED_FS_DIR}/nice" "${SHARED_FS_DIR}/nice.$(date "+%d-%m-%Y-%H-%M").BAK"
     fi
     
     # finally, launch EnginFrame installer
