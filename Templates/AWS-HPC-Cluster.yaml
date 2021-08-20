@@ -727,6 +727,7 @@ Resources:
           import cfnresponse
           from botocore.exceptions import ClientError
           def handler(event, context):
+              print(event)
               data = {}
               try:
                   if event['RequestType'] == 'Create':
@@ -737,6 +738,7 @@ Resources:
                   cfnresponse.send(event, context, cfnresponse.SUCCESS, data)
               except ClientError as e:
                   data['ClientError'] = e.response['Error']['Code']
+                  data['ClientErrorMessage'] = e.response['Error']['Message']
                   cfnresponse.send(event, context, cfnresponse.FAILED, data)
               except Exception as e:
                   data['Exception'] = str(e)
