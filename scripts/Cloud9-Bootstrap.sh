@@ -15,7 +15,8 @@ cd /home/ec2-user/environment
 sudo amazon-linux-extras install -y lustre2.10
 
 #install AWS ParallelCluster
-pip3 install --user -U aws-parallelcluster
+#pip3 install --user -U aws-parallelcluster
+pip3 install "aws-parallelcluster<3.0" --upgrade --user
 
 #Create the key pair (remove the existing one if it has the same name)
 aws ec2 create-key-pair --key-name ${KEY_PAIR} --query KeyMaterial --output text > /home/ec2-user/.ssh/id_rsa
