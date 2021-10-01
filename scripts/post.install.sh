@@ -82,7 +82,7 @@ export ec2user_home=$(getent passwd | grep ec2-user | sed 's/^.*:.*:.*:.*:.*:\(.
 export dna_json="/etc/chef/dna.json"
 
 if [[ -z "${cfn_postinstall_args}" ]]; then
-    export myscripts="03.configure.slurm.acct.master.sh 04.configure.slurm.AllOrNothing.master.sh 04.configure.disable.anacron.compute.sh 05.install.ldap.server.master.sh 06.install.ldap.client.compute.sh 06.install.ldap.client.master.sh 07.configure.slurm.tagging.master.sh 10.install.enginframe.master.sh 11.install.ldap.enginframe.master.sh 12.configure.enginframe.alb.master.sh 20.install.dcv.slurm.master.sh 25.install.dcv-server.compute.sh 26.configure.dcv.alb.compute.sh 35.install.dcv.slurm.compute.sh"  
+    export myscripts="03.configure.slurm.acct.master.sh 04.configure.slurm.AllOrNothing.master.sh 04.configure.disable.anacron.compute.sh 05.install.ldap.server.master.sh 06.install.ldap.client.compute.sh 06.install.ldap.client.master.sh 07.configure.slurm.tagging.master.sh 10.install.enginframe.master.sh 11.install.ldap.enginframe.master.sh 12.configure.enginframe.alb.master.sh 20.install.dcv.slurm.master.sh 25.install.dcv-server.compute.sh 26.configure.dcv.alb.compute.sh 35.install.dcv.slurm.compute.sh 40.install.monitoring.master.sh 40.install.monitoring.compute.sh"  
 else
     export myscripts="${@:2}"
 fi
