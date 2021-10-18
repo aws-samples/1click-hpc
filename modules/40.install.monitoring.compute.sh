@@ -21,7 +21,7 @@ compute_instance_type=$(ec2-metadata -t | awk '{print $2}')
 gpu_instances="[pg][2-9].*\.[0-9]*[x]*large"
 
 monitoring_dir_name="monitoring"
-monitoring_home="${SHARED_FS_DIR}/1click-hpc/${monitoring_dir_name}"
+monitoring_home="${SHARED_FS_DIR}/${monitoring_dir_name}"
 
 set -x
 set -e

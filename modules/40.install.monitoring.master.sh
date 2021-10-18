@@ -25,6 +25,7 @@ monitoring_home="${SHARED_FS_DIR}/${monitoring_dir_name}"
 chef_dna="/etc/chef/dna.json"
 s3_bucket=$(echo $cfn_postinstall | sed "s/s3:\/\///g;s/\/.*//")
 grafana_password=$(aws secretsmanager get-secret-value --secret-id "${stack_name}" --query SecretString --output text --region "${cfn_region}")
+NICE_ROOT=$(jq --arg default "${SHARED_FS_DIR}/nice" -r '.post_install.enginframe | if has("nice_root") then .nice_root else $default end' "${dna_json}")
 
 
 set -x
@@ -60,6 +61,8 @@ installMonitoring(){
 
 	cp -rp ${monitoring_home}/custom-metrics/* /usr/local/bin/
 	mv -f "${monitoring_home}/prometheus-slurm-exporter/slurm_exporter.service" /etc/systemd/system/
+	
+	cp -rp ${monitoring_home}/www/* "${NICE_ROOT}/enginframe/conf/tomcat/webapps/ROOT/"
 }
 
 

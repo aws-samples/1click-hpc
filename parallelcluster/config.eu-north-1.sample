@@ -40,7 +40,7 @@ queue_settings = batch-efa, batch, dcv-gpu, dcv, spot-batch-efa
 post_install = ${POST_INSTALL}
 post_install_args = "${POST_INSTALL_ARGS}"
 tags = {"EnginFrame" : "true", "1Click-HPC" : "true", "1Click-HPC-version" : "0.1", "1Click-HPC-Template" : "limited-ec2" }
-additional_iam_policies = arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess,arn:aws:iam::aws:policy/SecretsManagerReadWrite
+additional_iam_policies = arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess,arn:aws:iam::aws:policy/SecretsManagerReadWrite,arn:aws:iam::aws:policy/CloudWatchFullAccess,arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess,arn:aws:iam::aws:policy/AmazonSSMFullAccess,arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
 ${EXTRA_JSON}
 
 [fsx new]

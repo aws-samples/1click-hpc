@@ -3,7 +3,7 @@ Description=Prometheus SLURM Exporter
 
 [Service]
 Environment=PATH=/opt/slurm/bin:$PATH
-ExecStart=/usr/bin/prometheus-slurm-exporter -listen-address 8081
+ExecStart=/usr/bin/prometheus-slurm-exporter -listen-address 0.0.0.0:8081
 Restart=on-failure
 RestartSec=15
 Type=simple
