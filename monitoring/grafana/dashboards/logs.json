@@ -1,0 +1,729 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "links": [
+    {
+      "$$hashKey": "object:58",
+      "icon": "external link",
+      "tags": [],
+      "type": "dashboards"
+    }
+  ],
+  "panels": [
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 15,
+      "panels": [],
+      "title": "Slurm",
+      "type": "row"
+    },
+    {
+      "datasource": "cloudwatch",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 12,
+        "x": 0,
+        "y": 1
+      },
+      "id": 16,
+      "options": {
+        "showLabels": false,
+        "showTime": false,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "alias": "",
+          "apiMode": "Logs",
+          "dimensions": {},
+          "expression": "fields @timestamp, @message, @logStream\n| sort @timestamp desc\n| limit 20\n| filter @logStream like /slurmctld/",
+          "id": "",
+          "logGroupNames": [
+            "__LOG_GROUP__NAMES__"
+          ],
+          "matchExact": true,
+          "metricName": "",
+          "namespace": "",
+          "period": "",
+          "queryMode": "Logs",
+          "refId": "A",
+          "region": "__AWS_REGION__",
+          "statistics": [
+            "Average"
+          ],
+          "statsGroups": []
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Slurmctld",
+      "type": "logs"
+    },
+    {
+      "datasource": "cloudwatch",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 12,
+        "x": 12,
+        "y": 1
+      },
+      "id": 17,
+      "options": {
+        "showLabels": false,
+        "showTime": false,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "alias": "",
+          "apiMode": "Logs",
+          "dimensions": {},
+          "expression": "fields @timestamp, @message, @logStream\n| sort @timestamp desc\n| limit 20\n| filter @logStream like /slurmd/",
+          "id": "",
+          "logGroupNames": [
+            "__LOG_GROUP__NAMES__"
+          ],
+          "matchExact": true,
+          "metricName": "",
+          "namespace": "",
+          "period": "",
+          "queryMode": "Logs",
+          "refId": "A",
+          "region": "__AWS_REGION__",
+          "statistics": [
+            "Average"
+          ],
+          "statsGroups": []
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Slurmd",
+      "type": "logs"
+    },
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "id": 10,
+      "panels": [],
+      "title": "Watchers",
+      "type": "row"
+    },
+    {
+      "datasource": "cloudwatch",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 8,
+        "x": 0,
+        "y": 14
+      },
+      "id": 11,
+      "options": {
+        "showLabels": false,
+        "showTime": false,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "alias": "",
+          "apiMode": "Logs",
+          "dimensions": {},
+          "expression": "fields @timestamp, @message, @logStream\n| sort @timestamp desc\n| limit 20\n| filter @logStream like /sqswatcher/",
+          "id": "",
+          "logGroupNames": [
+            "__LOG_GROUP__NAMES__"
+          ],
+          "matchExact": true,
+          "metricName": "",
+          "namespace": "",
+          "period": "",
+          "queryMode": "Logs",
+          "refId": "A",
+          "region": "__AWS_REGION__",
+          "statistics": [
+            "Average"
+          ],
+          "statsGroups": []
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "SQS-Watcher Logs",
+      "type": "logs"
+    },
+    {
+      "datasource": "cloudwatch",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 8,
+        "x": 8,
+        "y": 14
+      },
+      "id": 12,
+      "options": {
+        "showLabels": false,
+        "showTime": false,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "alias": "",
+          "apiMode": "Logs",
+          "dimensions": {},
+          "expression": "fields @timestamp, @message, @logStream\n| sort @timestamp desc\n| limit 20\n| filter @logStream like /nodewatcher/",
+          "id": "",
+          "logGroupNames": [
+            "__LOG_GROUP__NAMES__"
+          ],
+          "matchExact": true,
+          "metricName": "",
+          "namespace": "",
+          "period": "",
+          "queryMode": "Logs",
+          "refId": "A",
+          "region": "__AWS_REGION__",
+          "statistics": [
+            "Average"
+          ],
+          "statsGroups": []
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Node Watcher Logs",
+      "type": "logs"
+    },
+    {
+      "datasource": "cloudwatch",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 8,
+        "x": 16,
+        "y": 14
+      },
+      "id": 13,
+      "options": {
+        "showLabels": false,
+        "showTime": false,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "alias": "",
+          "apiMode": "Logs",
+          "dimensions": {},
+          "expression": "fields @timestamp, @message, @logStream\n| sort @timestamp desc\n| limit 20\n| filter @logStream like /jobwatcher/",
+          "id": "",
+          "logGroupNames": [
+            "__LOG_GROUP__NAMES__"
+          ],
+          "matchExact": true,
+          "metricName": "",
+          "namespace": "",
+          "period": "",
+          "queryMode": "Logs",
+          "refId": "A",
+          "region": "__AWS_REGION__",
+          "statistics": [
+            "Average"
+          ],
+          "statsGroups": []
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "JOB Watcher Logs",
+      "type": "logs"
+    },
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 29
+      },
+      "id": 19,
+      "panels": [],
+      "title": "Init",
+      "type": "row"
+    },
+    {
+      "datasource": "cloudwatch",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 12,
+        "x": 0,
+        "y": 30
+      },
+      "id": 20,
+      "options": {
+        "showLabels": false,
+        "showTime": false,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "alias": "",
+          "apiMode": "Logs",
+          "dimensions": {},
+          "expression": "fields @timestamp, @message, @logStream\n| sort @timestamp desc\n| limit 20\n| filter @logStream like /cfn-init/",
+          "id": "",
+          "logGroupNames": [
+            "__LOG_GROUP__NAMES__"
+          ],
+          "matchExact": true,
+          "metricName": "",
+          "namespace": "",
+          "period": "",
+          "queryMode": "Logs",
+          "refId": "A",
+          "region": "__AWS_REGION__",
+          "statistics": [
+            "Average"
+          ],
+          "statsGroups": []
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "cfn-init",
+      "type": "logs"
+    },
+    {
+      "datasource": "cloudwatch",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 11,
+        "x": 12,
+        "y": 30
+      },
+      "id": 21,
+      "options": {
+        "showLabels": false,
+        "showTime": false,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "alias": "",
+          "apiMode": "Logs",
+          "dimensions": {},
+          "expression": "fields @timestamp, @message, @logStream\n| sort @timestamp desc\n| limit 20\n| filter @logStream like /cloud-init/",
+          "id": "",
+          "logGroupNames": [
+            "__LOG_GROUP__NAMES__"
+          ],
+          "matchExact": true,
+          "metricName": "",
+          "namespace": "",
+          "period": "",
+          "queryMode": "Logs",
+          "refId": "A",
+          "region": "__AWS_REGION__",
+          "statistics": [
+            "Average"
+          ],
+          "statsGroups": []
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "cloud-init",
+      "type": "logs"
+    },
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 43
+      },
+      "id": 23,
+      "panels": [],
+      "title": "Others",
+      "type": "row"
+    },
+    {
+      "datasource": "cloudwatch",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 12,
+        "x": 0,
+        "y": 44
+      },
+      "id": 24,
+      "options": {
+        "showLabels": false,
+        "showTime": false,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "alias": "",
+          "apiMode": "Logs",
+          "dimensions": {},
+          "expression": "fields @timestamp, @message, @logStream\n| sort @timestamp desc\n| limit 20\n| filter @logStream like /supervisord/",
+          "id": "",
+          "logGroupNames": [
+            "__LOG_GROUP__NAMES__"
+          ],
+          "matchExact": true,
+          "metricName": "",
+          "namespace": "",
+          "period": "",
+          "queryMode": "Logs",
+          "refId": "A",
+          "region": "__AWS_REGION__",
+          "statistics": [
+            "Average"
+          ],
+          "statsGroups": []
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Supervisord",
+      "type": "logs"
+    },
+    {
+      "datasource": "cloudwatch",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 12,
+        "x": 12,
+        "y": 44
+      },
+      "id": 25,
+      "options": {
+        "showLabels": false,
+        "showTime": false,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "alias": "",
+          "apiMode": "Logs",
+          "dimensions": {},
+          "expression": "fields @timestamp, @message, @logStream\n| sort @timestamp desc\n| limit 20\n| filter @logStream like /system-messages/",
+          "id": "",
+          "logGroupNames": [
+            "__LOG_GROUP__NAMES__"
+          ],
+          "matchExact": true,
+          "metricName": "",
+          "namespace": "",
+          "period": "",
+          "queryMode": "Logs",
+          "refId": "A",
+          "region": "__AWS_REGION__",
+          "statistics": [
+            "Average"
+          ],
+          "statsGroups": []
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "System Messages",
+      "type": "logs"
+    },
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 58
+      },
+      "id": 6,
+      "panels": [],
+      "title": "DCV",
+      "type": "row"
+    },
+    {
+      "datasource": "cloudwatch",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 12,
+        "x": 0,
+        "y": 59
+      },
+      "id": 3,
+      "options": {
+        "showLabels": false,
+        "showTime": false,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "alias": "",
+          "apiMode": "Logs",
+          "dimensions": {},
+          "expression": "fields @timestamp, @message, @logStream\n| sort @timestamp desc\n| limit 20\n| filter @logStream like /dcv-authenticator/",
+          "id": "",
+          "logGroupNames": [
+            "__LOG_GROUP__NAMES__"
+          ],
+          "matchExact": true,
+          "metricName": "",
+          "namespace": "",
+          "period": "",
+          "queryMode": "Logs",
+          "refId": "A",
+          "region": "__AWS_REGION__",
+          "statistics": [
+            "Average"
+          ],
+          "statsGroups": []
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "DCV Authenticator Logs",
+      "type": "logs"
+    },
+    {
+      "datasource": "cloudwatch",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 12,
+        "x": 12,
+        "y": 59
+      },
+      "id": 4,
+      "options": {
+        "showLabels": false,
+        "showTime": false,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "alias": "",
+          "apiMode": "Logs",
+          "dimensions": {},
+          "expression": "fields @timestamp, @message, @logStream\n| sort @timestamp desc\n| limit 20\n| filter @logStream like /dcv-server/",
+          "id": "",
+          "logGroupNames": [
+            "__LOG_GROUP__NAMES__"
+          ],
+          "matchExact": true,
+          "metricName": "",
+          "namespace": "",
+          "period": "",
+          "queryMode": "Logs",
+          "refId": "A",
+          "region": "__AWS_REGION__",
+          "statistics": [
+            "Average"
+          ],
+          "statsGroups": []
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "DCV Server Logs",
+      "type": "logs"
+    },
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 72
+      },
+      "id": 8,
+      "panels": [],
+      "title": "Aggregate Logs",
+      "type": "row"
+    },
+    {
+      "datasource": "cloudwatch",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 73
+      },
+      "id": 2,
+      "options": {
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "alias": "",
+          "apiMode": "Logs",
+          "dimensions": {},
+          "expression": "fields @timestamp, @message \n| sort @timestamp desc\n| limit 20",
+          "id": "",
+          "logGroupNames": [
+            "__LOG_GROUP__NAMES__"
+          ],
+          "matchExact": true,
+          "metricName": "",
+          "namespace": "",
+          "period": "",
+          "queryMode": "Logs",
+          "refId": "A",
+          "region": "__AWS_REGION__",
+          "statistics": [
+            "Average"
+          ],
+          "statsGroups": []
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Cluster Logs (ALL)",
+      "type": "logs"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 25,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {
+    "hidden": false,
+    "refresh_intervals": [
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ]
+  },
+  "timezone": "",
+  "title": "Cluster Logs",
+  "uid": "o_8MQ5mMk",
+  "version": 1
+}

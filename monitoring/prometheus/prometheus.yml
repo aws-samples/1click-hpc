@@ -1,0 +1,73 @@
+#
+#
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+#
+#
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 15s
+
+scrape_configs:
+  - job_name: 'slurm_exporter'
+    scrape_interval:  30s
+    scrape_timeout:   30s
+    static_configs:
+      - targets: ['localhost:8081']
+  - job_name: 'pushgateway'
+    honor_labels: true
+    static_configs:
+      - targets: ['localhost:9091']
+  - job_name: 'prometheus_server'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['localhost:9090']
+  - job_name: 'ec2_instances'
+    scrape_interval: 5s
+    ec2_sd_configs:
+      - port: 9100
+        refresh_interval: 10s
+      - port: 9400
+        refresh_interval: 10s
+        filters:
+          - name: instance-type
+            values:
+              - p2.xlarge
+              - p2.8xlarge
+              - p2.16xlarge
+              - p3.2xlarge
+              - p3.8xlarge
+              - p3.16xlarge
+              - p3dn.24xlarge
+              - p4d.24xlarge
+              - g3s.xlarge
+              - g3.4xlarge
+              - g3.8xlarge
+              - g3.16xlarge
+              - g4dn.xlarge
+              - g4dn.2xlarge
+              - g4dn.4xlarge
+              - g4dn.8xlarge
+              - g4dn.16xlarge
+              - g4dn.12xlarge
+              - g4dn.metal
+    relabel_configs:
+      - source_labels: [__meta_ec2_tag_Name]
+        target_label: instance_name
+      - source_labels: [__meta_ec2_tag_Application]
+        target_label: instance_grafana
+        regex: __Application__
+        action: keep
+      - source_labels: [__meta_ec2_instance_id]
+        target_label: instance_id
+      - source_labels: [__meta_ec2_availability_zone]
+        target_label: instance_az
+      - source_labels: [__meta_ec2_instance_state]
+        regex: running
+        action: keep
+        target_label: instance_state
+      - source_labels: [__meta_ec2_instance_type]
+        target_label: instance_type
+      - source_labels: [__meta_ec2_vpc_id]
+        target_label: instance_vpc

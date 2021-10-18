@@ -1,0 +1,65 @@
+#
+#
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+#
+#
+version: '3.8'
+services:
+    pushgateway:
+        container_name: pushgateway
+        network_mode: host
+        pid: host
+        restart: unless-stopped
+        image: prom/pushgateway
+    prometheus:
+        container_name: prometheus
+        network_mode: host
+        pid: host
+        restart: unless-stopped
+        volumes:
+            - '__MONITORING_DIR__/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml'
+            - 'prometheus-data:/prometheus'
+        image: prom/prometheus
+        command:
+            - '--config.file=/etc/prometheus/prometheus.yml'
+            - '--storage.tsdb.path=/prometheus'
+            - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+            - '--web.console.templates=/usr/share/prometheus/consoles'
+            - '--web.external-url=/prometheus/'
+            - '--web.route-prefix=/'
+    grafana:
+        container_name: grafana
+        network_mode: host
+        pid: host
+        restart: unless-stopped
+        environment:
+            - 'GF_SECURITY_ADMIN_PASSWORD=__GRAFANA_PASSWORD__'
+            - 'GF_SERVER_ROOT_URL=http://%(domain)s/grafana/'
+        volumes:
+            - '__MONITORING_DIR__/grafana:/etc/grafana/provisioning'
+            - 'grafana-data:/var/lib/grafana'
+        image: grafana/grafana
+    prometheus-node-exporter:
+        container_name: node-exporter
+        network_mode: host
+        pid: host
+        restart: unless-stopped
+        volumes:
+            - '/:/host:ro,rslave'
+        image: quay.io/prometheus/node-exporter
+        command:
+            - '--path.rootfs=/host'
+    nginx:
+        container_name: nginx
+        network_mode: host
+        pid: host
+        restart: unless-stopped
+        volumes:
+            - '__MONITORING_DIR__/nginx/conf.d:/etc/nginx/conf.d/'
+            - '__MONITORING_DIR__/nginx/ssl:/etc/ssl/'
+            - '__MONITORING_DIR__/www:/usr/share/nginx/html'
+        image: nginx
+volumes:
+    prometheus-data:
+    grafana-data:
