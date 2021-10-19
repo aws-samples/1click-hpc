@@ -354,12 +354,16 @@ Resources:
   PCAdditionalSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: 'Allow 8443 from the ALB'
+      GroupDescription: 'Allow 8443 and 80 from the ALB'
       VpcId: !If [CreateVpc, !Ref VPC, !Ref VpcId]
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: 8443
         ToPort: 8443
+        SourceSecurityGroupId: !Ref ALBSecurityGroup
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
         SourceSecurityGroupId: !Ref ALBSecurityGroup
 
   SlurmDBSecurityGroup:
@@ -737,7 +741,7 @@ Resources:
                       delete_certificate(event)
                   cfnresponse.send(event, context, cfnresponse.SUCCESS, data)
               except ClientError as e:
-                  data['ClientError'] = e.response['Error']['Code']
+                  data['ClientErrorCode'] = e.response['Error']['Code']
                   data['ClientErrorMessage'] = e.response['Error']['Message']
                   cfnresponse.send(event, context, cfnresponse.FAILED, data)
               except Exception as e:
@@ -819,7 +823,6 @@ Resources:
       SecurityGroups:
         - !Ref ALBSecurityGroup
 
-
   HTTPSListener:
     Type: "AWS::ElasticLoadBalancingV2::Listener"
     Properties:
@@ -832,8 +835,34 @@ Resources:
       DefaultActions: 
         - 
           Order: 1
-          TargetGroupArn: !Ref TargetGroup
+          TargetGroupArn: !Ref TargetGroupEF
           Type: "forward"
+
+  GrafanaListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+      - Type: forward
+        TargetGroupArn: !Ref TargetGroupMonitoring
+      Conditions:
+      - Field: path-pattern
+        Values:
+        - "/grafana*"
+      ListenerArn: !Ref HTTPSListener
+      Priority: 1
+      
+  PrometheusListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+      - Type: forward
+        TargetGroupArn: !Ref TargetGroupMonitoring
+      Conditions:
+      - Field: path-pattern
+        Values:
+        - "/prometheus*"
+      ListenerArn: !Ref HTTPSListener
+      Priority: 2
 
   HTTPListener:
     Type: "AWS::ElasticLoadBalancingV2::Listener"
@@ -853,18 +882,34 @@ Resources:
             StatusCode: "HTTP_301"
           Type: "redirect"
 
-  TargetGroup:
+  TargetGroupEF:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     DependsOn: 
       - MasterIP
     Properties:
-      Name: !Sub '${AWS::StackName}'
+      Name: !Sub '${AWS::StackName}-EF'
       VpcId: !If [CreateVpc, !Ref VPC, !Ref VpcId]
       Port: 8443
       Protocol: HTTPS
       Targets:
         - Id: !Sub '${MasterIP.MasterPrivateIP}'
       TargetType: ip
+  
+  TargetGroupMonitoring:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    DependsOn: 
+      - MasterIP
+    Properties:
+      Name: !Sub '${AWS::StackName}-Monitoring'
+      VpcId: !If [CreateVpc, !Ref VPC, !Ref VpcId]
+      Port: 80
+      Protocol: HTTP
+      Targets:
+        - Id: !Sub '${MasterIP.MasterPrivateIP}'
+      TargetType: ip
+      HealthCheckPath: '/grafana'
+      Matcher: 
+        HttpCode: '200,301,302'
 
   AvailabiltyZone1:
     Type: Custom::AvailabiltyZone
