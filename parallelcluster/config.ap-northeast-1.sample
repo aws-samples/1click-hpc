@@ -40,7 +40,7 @@ queue_settings = batch-efa, batch, dcv-gpu, dcv, spot-batch-efa
 post_install = ${POST_INSTALL}
 post_install_args = "${POST_INSTALL_ARGS}"
 tags = {"EnginFrame" : "true", "1Click-HPC" : "true", "1Click-HPC-version" : "0.1", "1Click-HPC-Template" : "standard" }
-additional_iam_policies = arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess,arn:aws:iam::aws:policy/SecretsManagerReadWrite
+additional_iam_policies = arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess,arn:aws:iam::aws:policy/SecretsManagerReadWrite,arn:aws:iam::aws:policy/CloudWatchFullAccess,arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess,arn:aws:iam::aws:policy/AmazonSSMFullAccess,arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
 ${EXTRA_JSON}
 
 [fsx new]
@@ -65,7 +65,7 @@ disable_hyperthreading = true
 compute_type = ondemand
 
 [queue batch-efa]
-compute_resource_settings = c5n-18xlarge, m5zn-12xlarge
+compute_resource_settings = c5n-18xlarge, m5zn-12xlarge, m6i-32xlarge
 placement_group = DYNAMIC
 enable_efa = true
 disable_hyperthreading = true
@@ -166,6 +166,12 @@ max_count = 200
 
 [compute_resource spot-r5n-24xlarge]
 instance_type = r5n.24xlarge
+min_count = 0
+initial_count = 0
+max_count = 200
+
+[compute_resource m6i-32xlarge]
+instance_type = m6i.32xlarge
 min_count = 0
 initial_count = 0
 max_count = 200
