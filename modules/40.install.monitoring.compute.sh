@@ -19,7 +19,7 @@
 source /etc/parallelcluster/cfnconfig
 compute_instance_type=$(ec2-metadata -t | awk '{print $2}')
 gpu_instances="[pg][2-9].*\.[0-9]*[x]*large"
-
+SLURM_ROOT="/opt/slurm"
 monitoring_dir_name="monitoring"
 monitoring_home="${SHARED_FS_DIR}/${monitoring_dir_name}"
 
@@ -54,11 +54,12 @@ configureMonitoring() {
 # ----------------------------------------------------------------------------
 main() {
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 40.install.monitoring.compute.sh: START" >&2
+   
+    host_name=$(hostname -s)
+    job_id=$($SLURM_ROOT/bin/squeue -h -w "${host_name}" | awk '{print $1}')
+    job_comment=$($SLURM_ROOT/bin/scontrol show job $job_id | grep Comment  | sed 's/Comment=//' | sed 's/^ *//g')
     
-    instance_id=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
-    monitoring=$(aws ec2 describe-tags  --region us-east-2 --filters "Name=resource-id,Values=${instance_id}" "Name=key,Values=Monitoring" | jq -r '.Tags[].Value')
-    
-    if [[ $monitoring = "ON" ]]; then
+    if [[ $job_comment == *"Key=Monitoring,Value=ON"* ]]; then
         installPreReq
         configureMonitoring
     fi
