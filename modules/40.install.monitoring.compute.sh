@@ -38,27 +38,30 @@ installPreReq() {
 }
 
 configureMonitoring() {
-
-		if [[ $compute_instance_type =~ $gpu_instances ]]; then
-			distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
-			curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.repo | tee /etc/yum.repos.d/nvidia-docker.repo
-			yum -y clean expire-cache
-			yum -y install nvidia-docker2
-			systemctl restart docker
-			/usr/local/bin/docker-compose -f "${monitoring_home}/docker-compose/docker-compose.compute.gpu.yml" -p monitoring-compute up -d
-
-        else
-			/usr/local/bin/docker-compose -f "${monitoring_home}/docker-compose/docker-compose.compute.yml" -p monitoring-compute up -d
-        fi
+    if [[ $compute_instance_type =~ $gpu_instances ]]; then
+		distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+		curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.repo | tee /etc/yum.repos.d/nvidia-docker.repo
+		yum -y clean expire-cache
+		yum -y install nvidia-docker2
+		systemctl restart docker
+		/usr/local/bin/docker-compose -f "${monitoring_home}/docker-compose/docker-compose.compute.gpu.yml" -p monitoring-compute up -d
+    else
+		/usr/local/bin/docker-compose -f "${monitoring_home}/docker-compose/docker-compose.compute.yml" -p monitoring-compute up -d
+    fi
 }
 
 # main
 # ----------------------------------------------------------------------------
 main() {
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 40.install.monitoring.compute.sh: START" >&2
-    installPreReq
-    configureMonitoring
+    
+    instance_id=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+    monitoring=$(aws ec2 describe-tags  --region us-east-2 --filters "Name=resource-id,Values=${instance_id}" "Name=key,Values=Monitoring" | jq -r '.Tags[].Value')
+    
+    if [[ $monitoring = "ON" ]]; then
+        installPreReq
+        configureMonitoring
+    fi
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 40.install.monitoring.compute.sh: STOP" >&2
 }
-
 main "$@"
