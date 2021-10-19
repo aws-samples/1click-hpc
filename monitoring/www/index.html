@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<!--
+Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: MIT-0
+-->
+<html>
+  <head>
+    <title>AWS ParallelCluster</title>
+    <style>
+        @font-face {
+            font-family: 'Amazon Ember';
+            src: url('https://a0.awsstatic.com/libra-css/fonts/amazon-ember/AmazonEmber_Rg.woff2');
+        }
+
+        html {
+            min-height: 100vh;
+            background-color: #232F3E;
+            background-image: url(background.png);
+            background-size: 600px;
+            background-position: 105% 110%;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+        }
+
+        body {
+            color: #fff;
+            font-family: 'Amazon Ember', 'sans-serif';
+        }
+
+        #content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        #content #logo {
+            margin-top: 40px;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+        }
+
+        #content #grafana-logo {
+            cursor: pointer;
+            max-width: 50px;
+            vertical-align: top;
+        }
+
+        #content h1 {
+            font-weight: normal;
+            text-align: center;
+        }
+
+        #content #txt {
+            background-color: #232F3E;
+            border: 0;
+            color: #fff;
+            cursor: pointer;
+        }
+        
+        #content #grafana-txt {
+            background-color: #fff;
+            vertical-align: bottom;
+            border: 1;
+            font-size: 1.2em;
+            color: #000;
+            padding: 5px;
+            cursor: pointer;
+            margin: 5px;
+            text-align: center;
+        }
+    </style>
+  </head>
+  <body>
+    <div id="content">
+        <img src="aws-logo.svg" alt="AWS logo" id="logo">
+        <h1>1Click-HPC</h1>
+        <p>1Click-HPC is an open-source project that aims at speeding up the deployment of an HPC Cluster on AWS. You can have a fully functional and ready to use HPC cluster in minutes and with just 1-Click.</p>
+        <p>1Click-HPC source code and get started guide can be found <a href="here: https://github.com/aws-samples/1click-hpc"><button id="txt">here</button></a>.</p> 
+        <p>It leverages on AWS supported services and projects, like: </p>
+        
+        <ul>
+          <li>AWS ParallelCluster 
+            <p>an AWS-supported open source cluster management tool that makes it easy for you to deploy and manage High Performance Computing (HPC) clusters on AWS.</p>
+          </li>
+          <li>NICE DCV</li>
+            <p>a high-performance remote display protocol that provides customers with a secure way to deliver remote desktops and application streaming from any cloud or data center to any device, over varying network conditions.</p>
+          <li>NICE EnginFrame</li>
+            <p> is an advanced web front-end for accessing technical and scientific applications running on an HPC Cluster</p>
+        </ul>
+        
+        <p><a href="/enginframe/"><button id="grafana-txt">EnginFrame</button></a></p>
+        <p><a href="/grafana/"><button id="grafana-txt">Cluster Monitoring Dashboards</button></a></p>
+        <p><a href="/prometheus/"><button id="grafana-txt">Prometheus Server</button></a></p>
+    </div>
+  </body>
+</html>

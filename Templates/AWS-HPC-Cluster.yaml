@@ -957,8 +957,8 @@ Outputs:
   Cloud9URL:
     Description: Cloud9 Environment
     Value: !Sub 'https://${AWS::Region}.console.aws.amazon.com/cloud9/ide/${Cloud9}'
-  EnginFrameURL:
+  WebURL:
     Description: "EnginFrame HPC Portal, default username: ec2-user , default password: Change_this!"
     Value: !Sub 
-      - 'https://${ALB}/enginframe'
+      - 'https://${ALB}/'
       - ALB: !GetAtt ApplicationLoadBalancer.DNSName
