@@ -2116,7 +2116,7 @@
       }
     }
   ],
-  "refresh": "5s",
+  "refresh": "10s",
   "schemaVersion": 25,
   "style": "dark",
   "tags": [],
@@ -2293,7 +2293,7 @@
     ]
   },
   "timezone": "browser",
-  "title": "Master Node Details",
+  "title": "Head Node Details",
   "uid": "3NR7BmmMk",
   "version": 1
 }

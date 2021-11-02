@@ -36,6 +36,7 @@ services:
         environment:
             - 'GF_SECURITY_ADMIN_PASSWORD=__GRAFANA_PASSWORD__'
             - 'GF_SERVER_ROOT_URL=http://%(domain)s/grafana/'
+            - 'GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/provisioning/dashboards/ParallelCluster.json'
         volumes:
             - '__MONITORING_DIR__/grafana:/etc/grafana/provisioning'
             - 'grafana-data:/var/lib/grafana'

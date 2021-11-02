@@ -17,49 +17,38 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-# Intall DCV con compute Nodes.
-export SLURM_CONF_FILE="/opt/slurm/etc/pcluster/slurm_parallelcluster_*_partition.conf"
-export DCV_KEY_WORD=$(jq --arg default "dcv" -r '.post_install.dcv | if has("dcv_queue_keyword") then .dcv_queue_keyword else $default end' "${dna_json}")
-export NICE_ROOT=$(jq --arg default "${SHARED_FS_DIR}/nice" -r '.post_install.enginframe | if has("nice_root") then .nice_root else $default end' "${dna_json}")
-export EF_NAT_CONF="${NICE_ROOT}/enginframe/conf/plugins/interactive/nat.conf"
-
-
 set -x
 set -e
 
 
 installSimpleExternalAuth() {
     
-    yum -y install nice-dcv-*/nice-dcv-simple-external-authenticator-*.rpm
+    yum -y -q install nice-dcv-*/nice-dcv-simple-external-authenticator-*.rpm
     
     systemctl start dcvsimpleextauth.service
 
 }
 
-installDCVGLonG4() {
-
-    systemctl stop dcvserver.service
-    systemctl disable slurmd  
-    systemctl isolate multi-user.target
-    
-    nvidia-xconfig --enable-all-gpus --preserve-busid  --connected-monitor=DFP-0,DFP-1,DFP-2,DFP-3
-    nvidia-persistenced
-    nvidia-smi -ac 5001,1590
-                         
-    yum -y install nice-dcv-*/nice-dcv-gl*.rpm nice-dcv-*/nice-dcv-server*.rpm nice-dcv-*/nice-xdcv*.rpm nice-dcv-*/nice-dcv-web-viewer*.rpm
-
-    systemctl isolate graphical.target
-    systemctl start dcvserver.service
-    systemctl enable slurmd
+installMissingLib() {
+    yum -y -q install ImageMagick
 }
 
-fixNat() {
+configureDCVexternalAuth() {
+    
+    pattern='\[security\]'
+    replace='&\n'
+    replace+="auth-token-verifier=\"http://localhost:8444\""
+    cp '/etc/dcv/dcv.conf' "/etc/dcv/dcv.conf.$(date --iso=s --utc)"
+    # remove duplicates if any
+    #sed -i -e '/^ *\(administrators\|ca-file\|auth-token-verifier\) *=.*$/d' '/etc/dcv/dcv.conf'
+    sed -i -e "s|${pattern}|${replace}|" '/etc/dcv/dcv.conf'
 
-    #fix the nat
-    h1=$(hostname)
-    h2="${h1//./\\.}"
-    sed -i "/^${h2} .*$/d" "${EF_NAT_CONF}"
-    echo "$h1 $(ec2-metadata -p| awk '{print $2}')" >> "${EF_NAT_CONF}"
+}
+
+restartDCV() {
+    
+    systemctl restart dcvserver.service
+
 }
 
 # main
@@ -67,19 +56,15 @@ fixNat() {
 main() {
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.dcv-server.compute.sh: START" >&2
 
-    for conf_file in $(ls ${SLURM_CONF_FILE} | grep "${DCV_KEY_WORD}"); do
-        if [[ ! -z $(grep "${compute_instance_type}" "${conf_file}") ]]; then
-            wget -nv https://d1uj6qtbmh3dt5.cloudfront.net/nice-dcv-el7-x86_64.tgz
-            tar zxvf nice-dcv-el7-x86_64.tgz
-            if [[ $compute_instance_type == *"g4"* ]]; then
-                installDCVGLonG4
-            fi
-            installSimpleExternalAuth
-            dcvusbdriverinstaller --quiet
-            fixNat
-        fi
-    done
-        
+    wget -nv https://d1uj6qtbmh3dt5.cloudfront.net/nice-dcv-el7-x86_64.tgz
+    tar zxvf nice-dcv-el7-x86_64.tgz
+    installSimpleExternalAuth
+    dcvusbdriverinstaller --quiet
+    
+    installMissingLib
+    configureDCVexternalAuth
+    restartDCV
+
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.dcv-server.compute.sh: STOP" >&2
 }
 

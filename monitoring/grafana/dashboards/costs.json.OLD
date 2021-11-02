@@ -84,7 +84,7 @@
       "pluginVersion": "7.1.0",
       "targets": [
         {
-          "expr": "master_node_cost",
+          "expr": "headnode_cost",
           "instant": false,
           "interval": "1",
           "intervalFactor": 1,
@@ -94,7 +94,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Master Node hourly Cost",
+      "title": "HeadNode hourly Cost",
       "type": "gauge"
     },
     {
@@ -147,7 +147,7 @@
       "pluginVersion": "7.1.0",
       "targets": [
         {
-          "expr": "ebs_master_cost",
+          "expr": "ebs_headnode_cost",
           "instant": false,
           "interval": "1",
           "intervalFactor": 1,
@@ -157,7 +157,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "EBS (Master node) hourly Cost",
+      "title": "EBS (HeadNode) hourly Cost",
       "type": "gauge"
     },
     {
@@ -209,7 +209,7 @@
       "steppedLine": true,
       "targets": [
         {
-          "expr": "s3_cost+master_node_cost+fsx_cost+ebs_master_cost+compute_nodes_cost+ebs_compute_cost",
+          "expr": "s3_cost+headnode_cost+fsx_cost+ebs_headnode_cost+compute_nodes_cost+ebs_compute_cost",
           "instant": false,
           "interval": "1",
           "intervalFactor": 1,
@@ -225,11 +225,11 @@
           "refId": "B"
         },
         {
-          "expr": "master_node_cost",
+          "expr": "headnode_cost",
           "instant": false,
           "interval": "1",
           "intervalFactor": 1,
-          "legendFormat": "Master Node",
+          "legendFormat": "HeadNode",
           "refId": "C"
         },
         {
@@ -241,11 +241,11 @@
           "refId": "D"
         },
         {
-          "expr": "ebs_master_cost",
+          "expr": "ebs_headnode_cost",
           "instant": false,
           "interval": "1",
           "intervalFactor": 1,
-          "legendFormat": "EBS (Master)",
+          "legendFormat": "EBS (HeadNode)",
           "refId": "E"
         },
         {

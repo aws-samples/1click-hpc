@@ -16,12 +16,6 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-source '/etc/parallelcluster/cfnconfig'
-export NICE_ROOT=$(jq --arg default "${SHARED_FS_DIR}/nice" -r '.post_install.enginframe | if has("nice_root") then .nice_root else $default end' "${dna_json}")
-export EF_CONF_ROOT=$(jq --arg default "${NICE_ROOT}/enginframe/conf" -r '.post_install.enginframe | if has("ef_conf_root") then .ef_conf_root else $default end' "${dna_json}")
-export EF_DATA_ROOT=$(jq --arg default "${NICE_ROOT}/enginframe/data" -r '.post_install.enginframe | if has("ef_data_root") then .ef_data_root else $default end' "${dna_json}")
-export AWS_DEFAULT_REGION=${cfn_region}
-
 set -x
 set -e
 
@@ -36,8 +30,8 @@ EOF
 ef.download.server.url=https://127.0.0.1:8443/enginframe/download
 EOF
 
-    alb_name="$(echo $stack_name | sed 's/parallelcluster-//')"
-    ALB_PUBLIC_DNS_NAME=$(aws elbv2 describe-load-balancers --names ${alb_name} --query "LoadBalancers[? LoadBalancerName == '${alb_name}'].DNSName" --output text)
+    alb_name="$(echo $stack_name | sed 's/hpc-1click-//')"
+    ALB_PUBLIC_DNS_NAME=$(aws elbv2 describe-load-balancers --names "${alb_name}" --query "LoadBalancers[? LoadBalancerName == '${alb_name}'].DNSName" --output text --region "${cfn_region}")
 
     pattern='^ALB_PUBLIC_DNS_NAME=.*$'
     replace="ALB_PUBLIC_DNS_NAME=${ALB_PUBLIC_DNS_NAME}"
@@ -52,18 +46,11 @@ EOF
 }
 
 
-downlaodALBhooks() {
+downloadALBhooks() {
     
-    if [[ ${proto} == "https://" ]]; then
-        wget -nv -P "${EF_DATA_ROOT}/plugins/interactive/bin/" "${post_install_base}/enginframe/alb.session.closing.hook.sh" || exit 1
-        wget -nv -P "${EF_DATA_ROOT}/plugins/interactive/bin/" "${post_install_base}/enginframe/alb.session.starting.hook.sh" || exit 1
-    elif [[ ${proto} == "s3://" ]]; then
-        aws s3 cp "${post_install_base}/enginframe/alb.session.closing.hook.sh" "${EF_DATA_ROOT}/plugins/interactive/bin/" --region "${cfn_region}" || exit 1
-        aws s3 cp "${post_install_base}/enginframe/alb.session.starting.hook.sh" "${EF_DATA_ROOT}/plugins/interactive/bin/" --region "${cfn_region}" || exit 1
-    else
-        exit 1
-    fi
-    
+    aws s3 cp --quiet "${post_install_base}/enginframe/alb.session.closing.hook.sh" "${EF_DATA_ROOT}/plugins/interactive/bin/" --region "${cfn_region}" || exit 1
+    aws s3 cp --quiet "${post_install_base}/enginframe/alb.session.starting.hook.sh" "${EF_DATA_ROOT}/plugins/interactive/bin/" --region "${cfn_region}" || exit 1
+
     ### FIX: DO NOT TO HARDCODE usernames
     chown ec2-user:efnobody "${EF_DATA_ROOT}/plugins/interactive/bin/alb.session.closing.hook.sh"
     chmod +x "${EF_DATA_ROOT}/plugins/interactive/bin/alb.session.closing.hook.sh"
@@ -75,10 +62,10 @@ downlaodALBhooks() {
 # main
 # ----------------------------------------------------------------------------
 main() {
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 12.configure.enginframe.alb.master.sh: START" >&2
-    downlaodALBhooks
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 12.configure.enginframe.alb.headnode.sh: START" >&2
+    downloadALBhooks
     configureEF4ALB
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 12.configure.enginframe.alb.master.sh: STOP" >&2
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 12.configure.enginframe.alb.headnode.sh: STOP" >&2
     
 }
 

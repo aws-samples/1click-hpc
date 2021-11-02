@@ -1,5 +1,5 @@
 #!/bin/sh
-. /home/ec2-user/.bashrc
+. /home/ec2-user/environment/cluster_env
 cat << EOF
 
  ██╗  ██╗██████╗  ██████╗     ██████╗██╗     ██╗   ██╗███████╗████████╗███████╗██████╗ 
@@ -20,7 +20,10 @@ cat << EOF
  You can connect to your HPC cluster using the EnginFrame web portal:
  https://${ALB_PUBLIC_DNS_NAME}/enginframe
  
+ Or, access a Grafana based Monitoring Dashboard:
+ https://${ALB_PUBLIC_DNS_NAME}/grafana
+ 
  Or, You can ssh into the Head-node:
- $ ssh ${MASTER_PRIVATE_IP}
+ $ ssh ${HEADNODE_PRIVATE_IP}
 
 EOF

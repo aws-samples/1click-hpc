@@ -2730,7 +2730,7 @@
       }
     }
   ],
-  "refresh": "5s",
+  "refresh": "10s",
   "schemaVersion": 25,
   "style": "dark",
   "tags": [],

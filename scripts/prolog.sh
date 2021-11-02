@@ -21,7 +21,7 @@
 source /etc/parallelcluster/cfnconfig
 
 #slurm directory
-export SLURM_ROOT="/opt/slurm"
+SLURM_ROOT="/opt/slurm"
 
 #function used to convert the hostname to ip
 function nametoip()

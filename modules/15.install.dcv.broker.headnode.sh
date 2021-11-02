@@ -16,15 +16,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
-# Installs DCV Session Broker on master host
-
-source '/etc/parallelcluster/cfnconfig'
-
-export NICE_ROOT=$(jq --arg default "${SHARED_FS_DIR}/nice" -r '.post_install.enginframe | if has("nice_root") then .nice_root else $default end' "${dna_json}")
-export CLIENT_BROKER_PORT=$(jq --arg default "8446" -r '.post_install.dcvsm | if has("client_broker_port") then .client_broker_port else $default end' "${dna_json}")
-export AGENT_BROKER_PORT=$(jq --arg default "8445" -r '.post_install.dcvsm | if has("agent_broker_port") then .agent_broker_port else $default end' "${dna_json}")
-export BROKER_CA=$(jq --arg default "${ec2user_home}/dcvsmbroker_ca.pem" -r '.post_install.dcvsm | if has("broker_ca") then .broker_ca else $default end' "${dna_json}")
+# Installs DCV Session Broker on headnode
 
 set -x
 set -e
@@ -33,7 +25,7 @@ set -e
 installDCVSessionBroker() {
     
     rpm --import "${NICE_GPG_KEY_URL}"
-    yum install -y https://d1uj6qtbmh3dt5.cloudfront.net/nice-dcv-session-manager-broker.el7.noarch.rpm || exit 1
+    yum install -y -q https://d1uj6qtbmh3dt5.cloudfront.net/nice-dcv-session-manager-broker.el7.noarch.rpm || exit 1
  
     # switch broker to 8446 since 8443 is used by EnginFrame
     pattern='^ *client-to-broker-connector-https-port *=.*$'
@@ -97,10 +89,10 @@ setupEFSessionManager() {
         "s/^DCVSM_CLUSTER_dcvsm_cluster1_AUTH_PASSWORD=.*$/DCVSM_CLUSTER_dcvsm_cluster1_AUTH_PASSWORD=${client_pw//\//\\/}/" \
         "${NICE_ROOT}/enginframe/conf/plugins/dcvsm/clusters.props"
     sed -i \
-        "s/^DCVSM_CLUSTER_dcvsm_cluster1_AUTH_ENDPOINT=.*$/DCVSM_CLUSTER_dcvsm_cluster1_AUTH_ENDPOINT=https:\/\/$(hostname):${CLIENT_BROKER_PORT}\/oauth2\/token/" \
+        "s/^DCVSM_CLUSTER_dcvsm_cluster1_AUTH_ENDPOINT=.*$/DCVSM_CLUSTER_dcvsm_cluster1_AUTH_ENDPOINT=https:\/\/${host_name}:${CLIENT_BROKER_PORT}\/oauth2\/token/" \
         "${NICE_ROOT}/enginframe/conf/plugins/dcvsm/clusters.props"
     sed -i \
-        "s/^DCVSM_CLUSTER_dcvsm_cluster1_SESSION_MANAGER_ENDPOINT=.*$/DCVSM_CLUSTER_dcvsm_cluster1_SESSION_MANAGER_ENDPOINT=https:\/\/$(hostname):${CLIENT_BROKER_PORT}/" \
+        "s/^DCVSM_CLUSTER_dcvsm_cluster1_SESSION_MANAGER_ENDPOINT=.*$/DCVSM_CLUSTER_dcvsm_cluster1_SESSION_MANAGER_ENDPOINT=https:\/\/${host_name}:${CLIENT_BROKER_PORT}/" \
         "${NICE_ROOT}/enginframe/conf/plugins/dcvsm/clusters.props"
 
     # add dcvsm certificate to Java keystore
@@ -118,13 +110,11 @@ setupEFSessionManager() {
 # main
 # ----------------------------------------------------------------------------
 main() {
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.dcv.broker.master.sh: START" >&2
-
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 15.install.dcv.broker.headnode.sh: START" >&2
     installDCVSessionBroker
     startDCVSessionBroker
     setupEFSessionManager
-
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.dcv.broker.master.sh: STOP" >&2
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 15.install.dcv.broker.headnode.sh: STOP" >&2
 }
 
 main "$@"

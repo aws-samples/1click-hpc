@@ -16,14 +16,35 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-export DCV_KEY_WORD=$(jq --arg default "dcv" -r '.post_install.dcv | if has("dcv_queue_keyword") then .dcv_queue_keyword else $default end' "${dna_json}")
-export SLURM_CONF_FILE="/opt/slurm/etc/pcluster/slurm_parallelcluster_*_partition.conf"
-
 set -x
 set -e
 
+installSimpleExternalAuth() {
+    
+    yum -y -q install nice-dcv-*/nice-dcv-simple-external-authenticator-*.rpm
+    systemctl start dcvsimpleextauth.service
+
+}
+
+installDCVGLonG4() {
+
+    systemctl stop dcvserver.service
+    systemctl disable slurmd  
+    systemctl isolate multi-user.target
+    
+    nvidia-xconfig --enable-all-gpus --preserve-busid  --connected-monitor=DFP-0,DFP-1,DFP-2,DFP-3
+    nvidia-persistenced
+    nvidia-smi -ac 5001,1590
+                         
+    yum -y -q install nice-dcv-*/nice-dcv-gl*.rpm nice-dcv-*/nice-dcv-server*.rpm nice-dcv-*/nice-xdcv*.rpm nice-dcv-*/nice-dcv-web-viewer*.rpm
+
+    systemctl isolate graphical.target
+    systemctl start dcvserver.service
+    systemctl enable slurmd
+}
+
 installMissingLib() {
-    yum -y install ImageMagick
+    yum -y -q install ImageMagick
 }
 
 configureDCVexternalAuth() {
@@ -47,17 +68,19 @@ restartDCV() {
 # main
 # ----------------------------------------------------------------------------
 main() {
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.dcv.slurm.compute.sh: START" >&2
-    
-    for conf_file in $(ls ${SLURM_CONF_FILE} | grep "${DCV_KEY_WORD}"); do
-        if [[ ! -z $(grep "${compute_instance_type}" "${conf_file}") ]]; then
-            installMissingLib
-            configureDCVexternalAuth
-            restartDCV
-        fi
-    done
-    
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.dcv.slurm.compute.sh: STOP" >&2
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.dcv-server.compute.sh: START" >&2
+
+    wget -nv https://d1uj6qtbmh3dt5.cloudfront.net/nice-dcv-el7-x86_64.tgz
+    tar zxvf nice-dcv-el7-x86_64.tgz
+    installDCVGLonG4
+    installSimpleExternalAuth
+    dcvusbdriverinstaller --quiet
+
+    installMissingLib
+    configureDCVexternalAuth
+    restartDCV
+
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.dcv-server.compute.sh: STOP" >&2
 }
 
 main "$@"

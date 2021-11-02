@@ -16,40 +16,27 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-source /etc/parallelcluster/cfnconfig
-
-export SLURM_ROOT="/opt/slurm"
-export SLURM_ETC="${SLURM_ROOT}/etc"
+SLURM_RESUME_CONF_FILE="/etc/parallelcluster/slurm_plugin/parallelcluster_slurm_resume.conf"
 
 set -x
 set -e
 
-
-configureSACCT() {
-    if [[ ${proto} == "https://" ]]; then
-        wget -nv -P "${SLURM_ETC}/" "${post_install_base}/scripts/prolog.sh" || exit 1
-    elif [[ ${proto} == "s3://" ]]; then
-        aws s3 cp "${post_install_base}/scripts/prolog.sh" "${SLURM_ETC}/" --region "${cfn_region}" || exit 1
-    else
-        exit 1
-    fi
-    
-    chmod +x "${SLURM_ETC}/prolog.sh"
-    
-    echo "Prolog=/opt/slurm/etc/prolog.sh" >> "${SLURM_ETC}/slurm.conf"
+#ADD All or Nothing to the Slurm conf
+addAllOrNothingtoSlurmConf() {
+    echo "all_or_nothing_batch = True" >> "${SLURM_RESUME_CONF_FILE}"
 }
 
-restartSlurmDaemons() {
+restartSlurmDaemon() {
     systemctl restart slurmctld
 }
 
 # main
 # ----------------------------------------------------------------------------
 main() {
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] configure.slurm.tagging.master: START" >&2
-    configureSACCT
-    restartSlurmDaemons
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] configure.slurm.tagging.master: STOP" >&2
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 04.configure.slurm.AllOrNothing.headnode.sh: START" >&2
+    addAllOrNothingtoSlurmConf
+    restartSlurmDaemon
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 04.configure.slurm.AllOrNothing.headnode.sh: STOP" >&2
 }
 
 main "$@"

@@ -16,33 +16,31 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-source /etc/parallelcluster/cfnconfig
-compute_instance_type=$(ec2-metadata -t | awk '{print $2}')
-gpu_instances="[pg][2-9].*\.[0-9]*[x]*large"
-SLURM_ROOT="/opt/slurm"
-monitoring_dir_name="monitoring"
-monitoring_home="${SHARED_FS_DIR}/${monitoring_dir_name}"
+
 
 set -x
 set -e
 
 installPreReq() {
-    yum -y install docker golang-bin 
+    yum -y -q install docker golang-bin 
     service docker start
     chkconfig docker on
     usermod -a -G docker $cfn_cluster_user
 
     #to be replaced with yum -y install docker-compose as the repository problem is fixed
-    curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    curl -s -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
     chmod +x /usr/local/bin/docker-compose
 }
 
-configureMonitoring() {
+installMonitoring() {
+    
+    gpu_instances="[pg][2-9].*\.[0-9]*[x]*large"
+
     if [[ $compute_instance_type =~ $gpu_instances ]]; then
 		distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
 		curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.repo | tee /etc/yum.repos.d/nvidia-docker.repo
-		yum -y clean expire-cache
-		yum -y install nvidia-docker2
+		yum -y -q clean expire-cache
+		yum -y -q install nvidia-docker2
 		systemctl restart docker
 		/usr/local/bin/docker-compose -f "${monitoring_home}/docker-compose/docker-compose.compute.gpu.yml" -p monitoring-compute up -d
     else
@@ -55,13 +53,12 @@ configureMonitoring() {
 main() {
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 40.install.monitoring.compute.sh: START" >&2
    
-    host_name=$(hostname -s)
     job_id=$($SLURM_ROOT/bin/squeue -h -w "${host_name}" | awk '{print $1}')
     job_comment=$($SLURM_ROOT/bin/scontrol show job $job_id | grep Comment  | sed 's/Comment=//' | sed 's/^ *//g')
     
     if [[ $job_comment == *"Key=Monitoring,Value=ON"* ]]; then
         installPreReq
-        configureMonitoring
+        installMonitoring
     fi
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 40.install.monitoring.compute.sh: STOP" >&2
 }

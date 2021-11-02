@@ -13,8 +13,8 @@ export AWS_DEFAULT_REGION=$cfn_region
 aws_region_long_name=$(python /usr/local/bin/aws-region.py $cfn_region)
 aws_region_long_name=${aws_region_long_name/Europe/EU}
 
-masterInstanceType=$(ec2-metadata -t | awk '{print $2}')
-masterInstanceId=$(ec2-metadata -i | awk '{print $2}')
+headnodeInstanceType=$(ec2-metadata -t | awk '{print $2}')
+headnodeInstanceId=$(ec2-metadata -i | awk '{print $2}')
 s3_bucket=$(echo $cfn_postinstall | sed "s/s3:\/\///g;s/\/.*//")
 s3_size_gb=$(echo "$(aws s3api list-objects --bucket $s3_bucket --output json --query "[sum(Contents[].Size)]"| sed -n 2p | tr -d ' ') / 1024 / 1024 / 1024" | bc)
 
@@ -41,11 +41,11 @@ s3=$(echo "scale=2; $s3_cost_gb_month * $s3_size_gb / 720" | bc)
 echo "s3_cost $s3" | curl --data-binary @- http://127.0.0.1:9091/metrics/job/cost
   
 
-####################### Master #########################
-master_node_h_price=$(aws pricing get-products \
+####################### headnode #########################
+headnode_node_h_price=$(aws pricing get-products \
   --region us-east-1 \
   --service-code AmazonEC2 \
-  --filters 'Type=TERM_MATCH,Field=instanceType,Value='$masterInstanceType \
+  --filters 'Type=TERM_MATCH,Field=instanceType,Value='$headnodeInstanceType \
             'Type=TERM_MATCH,Field=location,Value='"${aws_region_long_name}" \
             'Type=TERM_MATCH,Field=preInstalledSw,Value=NA' \
             'Type=TERM_MATCH,Field=operatingSystem,Value=Linux' \
@@ -55,7 +55,7 @@ master_node_h_price=$(aws pricing get-products \
   --query 'PriceList' \
   | jq -r '.terms.OnDemand | to_entries[] | .value.priceDimensions | to_entries[] | .value.pricePerUnit.USD')
   
-echo "master_node_cost $master_node_h_price" | curl --data-binary @- http://127.0.0.1:9091/metrics/job/cost
+echo "headnode_cost $headnode_node_h_price" | curl --data-binary @- http://127.0.0.1:9091/metrics/job/cost
   
 
 fsx_id=$(aws cloudformation describe-stacks --stack-name $stack_name --region $cfn_region \
@@ -98,7 +98,7 @@ echo "fsx_cost $fsx" | curl --data-binary @- http://127.0.0.1:9091/metrics/job/c
 
 #parametrize:
 ebs_volume_total_cost=0
-ebs_volume_ids=$(aws ec2 describe-instances     --instance-ids $masterInstanceId \
+ebs_volume_ids=$(aws ec2 describe-instances     --instance-ids $headnodeInstanceId \
               | jq -r '.Reservations | to_entries[].value | .Instances | to_entries[].value | .BlockDeviceMappings | to_entries[].value | .Ebs.VolumeId')
 
 for ebs_volume_id in $ebs_volume_ids
@@ -120,4 +120,4 @@ do
   ebs_volume_total_cost=$(echo "scale=2; $ebs_volume_total_cost + $ebs_volume_cost" | bc)
 done
 
-echo "ebs_master_cost $ebs_volume_total_cost" | curl --data-binary @- http://127.0.0.1:9091/metrics/job/cost
+echo "ebs_headnode_cost $ebs_volume_total_cost" | curl --data-binary @- http://127.0.0.1:9091/metrics/job/cost

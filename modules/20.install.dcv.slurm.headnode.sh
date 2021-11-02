@@ -16,36 +16,30 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
+# Add "dcv2" requirements on the DCV nodes.
+
 set -x
 set -e
 
-install_client_packages() {
-    yum install -y openldap-clients nss-pam-ldapd
+#ADD DCV as a features to Slurm Partitions
+addDCVtoSlurmPartitions() {
+    for conf_file in $(ls ${SLURM_CONF_FILE} | grep "${DCV_KEY_WORD}"); do
+        sed -i 's/Feature=/Feature=dcv2,/g' "${conf_file}"
+    done
 }
 
-prepare_ldap_client() {
-    source /home/.ldap
-    authconfig --enableldap \
-               --enableldapauth \
-               --ldapserver=${ldap_server} \
-               --ldapbasedn="dc=${stack_name},dc=internal" \
-               --enablemkhomedir \
-               --update
-    systemctl restart nslcd
-    systemctl restart dbus
-    systemctl restart systemd-logind
+restartSlurmDaemon() {
+    systemctl restart slurmctld
 }
 
 # main
 # ----------------------------------------------------------------------------
 main() {
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.ldap.client.compute.sh: START" >&2
-
-    source /etc/parallelcluster/cfnconfig
-    install_client_packages
-    prepare_ldap_client
-
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.ldap.client.compute.sh: STOP" >&2
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 20.install.dcv.slurm.headnode.sh: START" >&2
+    addDCVtoSlurmPartitions
+    restartSlurmDaemon
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 20.install.dcv.slurm.headnode.sh: STOP" >&2
 }
 
 main "$@"

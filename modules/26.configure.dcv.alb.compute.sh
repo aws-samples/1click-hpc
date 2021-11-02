@@ -18,8 +18,6 @@
 
 
 # Intall DCV con compute Nodes.
-export SLURM_CONF_FILE="/opt/slurm/etc/pcluster/slurm_parallelcluster_*_partition.conf"
-export DCV_KEY_WORD=$(jq --arg default "dcv" -r '.post_install.dcv | if has("dcv_queue_keyword") then .dcv_queue_keyword else $default end' "${dna_json}")
 
 set -x
 set -e
@@ -37,13 +35,7 @@ configureDCVforALB() {
 # ----------------------------------------------------------------------------
 main() {
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] configure.dcv.alb.compute.sh: START" >&2
-
-    for conf_file in $(ls ${SLURM_CONF_FILE} | grep "${DCV_KEY_WORD}"); do
-        if [[ ! -z $(grep "${compute_instance_type}" "${conf_file}") ]]; then
-            configureDCVforALB
-        fi
-    done
-        
+    configureDCVforALB
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] configure.dcv.alb.compute.sh: STOP" >&2
 }
 

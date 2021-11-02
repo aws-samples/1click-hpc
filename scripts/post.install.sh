@@ -18,47 +18,24 @@
 
 
 # Top level post install script
-
+set -a
 source '/etc/parallelcluster/cfnconfig'
+set +a
 
 # run scripts
 # ----------------------------------------------------------------------------
 # runs secondary scripts according to the node type
 runScripts() {
     
-    # get packages from Git-Hub
     echo "Getting packages from ${post_install_url}"
     for script in ${myscripts}; do
-        if [[ ${proto} == "https://" ]]; then
-            wget -nv -P "${TMP_MODULES_DIR}" "${post_install_base}/modules/${script}" || exit 1 
-        elif [[ ${proto} == "s3://" ]]; then
-            aws s3 cp ${post_install_base}/modules/${script} "${TMP_MODULES_DIR}" --region "${cfn_region}" || exit 1
-        else
-            exit 1
-        fi
+        aws s3 cp --quiet ${post_install_base}/modules/${script} "${TMP_MODULES_DIR}" --region "${cfn_region}" || exit 1
     done
 
     chmod 755 -R "${TMP_MODULES_DIR}"*
-    # run scripts according to node type
-    if [[ ${cfn_node_type} == MasterServer ]]; then
-        find "${TMP_MODULES_DIR}" -type f -name '[0-9][0-9]*.master.sh' -print0 | \
-            sort -z -n | xargs -0 -I '{}' /bin/bash -c '{}'
-    fi
-    if [[ ${cfn_node_type} == ComputeFleet ]]; then
-        find "${TMP_MODULES_DIR}" -type f -name '[0-9][0-9]*.compute.sh' -print0 | \
-            sort -z -n | xargs -0 -I '{}' /bin/bash -c '{}'
-    fi
+    # run scripts according to the OnNodeConfigured -> args 
+    find "${TMP_MODULES_DIR}" -type f -name '[0-9][0-9]*.sh' -print0 | sort -z -n | xargs -0 -I '{}' /bin/bash -c '{}'
 }
-
-findSharedDir() {
-    fsx=$(mount | grep lustre | awk '{print $3}')
-    if [[ -z "$fsx" ]]; then
-        echo "$cfn_shared_dir" | awk -F , '{print $1}'
-    else
-        echo "$fsx"
-    fi
-}
-
 
 # main
 # ----------------------------------------------------------------------------
@@ -68,23 +45,41 @@ main() {
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] post.install.sh: STOP" >&2
 }
 
+TMP_MODULES_DIR="/tmp/modules/"
+export dna_json="/etc/chef/dna.json"
+export host_name=$(hostname -s)
 export NICE_GPG_KEY_URL=${NICE_GPG_KEY_URL:-"https://d1uj6qtbmh3dt5.cloudfront.net/NICE-GPG-KEY"}
-export TMP_MODULES_DIR="/tmp/modules/"
+export DCV_KEY_WORD=$(jq --arg default "dcv" -r '.post_install.dcv | if has("dcv_queue_keyword") then .dcv_queue_keyword else $default end' "${dna_json}")
+export SLURM_CONF_FILE="/opt/slurm/etc/pcluster/slurm_parallelcluster_*_partition.conf"
 export post_install_url=$(dirname ${cfn_postinstall})
 export post_install_base=$(dirname "${post_install_url}")
-export proto="$(echo $post_install_url | grep :// | sed -e's,^\(.*://\).*,\1,g')"
-
+export SLURM_ROOT="/opt/slurm"
+export SLURM_ETC="${SLURM_ROOT}/etc"
 export compute_instance_type=$(ec2-metadata -t | awk '{print $2}')
-export SHARED_FS_DIR=$(findSharedDir)
-
-# get post install arguments
+#FIXME: do not hardcode.
+export SHARED_FS_DIR="/fsx"
 export ec2user_home=$(getent passwd | grep ec2-user | sed 's/^.*:.*:.*:.*:.*:\(.*\):.*$/\1/')
-export dna_json="/etc/chef/dna.json"
+export NICE_ROOT=$(jq --arg default "${SHARED_FS_DIR}/nice" -r '.post_install.enginframe | if has("nice_root") then .nice_root else $default end' "${dna_json}")
+export EF_CONF_ROOT=$(jq --arg default "${NICE_ROOT}/enginframe/conf" -r '.post_install.enginframe | if has("ef_conf_root") then .ef_conf_root else $default end' "${dna_json}")
+export EF_DATA_ROOT=$(jq --arg default "${NICE_ROOT}/enginframe/data" -r '.post_install.enginframe | if has("ef_data_root") then .ef_data_root else $default end' "${dna_json}")
+export CLIENT_BROKER_PORT=$(jq --arg default "8446" -r '.post_install.dcvsm | if has("client_broker_port") then .client_broker_port else $default end' "${dna_json}")
+export AGENT_BROKER_PORT=$(jq --arg default "8445" -r '.post_install.dcvsm | if has("agent_broker_port") then .agent_broker_port else $default end' "${dna_json}")
+export BROKER_CA=$(jq --arg default "${ec2user_home}/dcvsmbroker_ca.pem" -r '.post_install.dcvsm | if has("broker_ca") then .broker_ca else $default end' "${dna_json}")
+export ec2user_pass="$(aws secretsmanager get-secret-value --secret-id "${stack_name}" --query SecretString --output text --region "${cfn_region}")"
 
-if [[ -z "${cfn_postinstall_args}" ]]; then
-    export myscripts="03.configure.slurm.acct.master.sh 04.configure.slurm.AllOrNothing.master.sh 04.configure.disable.anacron.compute.sh 05.install.ldap.server.master.sh 06.install.ldap.client.compute.sh 06.install.ldap.client.master.sh 07.configure.slurm.tagging.master.sh 10.install.enginframe.master.sh 11.install.ldap.enginframe.master.sh 12.configure.enginframe.alb.master.sh 20.install.dcv.slurm.master.sh 25.install.dcv-server.compute.sh 26.configure.dcv.alb.compute.sh 35.install.dcv.slurm.compute.sh 40.install.monitoring.master.sh 40.install.monitoring.compute.sh"  
+if [[ ${cfn_node_type} == HeadNode ]]; then
+    export head_node_hostname=${host_name}
+elif [[ ${cfn_node_type} == ComputeFleet ]]; then
+    export head_node_hostname=$(cat /etc/parallelcluster/slurm_plugin/head_node_private_dns | sed 's/\..*$//')
+    #Slurm indipendent
+    #head_node_hostname=$(cat /etc/fstab | grep "[0-9\.]*${cfn_shared_dir}" | sed 's/^\([0-9\.]*\).*/\1/')
 else
-    export myscripts="${@:2}"
+    exit 1
 fi
+
+monitoring_dir_name="monitoring"
+export monitoring_home="${SHARED_FS_DIR}/${monitoring_dir_name}/${head_node_hostname}"
+
+export myscripts="${@}"
 
 main "$@"

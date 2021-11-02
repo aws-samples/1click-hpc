@@ -6,7 +6,7 @@ If this is your first approach to AWS ParallelCluster, either go back to the sec
 [cluster yourcluster]
 ...
 post_install = https://raw.githubusercontent.com/aws-samples/1click-hpc/main/scripts/post.install.sh
-post_install_args = "05.install.ldap.server.master.sh 06.install.ldap.client.compute.sh 06.install.ldap.client.master.sh 10.install.enginframe.master.sh 11.install.ldap.enginframe.master.sh 20.install.dcv.slurm.master.sh 25.install.dcv-server.compute.sh 35.install.dcv.slurm.compute.sh"
+post_install_args = "05.install.ldap.server.headnode.sh 06.install.ldap.client.compute.sh 06.install.ldap.client.headnode.sh 10.install.enginframe.headnode.sh 11.install.ldap.enginframe.headnode.sh 20.install.dcv.slurm.headnode.sh 25.install.dcv-server.compute.sh 35.install.dcv.slurm.compute.sh"
 extra_json = {"post_install":{"enginframe":{"ef_admin_pass":"Put_Your_Password_HERE"}}}
 tags = {"EnginFrame" : "true"}
 ...
@@ -68,16 +68,16 @@ An additional way to further customize the installation and configuration of you
 ```bash
 export S3_BUCKET=<YOUR_S3_BUCKET>
 
-aws s3 cp --recursive 1click-hpc/scripts/         s3://$S3_BUCKET/scripts/
-aws s3 cp --recursive 1click-hpc/packages/        s3://$S3_BUCKET/packages/
-aws s3 cp --recursive 1click-hpc/parallelcluster/ s3://$S3_BUCKET/parallelcluster/
-aws s3 cp --recursive 1click-hpc/enginframe/      s3://$S3_BUCKET/enginframe/
+aws s3 cp --quiet --recursive 1click-hpc/scripts/         s3://$S3_BUCKET/scripts/
+aws s3 cp --quiet --recursive 1click-hpc/packages/        s3://$S3_BUCKET/packages/
+aws s3 cp --quiet --recursive 1click-hpc/parallelcluster/ s3://$S3_BUCKET/parallelcluster/
+aws s3 cp --quiet --recursive 1click-hpc/enginframe/      s3://$S3_BUCKET/enginframe/
 ```
 
 In this case, your AWS ParallelCluster configuration file has the following parameteres:
 ```ini
 post_install = s3://<YOUR_S3_BUCKET>/scripts/post.install.sh
-post_install_args = "01.install.enginframe.master.sh 03.install.dcv.slurm.master.sh 04.install.dcv-server.compute.sh 06.install.dcv.slurm.compute.sh"
+post_install_args = "01.install.enginframe.headnode.sh 03.install.dcv.slurm.headnode.sh 04.install.dcv-server.compute.sh 06.install.dcv.slurm.compute.sh"
 ```
 
 The first one, <b>`post_install`</b>, specifies the S3 bucket you choose to store your post_install bash script. 
@@ -91,16 +91,16 @@ EnginFrame and DCV Session Manager Broker, and all the other secondary scripts a
 To perform a successful installation of EnginFrame and DCV Sesssion Manager broker, you’ll need:<br/>
 <div style="" data-section-style='5' class=""><ul id='PfT9CAZDjCH'><li id='PfT9CAEzM18' class='' value='1'><b>An S3 bucket,</b> made accessible to ParallelCluster via its <code>s3_read_resource</code> or <code>s3_read_write_resource</code> <code>[cluster]</code> settings. Refer to <a href="https://docs.aws.amazon.com/parallelcluster/latest/ug/configuration.html">ParallelCluster configuration</a> for details.
 <br/></li><li id='PfT9CAHCVz5' class=''><b>An EnginFrame</b> <b><i>efinstall.config</i></b> file, containing the desired settings for EnginFrame installation. This enables post-install script to install EnginFrame in unattended mode. An example <i>efinstall.config</i> is provided in this post code: You an review and modify it according to your preferences.<br>Alternatively, you can generate your own one by performing an EnginFrame installation: in this case an <i>efinstall.config </i>containing all your choices will be generated in the folder where you ran the installation.
-<br/></li><li id='PfT9CABUC6d' class=''><b>A</b> <b>security group allowing EnginFrame inbound port</b>. By default ParallelCluster creates a new Master security group with just port 22 publicly opened, so you can either use a replacement (via ParallelCluster <code>vpc_security_group_id</code> setting) or add an additional security group (<code>additional_sg</code> setting). In this post I’ll specify an additional security group.
+<br/></li><li id='PfT9CABUC6d' class=''><b>A</b> <b>security group allowing EnginFrame inbound port</b>. By default ParallelCluster creates a new security group with just port 22 publicly opened, so you can either use a replacement (via ParallelCluster <code>vpc_security_group_id</code> setting) or add an additional security group (<code>additional_sg</code> setting). In this post I’ll specify an additional security group.
 <br/></li><li id='PfT9CAvkZ0P' class=''><b>ParallelCluster configuration including <code>post_install</code> and <code>post_install_args</code> </b>as mentioned above and described later with more details
-<br/></li><li id='PfT9CASJBtH' class=''><b>(optionally) EnginFrame and DCV Session Manager packages</b>, available online from <a href="https://download.enginframe.com/">https://download.enginframe.com</a>. Having them in the bucket avoids the need for outgoing internet access for your ParallelCluster master to download them. In this article I’ll instead have them copied into my target S3 bucket. My scripts will copy them from S3 to the master node.
+<br/></li><li id='PfT9CASJBtH' class=''><b>(optionally) EnginFrame and DCV Session Manager packages</b>, available online from <a href="https://download.enginframe.com/">https://download.enginframe.com</a>. Having them in the bucket avoids the need for outgoing internet access for your ParallelCluster headnode to download them. In this article I’ll instead have them copied into my target S3 bucket. My scripts will copy them from S3 to the headnode node.
 <br/></li></ul></div><blockquote id='PfT9CA2OdPe'><b>Note:</b> neither EnginFrame 2020 or DCV Session Manager Broker need a license if running on EC2 instances. For more details please refer to their documentation.</blockquote>
 
 </li></ul></div><h1 id='PfT9CANUilh'>Troubleshooting</h1>
-Detailed output log is available on the master node, in:<br/>
+Detailed output log is available on the headnode node, in:<br/>
 <div style="" data-section-style='5' class=""><ul id='PfT9CAgo7RL'><li id='PfT9CACrSe3' class='' value='1'>/var/log/cfn-init.log
 <br/></li><li id='PfT9CACiH3u' class=''>/var/log/cfn-init-cmd.log
-<br/></li></ul></div>You can reach it via ssh, after getting the master node IP address from AWS Console → EC2 → Instances and looking for an instance named <i>Master</i>.<br/>
+<br/></li></ul></div>You can reach it via ssh, after getting the headnode node IP address from AWS Console → EC2 → Instances and looking for an instance named <i>HeadNode</i>.<br/>
 
 ## Security
 

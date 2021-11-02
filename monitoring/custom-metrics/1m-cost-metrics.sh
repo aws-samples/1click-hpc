@@ -14,6 +14,8 @@
 #
 #
 
+exit 0
+
 #source the AWS ParallelCluster profile
 . /etc/parallelcluster/cfnconfig
 
@@ -26,7 +28,7 @@ monitoring_dir_name="monitoring"
 monitoring_home="/fsx/${monitoring_dir_name}"
 
 queues=$(/opt/slurm/bin/sinfo --noheader -O partition  | sed 's/\*//g')
-cluster_config_file="${monitoring_home}/parallelcluster-setup/cluster-config.json"
+cluster_config_file="${monitoring_home}/parallelcluster/cluster-config.json"
 
 compute_nodes_total_cost=0
 

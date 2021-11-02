@@ -19,15 +19,13 @@
 set -x
 set -e
 
-source /etc/parallelcluster/cfnconfig
-
 ldap_home="/home/efnobody"
 ldap_pass="${ldap_home}/.ldappasswd"
 
 args=(-x -W -D "cn=ldapadmin,dc=${stack_name},dc=internal" -y "${ldap_pass}")
 
 install_server_packages() {
-    yum -y install openldap compat-openldap openldap-clients openldap-servers openldap-servers-sql openldap-devel
+    yum -y -q install openldap compat-openldap openldap-clients openldap-servers openldap-servers-sql openldap-devel
 }
 
 prepare_ldap_server() {
@@ -132,26 +130,17 @@ EOF
     chown efnobody:efnobody "${ldap_home}/struct.ldif"
     
     # Save the controller hostname to a shared location for later use
-    echo "ldap_server=$(hostname)" > /home/.ldap
+    echo "ldap_server=${host_name}" > /home/.ldap
 }
 
 
 downlaod_ldap_tools() {
     
-    if [[ ${proto} == "https://" ]]; then
-        wget -nv -P /usr/sbin/ "${post_install_url}/add.ldap.user.sh"    || exit 1
-        wget -nv -P /usr/sbin/ "${post_install_url}/remove.ldap.user.sh" || exit 1
-        wget -nv -P /usr/sbin/ "${post_install_url}/passwd.ldap.user.sh" || exit 1
-        wget -nv -P /etc/profile.d/ "${post_install_url}/autosshkeys.sh" || exit 1
-    elif [[ ${proto} == "s3://" ]]; then
-        aws s3 cp "${post_install_url}/add.ldap.user.sh" /usr/sbin/ --region "${cfn_region}" || exit 1
-        aws s3 cp "${post_install_url}/remove.ldap.user.sh" /usr/sbin/ --region "${cfn_region}" || exit 1
-        aws s3 cp "${post_install_url}/passwd.ldap.user.sh" /usr/sbin/ --region "${cfn_region}" || exit 1
-        aws s3 cp "${post_install_url}/autosshkeys.sh" /etc/profile.d/ --region "${cfn_region}" || exit 1
-    else
-        exit 1
-    fi
-    
+    aws s3 cp --quiet "${post_install_url}/add.ldap.user.sh" /usr/sbin/ --region "${cfn_region}" || exit 1
+    aws s3 cp --quiet "${post_install_url}/remove.ldap.user.sh" /usr/sbin/ --region "${cfn_region}" || exit 1
+    aws s3 cp --quiet "${post_install_url}/passwd.ldap.user.sh" /usr/sbin/ --region "${cfn_region}" || exit 1
+    aws s3 cp --quiet "${post_install_url}/autosshkeys.sh" /etc/profile.d/ --region "${cfn_region}" || exit 1
+
     chmod 755 /usr/sbin/add.ldap.user.sh
     chmod 755 /usr/sbin/remove.ldap.user.sh
     chmod 755 /usr/sbin/passwd.ldap.user.sh
@@ -161,13 +150,13 @@ downlaod_ldap_tools() {
 # main
 # ----------------------------------------------------------------------------
 main() {
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.ldap.server.master.sh: START" >&2
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 05.install.ldap.server.headnode.sh: START" >&2
     
     install_server_packages
     prepare_ldap_server
     downlaod_ldap_tools
     
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.ldap.server.master.sh: STOP" >&2
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 05.install.ldap.server.headnode.sh: STOP" >&2
 }
 
 main "$@"

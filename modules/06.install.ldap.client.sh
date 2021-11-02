@@ -16,29 +16,33 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-source /etc/parallelcluster/cfnconfig
-
-export SLURM_RESUME_CONF_FILE="/etc/parallelcluster/slurm_plugin/parallelcluster_slurm_resume.conf"
-
 set -x
 set -e
 
-#ADD All or Nothing to the Slurm conf
-addAllOrNothingtoSlurmConf() {
-    echo "all_or_nothing_batch = True" >> "${SLURM_RESUME_CONF_FILE}"
+install_client_packages() {
+    yum install -y -q openldap-clients nss-pam-ldapd
 }
 
-restartSlurmDaemon() {
-    systemctl restart slurmctld
+prepare_ldap_client() {
+    source /home/.ldap
+    authconfig --enableldap \
+               --enableldapauth \
+               --ldapserver=${ldap_server} \
+               --ldapbasedn="dc=${stack_name},dc=internal" \
+               --enablemkhomedir \
+               --update
+    systemctl restart nslcd
+    systemctl restart dbus
+    systemctl restart systemd-logind
 }
 
 # main
 # ----------------------------------------------------------------------------
 main() {
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] configure.slurm.AllOrNothing.master.sh: START" >&2
-    addAllOrNothingtoSlurmConf
-    restartSlurmDaemon
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] configure.slurm.AllOrNothing.master.sh: STOP" >&2
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.ldap.client.sh: START" >&2
+    install_client_packages
+    prepare_ldap_client
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.ldap.client.sh: STOP" >&2
 }
 
 main "$@"

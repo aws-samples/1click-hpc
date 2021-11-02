@@ -17,14 +17,7 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-# Installs EnginFrame on master host
-
-source '/etc/parallelcluster/cfnconfig'
-
-export NICE_ROOT=$(jq --arg default "${SHARED_FS_DIR}/nice" -r '.post_install.enginframe | if has("nice_root") then .nice_root else $default end' "${dna_json}")
-export EF_CONF_ROOT=$(jq --arg default "${NICE_ROOT}/enginframe/conf" -r '.post_install.enginframe | if has("ef_conf_root") then .ef_conf_root else $default end' "${dna_json}")
-export EF_DATA_ROOT=$(jq --arg default "${NICE_ROOT}/enginframe/data" -r '.post_install.enginframe | if has("ef_data_root") then .ef_data_root else $default end' "${dna_json}")
-export efadminPassword=$(jq --arg default "Change_this!" -r '.post_install.enginframe | if has("ef_admin_pass") then .ef_admin_pass else $default end' "${dna_json}")
+# Installs EnginFrame on the headnode
 
 set -x
 set -e
@@ -33,17 +26,10 @@ set -e
 # ----------------------------------------------------------------------------
 installEnginFrame() {
     # install pre-requisites
-    yum -y install java-latest-openjdk
+    yum -y -q install java-latest-openjdk
     wget -nv -P /tmp/packages https://dn3uclhgxk1jt.cloudfront.net/enginframe/packages/enginframe-latest.jar || exit 1
     
-    
-    if [[ ${proto} == "https://" ]]; then
-        wget -nv -P /tmp/packages "${post_install_base}/packages/efinstall.config" || exit 1
-    elif [[ ${proto} == "s3://" ]]; then
-        aws s3 cp "${post_install_base}/packages/efinstall.config" /tmp/packages/ --region "${cfn_region}" || exit 1
-    else
-        exit 1
-    fi 
+    aws s3 cp --quiet "${post_install_base}/packages/efinstall.config" /tmp/packages/ --region "${cfn_region}" || exit 1
 
     # set permissions and uncompress
     chmod 755 -R /tmp/packages/*
@@ -82,17 +68,13 @@ installEnginFrame() {
         "s/^ef.temp.root.dir = .*$/ef.temp.root.dir = ${NICE_ROOT//\//\\/}\/enginframe\/tmp/" \
         /tmp/packages/efinstall.config
     sed -i \
-        "s/^kernel.server.tomcat.https.ef.hostname = .*$/kernel.server.tomcat.https.ef.hostname = $(hostname -s)/" \
+        "s/^kernel.server.tomcat.https.ef.hostname = .*$/kernel.server.tomcat.https.ef.hostname = ${host_name}/" \
         /tmp/packages/efinstall.config
 
     # add EnginFrame users if not already exist
     id -u efnobody &>/dev/null || adduser efnobody
 
-    if [[ "${efadminPassword}" == "AWS_SECRET_MANAGER" ]]; then
-        aws secretsmanager get-secret-value --secret-id "${stack_name}" --query SecretString --output text --region "${cfn_region}" | passwd ec2-user --stdin
-    else
-        printf "${efadminPassword}" | passwd ec2-user --stdin
-    fi
+    echo "${ec2user_pass}" | passwd ec2-user --stdin
 
     if [[ -d "${SHARED_FS_DIR}/nice" ]]; then
         mv  -f "${SHARED_FS_DIR}/nice" "${SHARED_FS_DIR}/nice.$(date "+%d-%m-%Y-%H-%M").BAK"
@@ -111,12 +93,10 @@ startEnginFrame() {
 # main
 # ----------------------------------------------------------------------------
 main() {
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.enginframe.master.sh: START" >&2
-
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 10.install.enginframe.headnode.sh: START" >&2
     installEnginFrame
     startEnginFrame
-
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.enginframe.master.sh: STOP" >&2
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 10.install.enginframe.headnode.sh: STOP" >&2
 }
 
 main "$@"

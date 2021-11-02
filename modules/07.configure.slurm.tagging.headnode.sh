@@ -19,33 +19,23 @@
 set -x
 set -e
 
-install_client_packages() {
-    yum install -y openldap-clients nss-pam-ldapd
+configureSACCT() {
+    aws s3 cp --quiet "${post_install_base}/scripts/prolog.sh" "${SLURM_ETC}/" --region "${cfn_region}" || exit 1
+    chmod +x "${SLURM_ETC}/prolog.sh"
+    echo "Prolog=/opt/slurm/etc/prolog.sh" >> "${SLURM_ETC}/slurm.conf"
 }
 
-prepare_ldap_client() {
-    source /home/.ldap
-    authconfig --enableldap \
-               --enableldapauth \
-               --ldapserver=${ldap_server} \
-               --ldapbasedn="dc=${stack_name},dc=internal" \
-               --enablemkhomedir \
-               --update
-    systemctl restart nslcd
-    systemctl restart dbus
-    systemctl restart systemd-logind
+restartSlurmDaemons() {
+    systemctl restart slurmctld
 }
 
 # main
 # ----------------------------------------------------------------------------
 main() {
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.ldap.client.master.sh: START" >&2
-
-    source /etc/parallelcluster/cfnconfig
-    install_client_packages
-    prepare_ldap_client
-
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.ldap.client.master.sh: STOP" >&2
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 07.configure.slurm.tagging.headnode.sh: START" >&2
+    configureSACCT
+    restartSlurmDaemons
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 07.configure.slurm.tagging.headnode.sh: STOP" >&2
 }
 
 main "$@"

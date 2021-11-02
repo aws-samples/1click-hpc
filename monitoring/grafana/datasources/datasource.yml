@@ -15,7 +15,7 @@ datasources:
     isDefault: true
     editable: true
     jsonData:
-      timeInterval: 5s
+      timeInterval: 10s
   - name: cloudwatch
     type: cloudwatch
     orgId: 1
