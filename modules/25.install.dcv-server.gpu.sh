@@ -68,7 +68,7 @@ restartDCV() {
 # main
 # ----------------------------------------------------------------------------
 main() {
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.dcv-server.compute.sh: START" >&2
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.dcv-server.gpu.sh: START" >&2
 
     wget -nv https://d1uj6qtbmh3dt5.cloudfront.net/nice-dcv-el7-x86_64.tgz
     tar zxvf nice-dcv-el7-x86_64.tgz
@@ -80,7 +80,7 @@ main() {
     configureDCVexternalAuth
     restartDCV
 
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.dcv-server.compute.sh: STOP" >&2
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.dcv-server.gpu.sh: STOP" >&2
 }
 
 main "$@"
