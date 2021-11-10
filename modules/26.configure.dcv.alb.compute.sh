@@ -16,7 +16,6 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 # Intall DCV con compute Nodes.
 
 set -x
@@ -30,12 +29,18 @@ configureDCVforALB() {
     sed -i -e "s|${pattern}|${replace}|" "/etc/dcv/dcv.conf"
 }
 
+restartDCV() {
+    
+    systemctl restart dcvserver.service
+
+}
 
 # main
 # ----------------------------------------------------------------------------
 main() {
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] configure.dcv.alb.compute.sh: START" >&2
     configureDCVforALB
+    restartDCV
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] configure.dcv.alb.compute.sh: STOP" >&2
 }
 
