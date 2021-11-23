@@ -31,7 +31,7 @@ HeadNode:
     S3Access:
       - BucketName: '*'
         EnableWriteAccess: true
-  InstanceType: c6i.4xlarge
+  InstanceType: m6i.2xlarge
   Networking:
     AdditionalSecurityGroups:
       - ${ADDITIONAL_SG}
@@ -59,13 +59,6 @@ Scheduling:
           InstanceType: c6i.32xlarge
           MaxCount: 300
           MinCount: 0
-        - Name: high-m5zn-12xlarge
-          DisableSimultaneousMultithreading: true
-          Efa:
-            Enabled: true
-          InstanceType: m5zn.12xlarge
-          MaxCount: 100
-          MinCount: 0
         - Name: high-m6i-32xlarge
           DisableSimultaneousMultithreading: true
           Efa:
@@ -73,12 +66,19 @@ Scheduling:
           InstanceType: m6i.32xlarge
           MaxCount: 300
           MinCount: 0
-        - Name: high-r5n-24xlarge
+        - Name: high-r6i-32xlarge
           DisableSimultaneousMultithreading: true
           Efa:
             Enabled: true
-          InstanceType: r5n.24xlarge
+          InstanceType: r6i.32xlarge
           MaxCount: 300
+          MinCount: 0
+        - Name: high-m5zn-12xlarge
+          DisableSimultaneousMultithreading: true
+          Efa:
+            Enabled: true
+          InstanceType: m5zn.12xlarge
+          MaxCount: 100
           MinCount: 0
       CustomActions:
         OnNodeConfigured:
@@ -116,6 +116,89 @@ Scheduling:
           InstanceType: c5n.18xlarge
           MaxCount: 300
           MinCount: 0
+        - Name: low-m5n-24xlarge
+          DisableSimultaneousMultithreading: true
+          InstanceType: m5n.24xlarge
+          MaxCount: 300
+          MinCount: 0
+        - Name: low-r5n-24xlarge
+          DisableSimultaneousMultithreading: true
+          InstanceType: r5n.24xlarge
+          MaxCount: 300
+          MinCount: 0
+      CustomActions:
+        OnNodeConfigured:
+          Args:
+            - 04.configure.disable.anacron.compute.sh
+            - 06.install.ldap.client.sh
+            - 40.install.monitoring.compute.sh
+          Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
+      Iam:
+        AdditionalIamPolicies:
+          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
+          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
+          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+        S3Access:
+          - BucketName: '*'
+            EnableWriteAccess: true
+      Networking:
+        AdditionalSecurityGroups:
+          - ${ADDITIONAL_SG}
+        PlacementGroup:
+          Enabled: true
+        SubnetIds:
+          - ${SUBNET_ID}
+        AssignPublicIp: ${USE_PUBLIC_IPS}
+    - Name: low-disk
+      CapacityType: ONDEMAND
+      ComputeResources:
+        - Name: low-m5dn-24xlarge
+          DisableSimultaneousMultithreading: true
+          InstanceType: m5dn.24xlarge
+          MaxCount: 300
+          MinCount: 0
+        - Name: low-r5dn-24xlarge
+          DisableSimultaneousMultithreading: true
+          InstanceType: r5dn.24xlarge
+          MaxCount: 300
+          MinCount: 0
+        - Name: low-z1d-12xlarge
+          DisableSimultaneousMultithreading: true
+          InstanceType: z1d.12xlarge
+          MaxCount: 100
+          MinCount: 0
+      CustomActions:
+        OnNodeConfigured:
+          Args:
+            - 04.configure.disable.anacron.compute.sh
+            - 06.install.ldap.client.sh
+            - 40.install.monitoring.compute.sh
+          Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
+      Iam:
+        AdditionalIamPolicies:
+          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
+          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
+          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+        S3Access:
+          - BucketName: '*'
+            EnableWriteAccess: true
+      Networking:
+        AdditionalSecurityGroups:
+          - ${ADDITIONAL_SG}
+        PlacementGroup:
+          Enabled: true
+        SubnetIds:
+          - ${SUBNET_ID}
+        AssignPublicIp: ${USE_PUBLIC_IPS}
+    - Name: old
+      CapacityType: ONDEMAND
+      ComputeResources:
         - Name: low-c5-24xlarge
           DisableSimultaneousMultithreading: true
           InstanceType: c5.24xlarge
@@ -131,10 +214,49 @@ Scheduling:
           InstanceType: r5.24xlarge
           MaxCount: 300
           MinCount: 0
-        - Name: low-z1d-12xlarge
+      CustomActions:
+        OnNodeConfigured:
+          Args:
+            - 04.configure.disable.anacron.compute.sh
+            - 06.install.ldap.client.sh
+            - 40.install.monitoring.compute.sh
+          Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
+      Iam:
+        AdditionalIamPolicies:
+          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
+          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
+          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+        S3Access:
+          - BucketName: '*'
+            EnableWriteAccess: true
+      Networking:
+        AdditionalSecurityGroups:
+          - ${ADDITIONAL_SG}
+        PlacementGroup:
+          Enabled: true
+        SubnetIds:
+          - ${SUBNET_ID}
+        AssignPublicIp: ${USE_PUBLIC_IPS}
+    - Name: old-disk
+      CapacityType: ONDEMAND
+      ComputeResources:
+        - Name: low-c5d-24xlarge
           DisableSimultaneousMultithreading: true
-          InstanceType: z1d.12xlarge
-          MaxCount: 100
+          InstanceType: c5d.24xlarge
+          MaxCount: 300
+          MinCount: 0
+        - Name: low-m5d-24xlarge
+          DisableSimultaneousMultithreading: true
+          InstanceType: m5d.24xlarge
+          MaxCount: 300
+          MinCount: 0
+        - Name: low-r5d-24xlarge
+          DisableSimultaneousMultithreading: true
+          InstanceType: r5d.24xlarge
+          MaxCount: 300
           MinCount: 0
       CustomActions:
         OnNodeConfigured:
@@ -300,11 +422,11 @@ Scheduling:
           InstanceType: m6i.32xlarge
           MaxCount: 300
           MinCount: 0
-        - Name: spot-high-r5n-24xlarge
+        - Name: spot-high-r6i-32xlarge
           DisableSimultaneousMultithreading: true
           Efa:
             Enabled: true
-          InstanceType: r5n.24xlarge
+          InstanceType: r6i.32xlarge
           MaxCount: 300
           MinCount: 0
       CustomActions:
