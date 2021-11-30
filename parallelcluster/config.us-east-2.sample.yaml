@@ -52,13 +52,6 @@ Scheduling:
     - Name: high
       CapacityType: ONDEMAND
       ComputeResources:
-        - Name: high-c6i-32xlarge
-          DisableSimultaneousMultithreading: true
-          Efa:
-            Enabled: true
-          InstanceType: c6i.32xlarge
-          MaxCount: 300
-          MinCount: 0
         - Name: high-m6i-32xlarge
           DisableSimultaneousMultithreading: true
           Efa:
