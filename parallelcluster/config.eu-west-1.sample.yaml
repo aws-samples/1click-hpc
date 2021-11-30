@@ -118,11 +118,15 @@ Scheduling:
           MinCount: 0
         - Name: low-m5n-24xlarge
           DisableSimultaneousMultithreading: true
+          Efa:
+            Enabled: true
           InstanceType: m5n.24xlarge
           MaxCount: 300
           MinCount: 0
         - Name: low-r5n-24xlarge
           DisableSimultaneousMultithreading: true
+          Efa:
+            Enabled: true
           InstanceType: r5n.24xlarge
           MaxCount: 300
           MinCount: 0
@@ -157,11 +161,15 @@ Scheduling:
       ComputeResources:
         - Name: low-m5dn-24xlarge
           DisableSimultaneousMultithreading: true
+          Efa:
+            Enabled: true
           InstanceType: m5dn.24xlarge
           MaxCount: 300
           MinCount: 0
         - Name: low-r5dn-24xlarge
           DisableSimultaneousMultithreading: true
+          Efa:
+            Enabled: true
           InstanceType: r5dn.24xlarge
           MaxCount: 300
           MinCount: 0
