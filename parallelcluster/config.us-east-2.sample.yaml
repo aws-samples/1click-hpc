@@ -402,13 +402,6 @@ Scheduling:
     - Name: spot-high
       CapacityType: SPOT
       ComputeResources:
-        - Name: spot-high-c6i-32xlarge
-          DisableSimultaneousMultithreading: true
-          Efa:
-            Enabled: true
-          InstanceType: c6i.32xlarge
-          MaxCount: 300
-          MinCount: 0
         - Name: spot-high-m5zn-12xlarge
           DisableSimultaneousMultithreading: true
           Efa:
