@@ -251,11 +251,6 @@ Scheduling:
     - Name: old-disk
       CapacityType: ONDEMAND
       ComputeResources:
-        - Name: low-c5d-24xlarge
-          DisableSimultaneousMultithreading: true
-          InstanceType: c5d.24xlarge
-          MaxCount: 300
-          MinCount: 0
         - Name: low-m5d-24xlarge
           DisableSimultaneousMultithreading: true
           InstanceType: m5d.24xlarge
