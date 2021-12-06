@@ -52,28 +52,28 @@ Scheduling:
     - Name: high
       CapacityType: ONDEMAND
       ComputeResources:
-        - Name: high-c6i-32xlarge
+        - Name: c6i-32xlarge
           DisableSimultaneousMultithreading: true
           Efa:
             Enabled: true
           InstanceType: c6i.32xlarge
           MaxCount: 300
           MinCount: 0
-        - Name: high-m5zn-12xlarge
+        - Name: m5zn-12xlarge
           DisableSimultaneousMultithreading: true
           Efa:
             Enabled: true
           InstanceType: m5zn.12xlarge
           MaxCount: 100
           MinCount: 0
-        - Name: high-m6i-32xlarge
+        - Name: m6i-32xlarge
           DisableSimultaneousMultithreading: true
           Efa:
             Enabled: true
           InstanceType: m6i.32xlarge
           MaxCount: 300
           MinCount: 0
-        - Name: high-r5n-24xlarge
+        - Name: r5n-24xlarge
           DisableSimultaneousMultithreading: true
           Efa:
             Enabled: true
@@ -109,29 +109,29 @@ Scheduling:
     - Name: low
       CapacityType: ONDEMAND
       ComputeResources:
-        - Name: low-c5n-18xlarge
+        - Name: c5n-18xlarge
           DisableSimultaneousMultithreading: true
           Efa:
             Enabled: true
           InstanceType: c5n.18xlarge
           MaxCount: 300
           MinCount: 0
-        - Name: low-c5-24xlarge
+        - Name: c5-24xlarge
           DisableSimultaneousMultithreading: true
           InstanceType: c5.24xlarge
           MaxCount: 300
           MinCount: 0
-        - Name: low-m5-24xlarge
+        - Name: m5-24xlarge
           DisableSimultaneousMultithreading: true
           InstanceType: m5.24xlarge
           MaxCount: 300
           MinCount: 0
-        - Name: low-r5-24xlarge
+        - Name: r5-24xlarge
           DisableSimultaneousMultithreading: true
           InstanceType: r5.24xlarge
           MaxCount: 300
           MinCount: 0
-        - Name: low-z1d-12xlarge
+        - Name: z1d-12xlarge
           DisableSimultaneousMultithreading: true
           InstanceType: z1d.12xlarge
           MaxCount: 100
@@ -165,27 +165,27 @@ Scheduling:
     - Name: dcv-gpu
       CapacityType: ONDEMAND
       ComputeResources:
-        - Name: dcv-gpu-g4dn-xlarge
+        - Name: g4dn-xlarge
           DisableSimultaneousMultithreading: true
           InstanceType: g4dn.xlarge
           MaxCount: 100
           MinCount: 0
-        - Name: dcv-gpu-g4dn-2xlarge
+        - Name: g4dn-2xlarge
           DisableSimultaneousMultithreading: true
           InstanceType: g4dn.2xlarge
           MaxCount: 100
           MinCount: 0
-        - Name: dcv-gpu-g4dn-4xlarge
+        - Name: g4dn-4xlarge
           DisableSimultaneousMultithreading: true
           InstanceType: g4dn.4xlarge
           MaxCount: 100
           MinCount: 0
-        - Name: dcv-gpu-g4dn-8xlarge
+        - Name: g4dn-8xlarge
           DisableSimultaneousMultithreading: true
           InstanceType: g4dn.8xlarge
           MaxCount: 100
           MinCount: 0
-        - Name: dcv-gpu-g4dn-16xlarge
+        - Name: g4dn-16xlarge
           DisableSimultaneousMultithreading: true
           InstanceType: g4dn.16xlarge
           MaxCount: 100
@@ -221,29 +221,29 @@ Scheduling:
     - Name: dcv
       CapacityType: ONDEMAND
       ComputeResources:
-        - Name: dcv-m6-32xlarge
+        - Name: m6-32xlarge
           DisableSimultaneousMultithreading: true
           InstanceType: m6i.32xlarge
           Efa:
             Enabled: true
           MaxCount: 200
           MinCount: 0
-        - Name: dcv-m6i-2xlarge
+        - Name: m6i-2xlarge
           DisableSimultaneousMultithreading: true
           InstanceType: m6i.2xlarge
           MaxCount: 200
           MinCount: 0
-        - Name: dcv-m6i-8xlarge
+        - Name: m6i-8xlarge
           DisableSimultaneousMultithreading: true
           InstanceType: m6i.8xlarge
           MaxCount: 200
           MinCount: 0
-        - Name: dcv-m6i-16xlarge
+        - Name: m6i-16xlarge
           DisableSimultaneousMultithreading: true
           InstanceType: m6i.16xlarge
           MaxCount: 200
           MinCount: 0
-        - Name: dcv-m6i-xlarge
+        - Name: m6i-xlarge
           DisableSimultaneousMultithreading: true
           InstanceType: m6i.xlarge
           MaxCount: 200
@@ -279,28 +279,28 @@ Scheduling:
     - Name: spot-high
       CapacityType: SPOT
       ComputeResources:
-        - Name: spot-high-c6i-32xlarge
+        - Name: c6i-32xlarge
           DisableSimultaneousMultithreading: true
           Efa:
             Enabled: true
           InstanceType: c6i.32xlarge
           MaxCount: 300
           MinCount: 0
-        - Name: spot-high-m5zn-12xlarge
+        - Name: m5zn-12xlarge
           DisableSimultaneousMultithreading: true
           Efa:
             Enabled: true
           InstanceType: m5zn.12xlarge
           MaxCount: 100
           MinCount: 0
-        - Name: spot-high-m6i-32xlarge
+        - Name: m6i-32xlarge
           DisableSimultaneousMultithreading: true
           Efa:
             Enabled: true
           InstanceType: m6i.32xlarge
           MaxCount: 300
           MinCount: 0
-        - Name: spot-high-r5n-24xlarge
+        - Name: r5n-24xlarge
           DisableSimultaneousMultithreading: true
           Efa:
             Enabled: true
@@ -336,29 +336,29 @@ Scheduling:
     - Name: spot-low
       CapacityType: ONDEMAND
       ComputeResources:
-        - Name: spot-low-c5n-18xlarge
+        - Name: c5n-18xlarge
           DisableSimultaneousMultithreading: true
           Efa:
             Enabled: true
           InstanceType: c5n.18xlarge
           MaxCount: 300
           MinCount: 0
-        - Name: spot-low-c5-24xlarge
+        - Name: c5-24xlarge
           DisableSimultaneousMultithreading: true
           InstanceType: c5.24xlarge
           MaxCount: 300
           MinCount: 0
-        - Name: spot-low-m5-24xlarge
+        - Name: m5-24xlarge
           DisableSimultaneousMultithreading: true
           InstanceType: m5.24xlarge
           MaxCount: 300
           MinCount: 0
-        - Name: spot-low-r5-24xlarge
+        - Name: r5-24xlarge
           DisableSimultaneousMultithreading: true
           InstanceType: r5.24xlarge
           MaxCount: 300
           MinCount: 0
-        - Name: spot-low-z1d-12xlarge
+        - Name: z1d-12xlarge
           DisableSimultaneousMultithreading: true
           InstanceType: z1d.12xlarge
           MaxCount: 100
