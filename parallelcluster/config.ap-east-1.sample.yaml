@@ -285,7 +285,7 @@ Scheduling:
           - ${SUBNET_ID}
         AssignPublicIp: ${USE_PUBLIC_IPS}
     - Name: spot-low
-      CapacityType: ONDEMAND
+      CapacityType: SPOT
       ComputeResources:
         - Name: c5n-18xlarge
           DisableSimultaneousMultithreading: true
