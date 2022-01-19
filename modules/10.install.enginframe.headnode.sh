@@ -25,8 +25,7 @@ set -e
 # install EnginFrame
 # ----------------------------------------------------------------------------
 installEnginFrame() {
-    # install pre-requisites
-    yum -y -q install java-latest-openjdk
+
     wget -nv -P /tmp/packages https://dn3uclhgxk1jt.cloudfront.net/enginframe/packages/enginframe-latest.jar || exit 1
     
     aws s3 cp --quiet "${post_install_base}/packages/efinstall.config" /tmp/packages/ --region "${cfn_region}" || exit 1
@@ -40,36 +39,17 @@ installEnginFrame() {
     [[ ! -f /tmp/packages/efinstall.config ]] && \
         echo "[ERROR] missing efinstall.config" && return 1
 
-    # update java path
-    java_path=$(readlink /etc/alternatives/java | sed 's/\/bin\/java//')
-    sed -i \
-        "s/^kernel.java.home = .*$/kernel.java.home = ${java_path//\//\\/}/" \
-        /tmp/packages/efinstall.config
-    # use shared folder as NICE_ROOT
-    sed -i \
-        "s/^nice.root.dir.ui = .*$/nice.root.dir.ui = ${NICE_ROOT//\//\\/}/" \
-        /tmp/packages/efinstall.config
-    sed -i \
-        "s/^ef.spooler.dir = .*$/ef.spooler.dir = ${NICE_ROOT//\//\\/}\/enginframe\/spoolers/" \
-        /tmp/packages/efinstall.config
-    sed -i \
-        "s/^ef.repository.dir = .*$/ef.repository.dir = ${NICE_ROOT//\//\\/}\/enginframe\/repository/" \
-        /tmp/packages/efinstall.config
-    sed -i \
-        "s/^ef.sessions.dir = .*$/ef.sessions.dir = ${NICE_ROOT//\//\\/}\/enginframe\/sessions/" \
-        /tmp/packages/efinstall.config
-    sed -i \
-        "s/^ef.data.root.dir = .*$/ef.data.root.dir = ${NICE_ROOT//\//\\/}\/enginframe\/data/" \
-        /tmp/packages/efinstall.config
-    sed -i \
-        "s/^ef.logs.root.dir = .*$/ef.logs.root.dir = ${NICE_ROOT//\//\\/}\/enginframe\/logs/" \
-        /tmp/packages/efinstall.config
-    sed -i \
-        "s/^ef.temp.root.dir = .*$/ef.temp.root.dir = ${NICE_ROOT//\//\\/}\/enginframe\/tmp/" \
-        /tmp/packages/efinstall.config
-    sed -i \
-        "s/^kernel.server.tomcat.https.ef.hostname = .*$/kernel.server.tomcat.https.ef.hostname = ${host_name}/" \
-        /tmp/packages/efinstall.config
+    cat <<-EOF >> /tmp/packages/efinstall.config
+kernel.java.home = /usr/lib/jvm/java-1.8.0-openjdk/
+nice.root.dir.ui = ${NICE_ROOT}
+ef.spooler.dir = ${NICE_ROOT}/enginframe/spoolers/
+ef.repository.dir = ${NICE_ROOT}/enginframe/repository/
+ef.sessions.dir = ${NICE_ROOT}/enginframe/sessions/
+ef.data.root.dir = ${NICE_ROOT}/enginframe/data/
+ef.logs.root.dir = ${NICE_ROOT}/enginframe/logs/
+ef.temp.root.dir = ${NICE_ROOT}/enginframe/tmp/
+kernel.server.tomcat.https.ef.hostname = ${host_name}
+EOF
 
     # add EnginFrame users if not already exist
     id -u efnobody &>/dev/null || adduser efnobody
@@ -82,8 +62,9 @@ installEnginFrame() {
     
     # finally, launch EnginFrame installer
     ( cd /tmp/packages
-      java -jar "${enginframe_jar}" --text --batch )
+      /usr/lib/jvm/java-1.8.0-openjdk/bin/java -jar "${enginframe_jar}" --text --batch )
 }
+
 
 startEnginFrame() {
   systemctl start enginframe
