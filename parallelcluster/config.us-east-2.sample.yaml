@@ -52,6 +52,20 @@ Scheduling:
     - Name: high
       CapacityType: ONDEMAND
       ComputeResources:
+        - Name: hpc6a-48xlarge
+          DisableSimultaneousMultithreading: true
+          Efa:
+            Enabled: true
+          InstanceType: hpc6a.48xlarge
+          MaxCount: 300
+          MinCount: 0
+        - Name: c6i-32xlarge
+          DisableSimultaneousMultithreading: true
+          Efa:
+            Enabled: true
+          InstanceType: c6i.32xlarge
+          MaxCount: 300
+          MinCount: 0
         - Name: m6i-32xlarge
           DisableSimultaneousMultithreading: true
           Efa:
