@@ -65,6 +65,22 @@ EOF
       /usr/lib/jvm/java-1.8.0-openjdk/bin/java -jar "${enginframe_jar}" --text --batch )
 }
 
+customizeEnginFrame() {
+    
+    EF_TOP="${NICE_ROOT}/enginframe"
+    unset EF_VERSION
+    source "${EF_TOP}/current-version"
+    EF_ROOT="${EF_TOP}/${EF_VERSION}/enginframe"
+    
+    aws s3 cp --quiet "${post_install_base}/enginframe/fm.browse.ui" "${EF_ROOT}/plugins/applications/bin/" --region "${cfn_region}" || exit 1
+    chown ec2-user:efnobody "${EF_ROOT}/plugins/applications/bin/fm.browse.ui"
+    chmod 755 "${EF_ROOT}/plugins/applications/bin/fm.browse.ui"
+
+
+    sed -i \
+        "s/^HY_CONNECT_SESSION_MAX_WAIT=.*$/HY_CONNECT_SESSION_MAX_WAIT='600'/" \
+        "${EF_ROOT}/plugins/hydrogen/conf/ui.hydrogen.conf"
+}
 
 startEnginFrame() {
   systemctl start enginframe
@@ -76,6 +92,7 @@ startEnginFrame() {
 main() {
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 10.install.enginframe.headnode.sh: START" >&2
     installEnginFrame
+    customizeEnginFrame
     startEnginFrame
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 10.install.enginframe.headnode.sh: STOP" >&2
 }
