@@ -843,6 +843,9 @@ Resources:
         - !If [CreateVpc, !Ref PublicSubnetB, !Ref PublicSubnetBId]
       SecurityGroups:
         - !Ref ALBSecurityGroup
+      LoadBalancerAttributes:
+        - Key: idle_timeout.timeout_seconds
+          Value: 180
 
   NetworkLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
