@@ -1,0 +1,31 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: HPC-FSx-Lustre
+
+Parameters:
+  NetworkStackName:
+    Description: Name of Network Stack
+    Type: String
+
+Resources:
+
+  FSx:
+    DeletionPolicy: Retain
+    Type: AWS::FSx::FileSystem
+    Properties:
+      FileSystemType: LUSTRE
+      StorageCapacity: 1200
+      StorageType: SSD
+      SubnetIds:
+        - Fn::ImportValue:
+            !Sub "${NetworkStackName}-PrivateSubnetA"
+      SecurityGroupIds:
+        - Fn::ImportValue:
+            !Sub "${NetworkStackName}-localSG"
+      LustreConfiguration:
+        WeeklyMaintenanceStartTime: "7:04:00"
+        DeploymentType: PERSISTENT_2
+        PerUnitStorageThroughput: 1000
+        DailyAutomaticBackupStartTime: "05:30"
+        AutomaticBackupRetentionDays: 7
+        DataCompressionType: LZ4
+      FileSystemTypeVersion: "2.12"
