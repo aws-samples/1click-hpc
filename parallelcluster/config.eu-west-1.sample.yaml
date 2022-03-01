@@ -83,6 +83,13 @@ Scheduling:
           InstanceType: m5zn.12xlarge
           MaxCount: 100
           MinCount: 0
+        - Name: x2iezn-12xlarge
+          DisableSimultaneousMultithreading: true
+          Efa:
+            Enabled: true
+          InstanceType: x2iezn.12xlarge
+          MaxCount: 100
+          MinCount: 0
       CustomActions:
         OnNodeConfigured:
           Args:
