@@ -1,1 +1,2 @@
 GRANT ALL ON `%`.* TO admin@`%`;
+flush privileges;
