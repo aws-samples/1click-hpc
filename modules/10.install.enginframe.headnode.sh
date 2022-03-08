@@ -22,12 +22,6 @@
 set -x
 set -e
 
-    
-EF_TOP="${NICE_ROOT}/enginframe"
-unset EF_VERSION
-source "${EF_TOP}/current-version"
-EF_ROOT="${EF_TOP}/${EF_VERSION}/enginframe"
-
 # install EnginFrame
 # ----------------------------------------------------------------------------
 installEnginFrame() {
@@ -110,6 +104,10 @@ startEnginFrame() {
 main() {
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 10.install.enginframe.headnode.sh: START" >&2
     installEnginFrame
+    EF_TOP="${NICE_ROOT}/enginframe"
+    unset EF_VERSION
+    source "${EF_TOP}/current-version"
+    export EF_ROOT="${EF_TOP}/${EF_VERSION}/enginframe"
     createEnginFrameDB
     customizeEnginFrame
     startEnginFrame
