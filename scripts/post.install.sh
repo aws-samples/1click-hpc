@@ -70,9 +70,7 @@ export ec2user_pass="$(aws secretsmanager get-secret-value --secret-id "${stack_
 if [[ ${cfn_node_type} == HeadNode ]]; then
     export head_node_hostname=${host_name}
 elif [[ ${cfn_node_type} == ComputeFleet ]]; then
-    export head_node_hostname=$(cat /etc/parallelcluster/slurm_plugin/head_node_private_dns | sed 's/\..*$//')
-    #Slurm indipendent
-    #head_node_hostname=$(cat /etc/fstab | grep "[0-9\.]*${cfn_shared_dir}" | sed 's/^\([0-9\.]*\).*/\1/')
+    export head_node_hostname=${cfn_head_node}
 else
     exit 1
 fi
