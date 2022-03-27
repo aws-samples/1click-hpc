@@ -81,35 +81,35 @@ Mappings:
     us-east-1:
       ZoneId1: use1-az6
       ZoneId2: use1-az4
-      DbInstanceType: db.t2.micro
+      DbInstanceType: db.t4g.micro
     us-east-2:
       ZoneId1: use2-az2
       ZoneId2: use2-az3
-      DbInstanceType: db.t2.micro
+      DbInstanceType: db.t4g.micro
     us-west-1:
       ZoneId1: usw1-az1
       ZoneId2: usw1-az3
-      DbInstanceType: db.t2.micro
+      DbInstanceType: db.t4g.micro
     us-west-2:
       ZoneId1: usw2-az1
       ZoneId2: usw2-az2
-      DbInstanceType: db.t2.micro
+      DbInstanceType: db.t4g.micro
     eu-central-1:
       ZoneId1: euc1-az3
       ZoneId2: euc1-az2
-      DbInstanceType: db.t2.micro
+      DbInstanceType: db.t4g.micro
     eu-west-1:
       ZoneId1: euw1-az1
       ZoneId2: euw1-az2
-      DbInstanceType: db.t2.micro
+      DbInstanceType: db.t4g.micro
     eu-north-1:
       ZoneId1: eun1-az2
       ZoneId2: eun1-az1
-      DbInstanceType: db.t3.micro
+      DbInstanceType: db.t4g.micro
     ca-central-1:
       ZoneId1: cac1-az2
       ZoneId2: cac1-az1
-      DbInstanceType: db.t2.micro
+      DbInstanceType: db.t4g.micro
     eu-south-1:
       ZoneId1: eus1-az2
       ZoneId2: eus1-az1
@@ -117,19 +117,19 @@ Mappings:
     ap-east-1:
       ZoneId1: ape1-az3
       ZoneId2: ape1-az2
-      DbInstanceType: db.t3.micro
+      DbInstanceType: db.t4g.micro
     ap-northeast-1:
       ZoneId1: apne1-az4
       ZoneId2: apne1-az1
-      DbInstanceType: db.t2.micro
+      DbInstanceType: db.t4g.micro
     ap-northeast-2:
       ZoneId1: apne2-az1
       ZoneId2: apne2-az3
-      DbInstanceType: db.t2.micro
+      DbInstanceType: db.t4g.micro
     ap-south-1:
       ZoneId1: aps1-az2
       ZoneId2: aps1-az3
-      DbInstanceType: db.t2.micro
+      DbInstanceType: db.t4g.micro
 
 Conditions:
   CreateVpc: !Equals [!Ref VpcId, AUTO]
@@ -402,11 +402,11 @@ Resources:
       DBName: 'SlurmDB'
       DBInstanceClass: !FindInMap [RegionMap, !Ref "AWS::Region", DbInstanceType]
       MultiAZ: false
-      AllocatedStorage: '50'
+      AllocatedStorage: '20'
       StorageType: gp2
-      MaxAllocatedStorage: 5000
+      MaxAllocatedStorage: 2000
       Engine: MySQL
-      EngineVersion: 8.0.23
+      EngineVersion: 8.0.28
       MasterUsername: 'admin'
       MasterUserPassword: !Ref 'AdminPassword'
       DBSubnetGroupName: !Ref 'SlurmDBSubnetGroup'
