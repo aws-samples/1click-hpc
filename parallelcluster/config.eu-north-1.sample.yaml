@@ -55,6 +55,13 @@ Scheduling:
     - Name: compute-od-1
       CapacityType: ONDEMAND
       ComputeResources:
+        - Name: hpc6a-48xlarge
+          DisableSimultaneousMultithreading: true
+          Efa:
+            Enabled: true
+          InstanceType: hpc6a.48xlarge
+          MaxCount: 400
+          MinCount: 0
         - Name: c5n-18xlarge
           DisableSimultaneousMultithreading: true
           Efa:
