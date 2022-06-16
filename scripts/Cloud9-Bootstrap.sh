@@ -108,8 +108,6 @@ sudo chmod 400 /home/ec2-user/.ssh/id_rsa
 #Create the cluster and wait
 /home/ec2-user/.local/bin/pcluster create-cluster --cluster-name "hpc-1click-${CLUSTER_NAME}" --cluster-configuration config.${AWS_REGION_NAME}.yaml --rollback-on-failure false --wait
 
-sleep 1200
-
 HEADNODE_PRIVATE_IP=$(/home/ec2-user/.local/bin/pcluster describe-cluster --cluster-name "hpc-1click-${CLUSTER_NAME}" | jq -r '.headNode.privateIpAddress')
 echo "export HEADNODE_PRIVATE_IP='${HEADNODE_PRIVATE_IP}'" >> cluster_env
 
