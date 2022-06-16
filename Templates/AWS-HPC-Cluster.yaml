@@ -220,6 +220,36 @@ Resources:
             - ${AWS::StackName}-${RANDOM}
             - RANDOM: !Select [0, !Split ['-', !Select [2, !Split ['/', !Ref 'AWS::StackId' ]]]]
 
+  # test making a dynamic group, how to transport the name into the post install script?
+  ODCRGroup:
+    Type: "AWS::ResourceGroups::Group"
+    Properties:
+      Name: !Sub '${AWS::StackName}-ODCR-Group'
+      Description: "A resource group for targeted EC2 capacity reservations"
+      Configuration:
+      - Type: "AWS::EC2::CapacityReservationPool"
+        Parameters: []
+      - Type: "AWS::ResourceGroups::Generic"
+        Parameters:
+        - Name: "allowed-resource-types"
+          Values:
+            - "AWS::EC2::CapacityReservation"
+  
+  ODCRpolicy:
+    Type: AWS::IAM::Policy
+    Properties: 
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: !Sub '${AWS::StackName}-RunInstancesFromCapacityReservation'
+          - Effect: Allow
+            Action:
+              - 'ec2:RunInstances'
+            Resource:
+              - !Sub 'arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:capacity-reservation/*'
+              - !Sub 'arn:aws:resource-groups:${AWS::Region}:${AWS::AccountId}:group/*'
+      PolicyName: !Sub '${AWS::StackName}-ODCR-Policy'
+
   VPC:
     Type: "AWS::EC2::VPC"
     Condition: CreateVpc
@@ -469,6 +499,7 @@ Resources:
             - git clone "https://github.com/rvencu/1click-hpc.git"
             - !Sub echo "export AWS_DEFAULT_REGION=${AWS::Region}" >> cluster_env
             - !Sub echo "export AWS_REGION_NAME=${AWS::Region}" >> cluster_env
+            - !Sub echo "export AWS_ACCOUNT=${AWS::AccountId}" >> cluster_env
             - !Sub echo "export S3_BUCKET=${Cloud9OutputBucket}" >> cluster_env
             - !Sub echo "export FSX_ID=${FSx}" >> cluster_env
             - !Sub
