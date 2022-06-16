@@ -236,19 +236,18 @@ Resources:
             - "AWS::EC2::CapacityReservation"
   
   ODCRpolicy:
-    Type: AWS::IAM::Policy
-    Properties: 
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Path: /
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
-          - Sid: !Sub '${AWS::StackName}-RunInstancesFromCapacityReservation'
           - Effect: Allow
-            Action:
-              - 'ec2:RunInstances'
+            Action: 'ec2:RunInstances'
             Resource:
               - !Sub 'arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:capacity-reservation/*'
               - !Sub 'arn:aws:resource-groups:${AWS::Region}:${AWS::AccountId}:group/*'
-      PolicyName: !Sub '${AWS::StackName}-ODCR-Policy'
+      ManagedPolicyName: !Sub '${AWS::StackName}-ODCR-Policy'
 
   VPC:
     Type: "AWS::EC2::VPC"
