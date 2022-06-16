@@ -466,7 +466,7 @@ Resources:
             - echo LANG=en_US.utf-8 >> /etc/environment
             - echo LC_ALL=en_US.UTF-8 >> /etc/environment
             - cd /home/ec2-user/environment
-            - git clone "https://github.com/aws-samples/1click-hpc.git"
+            - git clone "https://github.com/rvencu/1click-hpc.git"
             - !Sub echo "export AWS_DEFAULT_REGION=${AWS::Region}" >> cluster_env
             - !Sub echo "export AWS_REGION_NAME=${AWS::Region}" >> cluster_env
             - !Sub echo "export S3_BUCKET=${Cloud9OutputBucket}" >> cluster_env
