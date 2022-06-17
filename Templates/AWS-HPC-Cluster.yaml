@@ -460,7 +460,7 @@ Resources:
       Description: 'Cloud9 IDE for AWS ParallelCluster'
       AutomaticStopTimeMinutes: 120
       ImageId: amazonlinux-2-x86_64
-      InstanceType: c5.xlarge
+      InstanceType: c5.2xlarge
       SubnetId: !If [CreateVpc, !Ref PublicSubnetA, !Ref PublicSubnetAId]
       Tags: 
         - 
