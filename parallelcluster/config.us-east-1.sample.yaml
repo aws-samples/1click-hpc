@@ -311,6 +311,8 @@ Scheduling:
           Args:
             - 04.configure.disable.anacron.compute.sh
             - 40.install.monitoring.compute.sh
+            - 60.install.gpumon.cloudwatch.metrics.sh
+            - 70.install.singularity.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
