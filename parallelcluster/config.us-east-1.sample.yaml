@@ -298,6 +298,13 @@ Scheduling:
         AssignPublicIp: ${USE_PUBLIC_IPS}
     - Name: compute-od-gpu
       CapacityType: ONDEMAND
+      ComputeSettings:
+        LocalStorage:
+          RootVolume:
+            Size: 1024
+            Encrypted: false
+            VolumeType: gp3
+            Iops: 5000
       ComputeResources:
         - Name: p4d-24xlarge
           DisableSimultaneousMultithreading: true
