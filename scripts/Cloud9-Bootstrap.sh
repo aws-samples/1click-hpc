@@ -76,11 +76,15 @@ if [[ $PRIVATE_SUBNET_ID == "NONE" ]];then
   export USE_PUBLIC_IPS='true'
   echo "export SUBNET_ID=\"${PUBLIC_SUBNET_ID}\"" >> cluster_env
   echo "export USE_PUBLIC_IPS='true'" >> cluster_env
+
+  export HN_SUBNET_ID="${PUBLIC_SUBNET_ID}"
 else
   export SUBNET_ID="${PRIVATE_SUBNET_ID}"
   export USE_PUBLIC_IPS='false'
   echo "export SUBNET_ID=\"${PRIVATE_SUBNET_ID}\"" >> cluster_env
   echo "export USE_PUBLIC_IPS='false'" >> cluster_env
+  
+  export HN_SUBNET_ID="${PUBLIC_SUBNET_ID}"
 fi
 
 /usr/bin/envsubst < "1click-hpc/parallelcluster/config.${AWS_REGION_NAME}.sample.yaml" > config.${AWS_REGION_NAME}.yaml

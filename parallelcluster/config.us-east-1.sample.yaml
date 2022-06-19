@@ -35,7 +35,7 @@ HeadNode:
     AdditionalSecurityGroups:
       - ${ADDITIONAL_SG}
     ElasticIp: true
-    SubnetId: ${SUBNET_ID}
+    SubnetId: ${HN_SUBNET_ID}
   Ssh:
     KeyName: ${KEY_PAIR}
   Imds:
