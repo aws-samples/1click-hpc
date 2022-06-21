@@ -1,16 +1,27 @@
 #!/bin/bash
 set -e
 
-yum install -y git amazon-linux-extras
-amazon-linux-extras enable python3.8
-
-git clone https://github.com/Stability-AI/gpumon-service-for-cloudwatch.git
-
-yum install -y python3.8 python3-distutils
-python3.8 -m pip install -r gpumon-service-for-cloudwatch/requirements.txt
-
-sed -i 's/GPUMonitoring/${CLUSTER_NAME}-GPU-Monitoring/' gpumon-service-for-cloudwatch/gpumon.py
-mv gpumon-service-for-cloudwatch/gpumon.py /etc/gpumon.py
-mv gpumon-service-for-cloudwatch/gpumon.service /etc/systemd/system/gpumon.service
-
-systemctl enable --now gpumon
+cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/metrics_amazon_cloudwatch_agent.json << EOF
+{
+     "agent": {
+         "run_as_user": "root"
+     },
+     "metrics": {
+         "aggregation_dimensions": [["InstanceId"]],
+         "metrics_collected": {
+            "nvidia_gpu": {
+                "measurement": [
+                    "utilization_gpu",
+                    "utilization_memory",
+                    "temperature_gpu",
+                    "power_draw",
+                    "memory_total",
+                    "memory_used",
+                    "memory_free",
+                    "clocks_current_memory"
+                ]
+            }
+         }
+     }
+ }
+EOF

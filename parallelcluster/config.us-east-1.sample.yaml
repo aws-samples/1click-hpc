@@ -1,11 +1,11 @@
 HeadNode:
   LocalStorage:
     RootVolume:
-      Size: 100
+      Size: 2000
       Encrypted: false
       VolumeType: gp3
-      Iops: 3000
-      Throughput: 250
+      Iops: 10000
+      Throughput: 1000
   CustomActions:
     OnNodeConfigured:
       Args:
@@ -30,7 +30,7 @@ HeadNode:
     S3Access:
       - BucketName: '*'
         EnableWriteAccess: true
-  InstanceType: m6i.2xlarge
+  InstanceType: m6i.16xlarge
   Networking:
     AdditionalSecurityGroups:
       - ${ADDITIONAL_SG}
@@ -43,10 +43,10 @@ HeadNode:
 Image:
   Os: alinux2
 DirectoryService:
-  DomainName: dc=corp,dc=pcluster,dc=com
+  DomainName: dc=${DC0},dc=${DC1},dc=${DC2}
   DomainAddr: ldaps://${NLB_PUBLIC_DNS_NAME}
   PasswordSecretArn: ${SECRET_ARN}
-  DomainReadOnlyUser: cn=ReadOnlyUser,ou=Users,ou=CORP,dc=corp,dc=pcluster,dc=com
+  DomainReadOnlyUser: cn=ReadOnlyUser,ou=Users,ou=${DC0^^},dc=${DC0},dc=${DC1},dc=${DC2}
   LdapTlsReqCert: never
 Region: ${AWS_REGION_NAME}
 Scheduling:
