@@ -24,10 +24,10 @@ export AD_NAME=${ADName}
 IFS='.'
 #Read the split words into an array based on comma delimiter
 read -a strarr <<< ${ADName}
-
 export DC0=$(echo "${strarr}" | awk '{print $1}')
 export DC1=$(echo "${strarr}" | awk '{print $2}')
 export DC2=$(echo "${strarr}" | awk '{print $3}')
+IFS=' \t\n'
 
 ADMIN_PW=$(aws secretsmanager get-secret-value --secret-id "hpc-1click-${CLUSTER_NAME}-AD" --query SecretString --output text --region "${AWS_REGION_NAME}")
 export SECRET_ARN=$(aws secretsmanager describe-secret --secret-id "hpc-1click-${CLUSTER_NAME}-AD" --query ARN --output text --region "${AWS_REGION_NAME}")
@@ -40,15 +40,16 @@ do
 	echo "${IP} ${ADName}" | sudo tee -a /etc/hosts
 	echo "nameserver ${IP}" | sudo tee -a /etc/resolv.conf
 done
-echo "${ADMIN_PW}" | sudo realm join -U Admin ${ADName}
+echo "${ADMIN_PW}" | sudo realm join -U Admin ${AD_NAME}
 
 if [[ $CUSTOMAD == "false" ]];then
-  echo "${ADMIN_PW}" | adcli create-user -x -U Admin --domain=${ADName} --display-name=ReadOnlyUser ReadOnlyUser
-  echo "${ADMIN_PW}" | adcli create-user -x -U Admin --domain=${ADName} --display-name=user000 user000
+  echo "${ADMIN_PW}" | adcli create-user -x -U Admin --domain=${AD_NAME} --display-name=ReadOnlyUser ReadOnlyUser
+  echo "${ADMIN_PW}" | adcli create-user -x -U Admin --domain=${AD_NAME} --display-name=user000 user000
+  aws ds reset-user-password --directory-id "${AD_ID}" --user-name "ReadOnlyUser" --new-password "${ADMIN_PW}" --region "${AWS_REGION_NAME}"
+  aws ds reset-user-password --directory-id "${AD_ID}" --user-name "user000" --new-password "${ADMIN_PW}" --region "${AWS_REGION_NAME}"
 fi
 
 sudo cp /etc/resolv.conf.OK /etc/resolv.conf
-
 
 #install Lustre client
 sudo amazon-linux-extras install -y lustre2.10 > /dev/null 2>&1
@@ -105,7 +106,6 @@ fi
 
 /usr/bin/envsubst < "1click-hpc/parallelcluster/config.${AWS_REGION_NAME}.sample.yaml" > config.${AWS_REGION_NAME}.yaml
 /usr/bin/envsubst < "1click-hpc/modules/50.install.capacity.reservation.pool.sh" > 50.install.capacity.reservation.pool.sh
-/usr/bin/envsubst < "1click-hpc/modules/60.install.gpumon.cloudwatch.metrics.sh" > 60.install.gpumon.cloudwatch.metrics.sh
 /usr/bin/envsubst '${SLURM_DB_ENDPOINT}' < "1click-hpc/sacct/mysql/db.config" > db.config
 /usr/bin/envsubst '${SLURM_DB_ENDPOINT}' < "1click-hpc/enginframe/mysql/efdb.config" > efdb.config
 /usr/bin/envsubst '${SLURM_DB_ENDPOINT}' < "1click-hpc/sacct/slurm/slurmdbd.conf" > slurmdbd.conf
@@ -113,7 +113,6 @@ fi
 /usr/bin/envsubst '${S3_BUCKET}' < "1click-hpc/enginframe/fm.browse.ui" > fm.browse.ui
 
 aws s3 cp --quiet 50.install.capacity.reservation.pool.sh "s3://${S3_BUCKET}/1click-hpc/modules/50.install.capacity.reservation.pool.sh" --region "${AWS_REGION_NAME}"
-aws s3 cp --quiet 60.install.gpumon.cloudwatch.metrics.sh "s3://${S3_BUCKET}/1click-hpc/modules/60.install.gpumon.cloudwatch.metrics.sh" --region "${AWS_REGION_NAME}"
 
 aws s3 cp --quiet db.config "s3://${S3_BUCKET}/1click-hpc/sacct/mysql/db.config" --region "${AWS_REGION_NAME}"
 aws s3 cp --quiet efdb.config "s3://${S3_BUCKET}/1click-hpc/enginframe/mysql/efdb.config" --region "${AWS_REGION_NAME}"
@@ -165,9 +164,6 @@ sudo mount -t lustre -o noatime,flock $FSX_DNS_NAME@tcp:/$FSX_MOUNT_NAME fsx
 sudo bash -c "echo \"$FSX_DNS_NAME@tcp:/$FSX_MOUNT_NAME /home/ec2-user/environment/fsx lustre defaults,noatime,flock,_netdev 0 0\" >> /etc/fstab"
 sudo chmod 755 fsx
 sudo chown ec2-user:ec2-user fsx
-
-aws ds reset-user-password --directory-id "${AD_ID}" --user-name "ReadOnlyUser" --new-password "${ADMIN_PW}" --region "${AWS_REGION_NAME}"
-aws ds reset-user-password --directory-id "${AD_ID}" --user-name "user000" --new-password "${ADMIN_PW}" --region "${AWS_REGION_NAME}"
 
 # send SUCCESFUL to the wait handle
 curl -X PUT -H 'Content-Type:' \
