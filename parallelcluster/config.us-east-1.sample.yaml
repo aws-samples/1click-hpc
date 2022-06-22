@@ -258,44 +258,6 @@ Scheduling:
         SubnetIds:
           - ${SUBNET_ID}
         AssignPublicIp: ${USE_PUBLIC_IPS}
-    - Name: compute-od-5
-      CapacityType: ONDEMAND
-      ComputeResources:
-        - Name: m5d-24xlarge
-          DisableSimultaneousMultithreading: true
-          InstanceType: m5d.24xlarge
-          MaxCount: 300
-          MinCount: 0
-        - Name: r5d-24xlarge
-          DisableSimultaneousMultithreading: true
-          InstanceType: r5d.24xlarge
-          MaxCount: 300
-          MinCount: 0
-      CustomActions:
-        OnNodeConfigured:
-          Args:
-            - 04.configure.disable.anacron.compute.sh
-            - 40.install.monitoring.compute.sh
-          Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
-      Iam:
-        AdditionalIamPolicies:
-          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
-          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
-          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
-          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
-        S3Access:
-          - BucketName: '*'
-            EnableWriteAccess: true
-      Networking:
-        AdditionalSecurityGroups:
-          - ${ADDITIONAL_SG}
-        PlacementGroup:
-          Enabled: true
-        SubnetIds:
-          - ${SUBNET_ID}
-        AssignPublicIp: ${USE_PUBLIC_IPS}
     - Name: compute-od-gpu
       CapacityType: ONDEMAND
       ComputeSettings:
