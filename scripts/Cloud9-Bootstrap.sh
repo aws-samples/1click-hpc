@@ -84,12 +84,14 @@ else
 fi
 
 /usr/bin/envsubst < "1click-hpc/parallelcluster/config.${AWS_REGION_NAME}.sample.yaml" > config.${AWS_REGION_NAME}.yaml
+/usr/bin/envsubst < "1click-hpc/modules/50.install.capacity.reservation.pool.sh" > 50.install.capacity.reservation.pool.sh
 /usr/bin/envsubst '${SLURM_DB_ENDPOINT}' < "1click-hpc/sacct/mysql/db.config" > db.config
 /usr/bin/envsubst '${SLURM_DB_ENDPOINT}' < "1click-hpc/enginframe/mysql/efdb.config" > efdb.config
 /usr/bin/envsubst '${SLURM_DB_ENDPOINT}' < "1click-hpc/sacct/slurm/slurmdbd.conf" > slurmdbd.conf
 /usr/bin/envsubst '${SLURM_DB_ENDPOINT}' < "1click-hpc/enginframe/efinstall.config" > efinstall.config
 /usr/bin/envsubst '${S3_BUCKET}' < "1click-hpc/enginframe/fm.browse.ui" > fm.browse.ui
 
+aws s3 cp --quiet 50.install.capacity.reservation.pool.sh "s3://${S3_BUCKET}/1click-hpc/modules/50.install.capacity.reservation.pool.sh" --region "${AWS_REGION_NAME}"
 aws s3 cp --quiet db.config "s3://${S3_BUCKET}/1click-hpc/sacct/mysql/db.config" --region "${AWS_REGION_NAME}"
 aws s3 cp --quiet efdb.config "s3://${S3_BUCKET}/1click-hpc/enginframe/mysql/efdb.config" --region "${AWS_REGION_NAME}"
 aws s3 cp --quiet slurmdbd.conf "s3://${S3_BUCKET}/1click-hpc/sacct/slurm/slurmdbd.conf" --region "${AWS_REGION_NAME}"
