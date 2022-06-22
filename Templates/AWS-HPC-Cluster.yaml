@@ -100,7 +100,10 @@ Parameters:
     ADPassword:
       Description: 'Please enter Admin user password of the custom AD domain'
       Type: String
-      Default: ''
+      MinLength: '8'
+      MaxLength: '255'
+      AllowedPattern: (?=^.{8,255}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*
+      NoEcho: 'true'
 
 Mappings: 
   RegionMap: 
@@ -535,8 +538,8 @@ Resources:
             - !Sub echo "export S3_BUCKET=${Cloud9OutputBucket}" >> cluster_env
             - !Sub echo "export FSX_ID=${FSx}" >> cluster_env
             - !Sub 
-              - echo "export CUSTOM_AD=${CUSTOMAD}" >> cluster_env
-              - !CUSTOMAD: !If [CreateAD, 'false', 'true']
+              - echo "export CUSTOMAD=${CUSTOMAD}" >> cluster_env
+              - CUSTOMAD: !If [CreateAD, 'false', 'true']
             - !Sub
               - echo "export AD_ID=${ADId}" >> cluster_env
               - ADId: !If [CreateAD, !Ref ActiveDirectory, !Ref AD]
@@ -805,7 +808,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Description: Create ALB Certificate
-      Timeout: 300
+      Timeout: 600
       Runtime: python3.7
       Handler: index.handler
       Role: !GetAtt 'LBInitRole.Arn'
@@ -865,10 +868,10 @@ Resources:
                   CertificateBody=crt,
                   PrivateKey=key
               )
-              time.sleep(10)
+              time.sleep(20)
               return response['ServerCertificateMetadata']['Arn']
           def delete_certificate(event):
-              time.sleep(10)
+              time.sleep(30)
               DNSName = event['ResourceProperties']['DNSName']
               iam = boto3.client('iam')
               response = iam.delete_server_certificate(ServerCertificateName=DNSName)

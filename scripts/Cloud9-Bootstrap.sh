@@ -14,8 +14,6 @@ cd /home/ec2-user/environment
 . cluster_env
 
 #needed to join the domain
-
-
 IPS=$(aws ds describe-directories --directory-id "${AD_ID}" --query 'DirectoryDescriptions[*].DnsIpAddrs' --output text)
 ADName=$(aws ds describe-directories --directory-id "${AD_ID}" --query 'DirectoryDescriptions[*].Name' --output text)
 export IP_AD1=$(echo "${IPS}" | awk '{print $1}')
@@ -27,9 +25,9 @@ IFS='.'
 #Read the split words into an array based on comma delimiter
 read -a strarr <<< ${ADName}
 
-export DC0=$(echo "${IPS}" | awk '{print $1}')
-export DC1=$(echo "${IPS}" | awk '{print $2}')
-export DC2=$(echo "${IPS}" | awk '{print $3}')
+export DC0=$(echo "${strarr}" | awk '{print $1}')
+export DC1=$(echo "${strarr}" | awk '{print $2}')
+export DC2=$(echo "${strarr}" | awk '{print $3}')
 
 ADMIN_PW=$(aws secretsmanager get-secret-value --secret-id "hpc-1click-${CLUSTER_NAME}-AD" --query SecretString --output text --region "${AWS_REGION_NAME}")
 export SECRET_ARN=$(aws secretsmanager describe-secret --secret-id "hpc-1click-${CLUSTER_NAME}-AD" --query ARN --output text --region "${AWS_REGION_NAME}")
