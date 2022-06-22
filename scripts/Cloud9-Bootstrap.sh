@@ -18,16 +18,10 @@ IPS=$(aws ds describe-directories --directory-id "${AD_ID}" --query 'DirectoryDe
 ADName=$(aws ds describe-directories --directory-id "${AD_ID}" --query 'DirectoryDescriptions[*].Name' --output text)
 export IP_AD1=$(echo "${IPS}" | awk '{print $1}')
 export IP_AD2=$(echo "${IPS}" | awk '{print $2}')
-export AD_NAME=${ADName}
 
-# Set comma as delimiter
-IFS='.'
-#Read the split words into an array based on comma delimiter
-read -a strarr <<< ${ADName}
-export DC0=$(echo "${strarr}" | awk '{print $1}')
-export DC1=$(echo "${strarr}" | awk '{print $2}')
-export DC2=$(echo "${strarr}" | awk '{print $3}')
-IFS=' \t\n'
+export DC0=$(echo "${ADName}" | awk -F'.' '{print $1}')
+export DC1=$(echo "${ADName}" | awk -F'.' '{print $2}')
+export DC2=$(echo "${ADName}" | awk -F'.' '{print $3}')
 
 ADMIN_PW=$(aws secretsmanager get-secret-value --secret-id "hpc-1click-${CLUSTER_NAME}-AD" --query SecretString --output text --region "${AWS_REGION_NAME}")
 export SECRET_ARN=$(aws secretsmanager describe-secret --secret-id "hpc-1click-${CLUSTER_NAME}-AD" --query ARN --output text --region "${AWS_REGION_NAME}")
@@ -40,11 +34,11 @@ do
 	echo "${IP} ${ADName}" | sudo tee -a /etc/hosts
 	echo "nameserver ${IP}" | sudo tee -a /etc/resolv.conf
 done
-echo "${ADMIN_PW}" | sudo realm join -U Admin ${AD_NAME}
+echo "${ADMIN_PW}" | sudo realm join -U Admin ${ADName}
 
 if [[ $CUSTOMAD == "false" ]];then
-  echo "${ADMIN_PW}" | adcli create-user -x -U Admin --domain=${AD_NAME} --display-name=ReadOnlyUser ReadOnlyUser
-  echo "${ADMIN_PW}" | adcli create-user -x -U Admin --domain=${AD_NAME} --display-name=user000 user000
+  echo "${ADMIN_PW}" | adcli create-user -x -U Admin --domain=${ADName} --display-name=ReadOnlyUser ReadOnlyUser
+  echo "${ADMIN_PW}" | adcli create-user -x -U Admin --domain=${ADName} --display-name=user000 user000
   aws ds reset-user-password --directory-id "${AD_ID}" --user-name "ReadOnlyUser" --new-password "${ADMIN_PW}" --region "${AWS_REGION_NAME}"
   aws ds reset-user-password --directory-id "${AD_ID}" --user-name "user000" --new-password "${ADMIN_PW}" --region "${AWS_REGION_NAME}"
 fi
