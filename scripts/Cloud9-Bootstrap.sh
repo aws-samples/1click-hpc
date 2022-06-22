@@ -22,6 +22,7 @@ export IP_AD2=$(echo "${IPS}" | awk '{print $2}')
 export DC0=$(echo "${ADName}" | awk -F'.' '{print $1}')
 export DC1=$(echo "${ADName}" | awk -F'.' '{print $2}')
 export DC2=$(echo "${ADName}" | awk -F'.' '{print $3}')
+export OU=${DC0^^}
 
 ADMIN_PW=$(aws secretsmanager get-secret-value --secret-id "hpc-1click-${CLUSTER_NAME}-AD" --query SecretString --output text --region "${AWS_REGION_NAME}")
 export SECRET_ARN=$(aws secretsmanager describe-secret --secret-id "hpc-1click-${CLUSTER_NAME}-AD" --query ARN --output text --region "${AWS_REGION_NAME}")
