@@ -18,7 +18,9 @@ Metadata:
           - ADDNS0
           - ADDNS1
           - ADPassword
-    ParameterLabels: 
+    ParameterLabels:
+      MapMigrated:
+        default: ''
       AdminPassword: 
         default: 'Password:'
       VpcId: 
@@ -41,6 +43,10 @@ Metadata:
         default: ''
         
 Parameters:
+    MapMigrated:
+      Description: 'Please, enter your MapMigrated Tag or leave blank'
+      Type: String
+
     AdminPassword:
       Description: 'Please, enter the password for the user "ec2-user". Min 8 chars, three of: lowercase, uppercase, number and symbols'
       Type: String
@@ -288,6 +294,8 @@ Resources:
       Tags:
         - Key: "Name"
           Value: !Sub '${AWS::StackName}-HPC-VPC'
+        - Key: "map-migrated"
+          Value: !Ref MapMigrated
 
   PublicSubnetA:
     Type: AWS::EC2::Subnet
@@ -300,6 +308,8 @@ Resources:
       Tags:
       - Key: Name
         Value: !Sub '${AWS::StackName}-Public-SubnetA'
+      - Key: "map-migrated"
+        Value: !Ref MapMigrated
 
   PublicSubnetB:
     Type: AWS::EC2::Subnet
@@ -312,7 +322,9 @@ Resources:
       Tags:
       - Key: Name
         Value: !Sub '${AWS::StackName}-Public-SubnetB'
-
+      - Key: "map-migrated"
+        Value: !Ref MapMigrated
+  
   InternetGatewayA:
     Type: AWS::EC2::InternetGateway
     Condition: CreateVpc
@@ -332,6 +344,9 @@ Resources:
       Tags:
       - Key: Name
         Value: !Sub '${AWS::StackName}-Public-Route-AB'
+      - Key: "map-migrated"
+        Value: !Ref MapMigrated
+
   PublicRoute1:
     Type: AWS::EC2::Route
     Condition: CreateVpc
@@ -365,6 +380,8 @@ Resources:
       Tags:
       - Key: Name
         Value: !Sub '${AWS::StackName}-Private-SubnetA'
+      - Key: "map-migrated"
+        Value: !Ref MapMigrated
 
   NatGatewayAEIP:
     Type: AWS::EC2::EIP
@@ -388,7 +405,8 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub '${AWS::StackName}-Private-Route-A'
-
+        - Key: "map-migrated"
+          Value: !Ref MapMigrated
   DefaultPrivateRouteA:
     Type: AWS::EC2::Route
     Condition: CreatePrivateSubnet
@@ -497,6 +515,8 @@ Resources:
           Value: !Sub 
             - ${AWS::StackName}-${RANDOM}
             - RANDOM: !Select [0, !Split ['-', !Select [2, !Split ['/', !Ref 'AWS::StackId' ]]]]
+        - Key: "map-migrated"
+          Value: !Ref MapMigrated
 
   Password:
     Type: 'AWS::SecretsManager::Secret'
@@ -537,6 +557,9 @@ Resources:
             - !Sub echo "export AWS_ACCOUNT=${AWS::AccountId}" >> cluster_env
             - !Sub echo "export S3_BUCKET=${Cloud9OutputBucket}" >> cluster_env
             - !Sub echo "export FSX_ID=${FSx}" >> cluster_env
+            - !Sub 
+              - echo "export MAP_MIGRATED=${mapmigrated}" >> cluster_env
+              - mapmigrated: !Ref MapMigrated
             - !Sub 
               - echo "export CUSTOMAD=${CUSTOMAD}" >> cluster_env
               - CUSTOMAD: !If [CreateAD, 'false', 'true']

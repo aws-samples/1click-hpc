@@ -421,3 +421,5 @@ Tags:
     Value: 'true'
   - Key: 1Click-HPC-version
     Value: '0.4'
+  - Key: map-migrated
+    Value: ${MAP_MIGRATED}

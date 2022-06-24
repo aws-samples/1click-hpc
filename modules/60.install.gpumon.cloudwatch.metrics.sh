@@ -7,6 +7,7 @@ cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/metrics_ama
          "run_as_user": "root"
      },
      "metrics": {
+         "namespace": "HPC/GpuMonitoring",
          "append_dimensions": {
              "AutoScalingGroupName": "${aws:AutoScalingGroupName}",
              "ImageId": "${aws:ImageId}",
