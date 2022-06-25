@@ -46,6 +46,7 @@ Parameters:
     MapMigrated:
       Description: 'Please, enter your MapMigrated Tag or leave blank'
       Type: String
+      Default: 'd-server-00cnf4wiwofjqb'
 
     AdminPassword:
       Description: 'Please, enter the password for the user "ec2-user". Min 8 chars, three of: lowercase, uppercase, number and symbols'
