@@ -283,6 +283,7 @@ Scheduling:
             - 40.install.monitoring.compute.sh
             - 60.install.gpumon.cloudwatch.metrics.sh
             - 70.install.enroot.pyxis.sh
+            - 70.install.singularity.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
