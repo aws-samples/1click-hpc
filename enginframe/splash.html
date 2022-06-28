@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<!--
+Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: MIT-0
+-->
+<html>
+  <head>
+    <title>Stability.AI HPC Cluster</title>
+    <style>
+
+        html {
+            min-height: 100vh;
+            background-color: #232F3E;
+            background-image: url(background.png);
+            background-size: 600px;
+            background-position: 105% 110%;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+        }
+
+        body {
+            color: #fff;
+            font-family: 'Arial', 'sans-serif';
+        }
+
+        #content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        #content #logo {
+            margin-top: 40px;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+        }
+
+        #content #grafana-logo {
+            cursor: pointer;
+            max-width: 50px;
+            vertical-align: top;
+        }
+
+        #content h1 {
+            font-weight: normal;
+            text-align: center;
+        }
+
+        #content #txt {
+            background-color: #232F3E;
+            border: 0;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        #content #grafana-txt {
+            background-color: #fff;
+            vertical-align: bottom;
+            border: 1;
+            font-size: 1.2em;
+            color: #000;
+            padding: 5px;
+            cursor: pointer;
+            margin: 5px;
+            text-align: center;
+        }
+    </style>
+  </head>
+  <body>
+    <div id="content">
+        <img src="https://images.squarespace-cdn.com/content/v1/6213c340453c3f502425776e/d2d93cf7-7365-479e-89fa-0e96d421b3c3/SAI+Logo.gif?format=300w" alt="Stability.ai logo" id="logo">
+        <h1>Stability.AI HPC Cluster</h1>
+        <p> Welcome to Stability.AI HPC Cluster Console. Login with your provided username and password in the Workspace. At this time Grafana monitoring is reserved for administrators, we will develop a researcher interface in the near future.</p>
+        <p><a href="/enginframe/"><button id="grafana-txt">Cluster Workspace</button></a></p>
+        <p><a href="/grafana/"><button id="grafana-txt">Cluster Monitoring Dashboards (admin)</button></a></p>
+        <p><a href="/prometheus/"><button id="grafana-txt">Prometheus Server (admin)</button></a></p>
+    </div>
+  </body>
+</html>
