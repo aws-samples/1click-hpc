@@ -16,6 +16,7 @@ HeadNode:
         - 12.configure.enginframe.alb.headnode.sh
         - 20.install.dcv.slurm.headnode.sh
         - 40.install.monitoring.headnode.sh
+        - 45.customize.splashpage.headnode.sh
         - 50.install.capacity.reservation.pool.sh
         - 70.install.enroot.pyxis.sh
       Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
@@ -280,6 +281,7 @@ Scheduling:
         OnNodeConfigured:
           Args:
             - 04.configure.disable.anacron.compute.sh
+            - 35.add.nvidia.udev.rules.gpu.sh
             - 40.install.monitoring.compute.sh
             - 45.install.nccl.compute.sh
             - 60.install.gpumon.cloudwatch.metrics.sh
