@@ -281,6 +281,7 @@ Scheduling:
           Args:
             - 04.configure.disable.anacron.compute.sh
             - 40.install.monitoring.compute.sh
+            - 45.install.nccl.compute.sh
             - 60.install.gpumon.cloudwatch.metrics.sh
             - 70.install.enroot.pyxis.sh
             - 70.install.singularity.compute.sh
