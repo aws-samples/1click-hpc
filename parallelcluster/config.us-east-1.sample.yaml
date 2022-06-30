@@ -56,7 +56,7 @@ Scheduling:
   SlurmSettings:
     ScaledownIdletime: 10
   SlurmQueues:
-    - Name: compute-od-1
+    - Name: compute-od-cpu
       CapacityType: ONDEMAND
       ComputeResources:
         - Name: c6i-32xlarge
@@ -99,147 +99,7 @@ Scheduling:
           Args:
             - 04.configure.disable.anacron.compute.sh
             - 40.install.monitoring.compute.sh
-          Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
-      Iam:
-        AdditionalIamPolicies:
-          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
-          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
-          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
-          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
-        S3Access:
-          - BucketName: '*'
-            EnableWriteAccess: true
-      Networking:
-        AdditionalSecurityGroups:
-          - ${ADDITIONAL_SG}
-        PlacementGroup:
-          Enabled: true
-        SubnetIds:
-          - ${SUBNET_ID}
-        AssignPublicIp: ${USE_PUBLIC_IPS}
-    - Name: compute-od-2
-      CapacityType: ONDEMAND
-      ComputeResources:
-        - Name: c5n-18xlarge
-          DisableSimultaneousMultithreading: true
-          Efa:
-            Enabled: true
-          InstanceType: c5n.18xlarge
-          MaxCount: 300
-          MinCount: 0
-        - Name: m5n-24xlarge
-          DisableSimultaneousMultithreading: true
-          Efa:
-            Enabled: true
-          InstanceType: m5n.24xlarge
-          MaxCount: 300
-          MinCount: 0
-        - Name: r5n-24xlarge
-          DisableSimultaneousMultithreading: true
-          Efa:
-            Enabled: true
-          InstanceType: r5n.24xlarge
-          MaxCount: 300
-          MinCount: 0
-        - Name: x2iedn-32xlarge
-          DisableSimultaneousMultithreading: true
-          Efa:
-            Enabled: true
-          InstanceType: x2iedn.32xlarge
-          MaxCount: 300
-          MinCount: 0
-      CustomActions:
-        OnNodeConfigured:
-          Args:
-            - 04.configure.disable.anacron.compute.sh
-            - 40.install.monitoring.compute.sh
-          Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
-      Iam:
-        AdditionalIamPolicies:
-          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
-          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
-          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
-          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
-        S3Access:
-          - BucketName: '*'
-            EnableWriteAccess: true
-      Networking:
-        AdditionalSecurityGroups:
-          - ${ADDITIONAL_SG}
-        PlacementGroup:
-          Enabled: true
-        SubnetIds:
-          - ${SUBNET_ID}
-        AssignPublicIp: ${USE_PUBLIC_IPS}
-    - Name: compute-od-3
-      CapacityType: ONDEMAND
-      ComputeResources:
-        - Name: m5dn-24xlarge
-          DisableSimultaneousMultithreading: true
-          Efa:
-            Enabled: true
-          InstanceType: m5dn.24xlarge
-          MaxCount: 300
-          MinCount: 0
-        - Name: r5dn-24xlarge
-          DisableSimultaneousMultithreading: true
-          Efa:
-            Enabled: true
-          InstanceType: r5dn.24xlarge
-          MaxCount: 300
-          MinCount: 0
-      CustomActions:
-        OnNodeConfigured:
-          Args:
-            - 04.configure.disable.anacron.compute.sh
-            - 40.install.monitoring.compute.sh
-          Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
-      Iam:
-        AdditionalIamPolicies:
-          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
-          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
-          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
-          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
-        S3Access:
-          - BucketName: '*'
-            EnableWriteAccess: true
-      Networking:
-        AdditionalSecurityGroups:
-          - ${ADDITIONAL_SG}
-        PlacementGroup:
-          Enabled: true
-        SubnetIds:
-          - ${SUBNET_ID}
-        AssignPublicIp: ${USE_PUBLIC_IPS}
-    - Name: compute-od-4
-      CapacityType: ONDEMAND
-      ComputeResources:
-        - Name: c5-24xlarge
-          DisableSimultaneousMultithreading: true
-          InstanceType: c5.24xlarge
-          MaxCount: 300
-          MinCount: 0
-        - Name: m5-24xlarge
-          DisableSimultaneousMultithreading: true
-          InstanceType: m5.24xlarge
-          MaxCount: 300
-          MinCount: 0
-        - Name: r5-24xlarge
-          DisableSimultaneousMultithreading: true
-          InstanceType: r5.24xlarge
-          MaxCount: 300
-          MinCount: 0
-      CustomActions:
-        OnNodeConfigured:
-          Args:
-            - 04.configure.disable.anacron.compute.sh
-            - 40.install.monitoring.compute.sh
+            - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
@@ -288,6 +148,7 @@ Scheduling:
             - 60.install.gpumon.cloudwatch.metrics.sh
             - 70.install.enroot.pyxis.sh
             - 70.install.singularity.compute.sh
+            - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
@@ -329,9 +190,14 @@ Scheduling:
         OnNodeConfigured:
           Args:
             - 04.configure.disable.anacron.compute.sh
+            - 35.add.nvidia.udev.rules.gpu.sh
+            - 35.boost.gpu.clock.gpu.sh
             - 40.install.monitoring.compute.sh
+            - 45.install.nccl.compute.sh
             - 60.install.gpumon.cloudwatch.metrics.sh
+            - 70.install.enroot.pyxis.sh
             - 70.install.singularity.sh
+            - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
@@ -352,7 +218,7 @@ Scheduling:
         SubnetIds:
           - ${SUBNET_ID}
         AssignPublicIp: ${USE_PUBLIC_IPS}
-    - Name: compute-spot-1
+    - Name: compute-spot-cpu
       CapacityType: SPOT
       ComputeResources:
         - Name: m5zn-12xlarge
@@ -388,61 +254,7 @@ Scheduling:
           Args:
             - 04.configure.disable.anacron.compute.sh
             - 40.install.monitoring.compute.sh
-          Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
-      Iam:
-        AdditionalIamPolicies:
-          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
-          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
-          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
-          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
-        S3Access:
-          - BucketName: '*'
-            EnableWriteAccess: true
-      Networking:
-        AdditionalSecurityGroups:
-          - ${ADDITIONAL_SG}
-        PlacementGroup:
-          Enabled: true
-        SubnetIds:
-          - ${SUBNET_ID}
-        AssignPublicIp: ${USE_PUBLIC_IPS}
-    - Name: compute-spot-2
-      CapacityType: SPOT
-      ComputeResources:
-        - Name: c5n-18xlarge
-          DisableSimultaneousMultithreading: true
-          Efa:
-            Enabled: true
-          InstanceType: c5n.18xlarge
-          MaxCount: 300
-          MinCount: 0
-        - Name: c5-24xlarge
-          DisableSimultaneousMultithreading: true
-          InstanceType: c5.24xlarge
-          MaxCount: 300
-          MinCount: 0
-        - Name: m5-24xlarge
-          DisableSimultaneousMultithreading: true
-          InstanceType: m5.24xlarge
-          MaxCount: 300
-          MinCount: 0
-        - Name: r5-24xlarge
-          DisableSimultaneousMultithreading: true
-          InstanceType: r5.24xlarge
-          MaxCount: 300
-          MinCount: 0
-        - Name: z1d-12xlarge
-          DisableSimultaneousMultithreading: true
-          InstanceType: z1d.12xlarge
-          MaxCount: 100
-          MinCount: 0
-      CustomActions:
-        OnNodeConfigured:
-          Args:
-            - 04.configure.disable.anacron.compute.sh
-            - 40.install.monitoring.compute.sh
+            - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
