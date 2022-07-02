@@ -1,12 +1,11 @@
 #!/bin/bash
 #SBATCH --partition=compute-od-gpu
 #SBATCH --job-name=nccl-tests
-#SBATCH -nodes=4
-#SBATCH --tasks-per-node=8
+#SBATCH --nodes 4
+#SBATCH --tasks-per-node 8
 #SBATCH --output=%x_%j.out
 
 module load openmpi
-
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/nccl/build/lib:/opt/aws-ofi-nccl-install/lib
 export NCCL_PROTO=simple
