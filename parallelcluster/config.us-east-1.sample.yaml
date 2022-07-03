@@ -19,6 +19,7 @@ HeadNode:
         - 45.customize.splashpage.headnode.sh
         - 50.install.capacity.reservation.pool.sh
         - 70.install.enroot.pyxis.sh
+        - 90.install.custom.packages.headnode.sh
       Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
   Iam:
     AdditionalIamPolicies:
@@ -100,6 +101,7 @@ Scheduling:
             - 04.configure.disable.anacron.compute.sh
             - 40.install.monitoring.compute.sh
             - 80.fast.aws.cli.compute.sh
+            - 90.install.custom.packages.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
@@ -149,6 +151,7 @@ Scheduling:
             - 70.install.enroot.pyxis.sh
             - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
+            - 90.install.custom.packages.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
@@ -198,6 +201,7 @@ Scheduling:
             - 70.install.enroot.pyxis.sh
             - 70.install.singularity.sh
             - 80.fast.aws.cli.compute.sh
+            - 90.install.custom.packages.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
@@ -255,6 +259,7 @@ Scheduling:
             - 04.configure.disable.anacron.compute.sh
             - 40.install.monitoring.compute.sh
             - 80.fast.aws.cli.compute.sh
+            - 90.install.custom.packages.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
@@ -310,6 +315,7 @@ Scheduling:
             - 25.install.dcv-server.gpu.sh
             - 26.configure.dcv.alb.compute.sh
             - 40.install.monitoring.compute.sh
+            - 90.install.custom.packages.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
@@ -367,6 +373,7 @@ Scheduling:
             - 25.install.dcv-server.compute.sh
             - 26.configure.dcv.alb.compute.sh
             - 40.install.monitoring.compute.sh
+            - 90.install.custom.packages.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
