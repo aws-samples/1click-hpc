@@ -1,9 +1,9 @@
 #!/bin/bash
 
-cat > jupyter.batch << EOF
+cat > jupyter.sbatch << EOF
 #!/bin/bash
 #SBATCH --job-name=jupyter
-#SBATCH --partition=compute-od-jupyter
+#SBATCH --partition=compute-od-gpu
 #SBATCH --gres=gpu:1
 #SBATCH --time=2-00:00:00
 #SBATCH --output=%x_%j.out
@@ -13,25 +13,52 @@ python3.8 -m pip install notebook
 jupyter notebook --ip=0.0.0.0 --port=8888
 EOF
 
-cat > py_control.py << EOF
+cat > jupyter.py << EOF
 import os
+import re
+import time
 
 # get slurm job ID
-jobId = os.popen('sbatch jupyter.batch').read()
-jobId = [int(s) for s in txt.split() if s.isdigit()][0]
+jobId = os.popen('sbatch jupyter.sbatch').read()
+print(jobId)
+jobId = [int(s) for s in jobId.split() if s.isdigit()][0]
+
+# wait for the output file to appear
+while not os.path.exists(f'jupyter_{jobId}.out'):
+    time.sleep(1)
 
 # wait until notebook server is started
-os.system('( tail -f -n0 jupyter_$jobId & ) | grep -q "http://127.0.0.1"')
+os.system(f'( tail -f -n0 jupyter_{jobId}.out & ) | grep -q "http://127.0.0.1"')
+
+with open(f'jupyter_{jobId}.out') as fh:
+   fstring = fh.readlines()
 
 # extract compute node IP
-jIP = '172.31.0.0'
+pattern = re.compile(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})')
+jIP = ''
+for line in fstring:
+   if pattern.search(line) is not None:
+      jIP = pattern.search(line)[0]
+      if jIP.startswith('172.31.'):
+         break
 
 # extract jupyter notebook token
-token = 5a8e2f96e15ef2113d326b02eeb3dc5b83aaba65eaa3b736
+token = ''
+for line in fstring:
+   token = line
+   if token.startswith('     or http://127.0.0.1:8888/'):
+      break
+token = token.split('=')[-1]
 
-echo "ssh with 'ssh -L8888:$jIP:8888 ec2-user@52.71.232.47'"
-
-echo "then visit http://127.0.0.1:8888/?token=$token"
+print ("connect with:")
+print (f"ssh -L8888:{jIP}:8888 ec2-user@52.71.232.47")
+print()
+print("then browse:")
+print (f"http://127.0.0.1:8888/?token={token}")
+print()
+print("when done, close the job:")
+print(f"scancel {jobId}")
 EOF
 
-python3 py_control.py
+# run this command every time in the future
+python3 jupyter.py
