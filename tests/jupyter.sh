@@ -4,7 +4,8 @@ cat > jupyter.sbatch << EOF
 #!/bin/bash
 #SBATCH --job-name=jupyter
 #SBATCH --partition=compute-od-gpu
-#SBATCH --gres=gpu:1
+#SBATCH --gpus=1
+#SBATCH --cpus-per-gpu=6
 #SBATCH --time=2-00:00:00
 #SBATCH --output=%x_%j.out
 
@@ -61,4 +62,4 @@ print(f"scancel {jobId}")
 EOF
 
 # run this command every time in the future
-python3 jupyter.py
+python3.8 jupyter.py
