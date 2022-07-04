@@ -1,0 +1,404 @@
+HeadNode:
+  LocalStorage:
+    RootVolume:
+      Size: 2000
+      Encrypted: false
+      VolumeType: gp3
+      Iops: 10000
+      Throughput: 1000
+  CustomActions:
+    OnNodeConfigured:
+      Args:
+        - 03.configure.slurm.acct.headnode.sh
+        - 04.configure.slurm.AllOrNothing.headnode.sh
+        - 07.configure.slurm.tagging.headnode.sh
+        - 10.install.enginframe.headnode.sh
+        - 12.configure.enginframe.alb.headnode.sh
+        - 20.install.dcv.slurm.headnode.sh
+        - 40.install.monitoring.headnode.sh
+        - 45.customize.splashpage.headnode.sh
+        - 50.install.capacity.reservation.pool.sh
+        - 70.install.enroot.pyxis.sh
+      Script: s3://production-5397b8b0/1click-hpc/scripts/post.install.sh
+  Iam:
+    AdditionalIamPolicies:
+      - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+      - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
+      - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
+      - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
+      - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
+      - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+      - Policy: arn:aws:iam::842865360552:policy/production-ODCR-Policy
+    S3Access:
+      - BucketName: '*'
+        EnableWriteAccess: true
+  InstanceType: m6i.16xlarge
+  Networking:
+    AdditionalSecurityGroups:
+      - sg-000e6f5c1f4e4e0ce
+    ElasticIp: true
+    SubnetId: subnet-2fd94770
+  Ssh:
+    KeyName: production-5397b8b0
+  Imds:
+    Secured: false
+Image:
+  Os: alinux2
+DirectoryService:
+  DomainName: dc=research,dc=stability,dc=ai
+  DomainAddr: ldaps://produ-Netwo-1VMXJC37EVY3P-c44da0310722e675.elb.us-east-1.amazonaws.com
+  PasswordSecretArn: arn:aws:secretsmanager:us-east-1:842865360552:secret:hpc-1click-production-AD-u42bP5
+  DomainReadOnlyUser: cn=ReadOnlyUser,ou=Users,ou=RESEARCH,dc=research,dc=stability,dc=ai
+  LdapTlsReqCert: never
+Region: us-east-1
+Scheduling:
+  Scheduler: slurm
+  SlurmSettings:
+    ScaledownIdletime: 10
+  SlurmQueues:
+    - Name: compute-od-cpu
+      CapacityType: ONDEMAND
+      ComputeResources:
+        - Name: c6i-32xlarge
+          DisableSimultaneousMultithreading: true
+          Efa:
+            Enabled: true
+          InstanceType: c6i.32xlarge
+          MaxCount: 300
+          MinCount: 0
+        - Name: m6i-32xlarge
+          DisableSimultaneousMultithreading: true
+          Efa:
+            Enabled: true
+          InstanceType: m6i.32xlarge
+          MaxCount: 300
+          MinCount: 0
+        - Name: r6i-32xlarge
+          DisableSimultaneousMultithreading: true
+          Efa:
+            Enabled: true
+          InstanceType: r6i.32xlarge
+          MaxCount: 300
+          MinCount: 0
+        - Name: m5zn-12xlarge
+          DisableSimultaneousMultithreading: true
+          Efa:
+            Enabled: true
+          InstanceType: m5zn.12xlarge
+          MaxCount: 100
+          MinCount: 0
+        - Name: x2iezn-12xlarge
+          DisableSimultaneousMultithreading: true
+          Efa:
+            Enabled: true
+          InstanceType: x2iezn.12xlarge
+          MaxCount: 100
+          MinCount: 0
+      CustomActions:
+        OnNodeConfigured:
+          Args:
+            - 04.configure.disable.anacron.compute.sh
+            - 40.install.monitoring.compute.sh
+            - 80.fast.aws.cli.compute.sh
+          Script: s3://production-5397b8b0/1click-hpc/scripts/post.install.sh
+      Iam:
+        AdditionalIamPolicies:
+          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
+          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
+          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+        S3Access:
+          - BucketName: '*'
+            EnableWriteAccess: true
+      Networking:
+        AdditionalSecurityGroups:
+          - sg-000e6f5c1f4e4e0ce
+        PlacementGroup:
+          Enabled: true
+        SubnetIds:
+          - subnet-0b1fd419324ad200e
+        AssignPublicIp: false
+    - Name: compute-od-gpu
+      CapacityType: ONDEMAND
+      ComputeSettings:
+        LocalStorage:
+          RootVolume:
+            Size: 1024
+            Encrypted: false
+            VolumeType: gp3
+            Iops: 5000
+      ComputeResources:
+        - Name: p4d-24xlarge
+          DisableSimultaneousMultithreading: true
+          Efa:
+            Enabled: true
+          InstanceType: p4d.24xlarge
+          MaxCount: 194
+          MinCount: 0
+      CustomActions:
+        OnNodeConfigured:
+          Args:
+            - 04.configure.disable.anacron.compute.sh
+            - 35.add.nvidia.udev.rules.gpu.sh
+            - 35.boost.gpu.clock.gpu.sh
+            - 40.install.monitoring.compute.sh
+            - 45.install.nccl.compute.sh
+            - 60.install.gpumon.cloudwatch.metrics.sh
+            - 70.install.enroot.pyxis.sh
+            - 70.install.singularity.compute.sh
+            - 80.fast.aws.cli.compute.sh
+          Script: s3://production-5397b8b0/1click-hpc/scripts/post.install.sh
+      Iam:
+        AdditionalIamPolicies:
+          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
+          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
+          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+        S3Access:
+          - BucketName: '*'
+            EnableWriteAccess: true
+      Networking:
+        AdditionalSecurityGroups:
+          - sg-000e6f5c1f4e4e0ce
+        PlacementGroup:
+          Enabled: true
+        SubnetIds:
+          - subnet-0b1fd419324ad200e
+        AssignPublicIp: false
+    - Name: compute-od-mig
+      CapacityType: ONDEMAND
+      ComputeSettings:
+        LocalStorage:
+          RootVolume:
+            Size: 1024
+            Encrypted: false
+            VolumeType: gp3
+            Iops: 5000
+      ComputeResources:
+        - Name: p4d-24xlarge
+          DisableSimultaneousMultithreading: true
+          Efa:
+            Enabled: true
+          InstanceType: p4d.24xlarge
+          MaxCount: 16
+          MinCount: 0
+      CustomActions:
+        OnNodeConfigured:
+          Args:
+            - 04.configure.disable.anacron.compute.sh
+            - 35.add.nvidia.udev.rules.gpu.sh
+            - 35.boost.gpu.clock.gpu.sh
+            - 40.install.monitoring.compute.sh
+            - 45.install.nccl.compute.sh
+            - 60.install.gpumon.cloudwatch.metrics.sh
+            - 70.install.enroot.pyxis.sh
+            - 70.install.singularity.sh
+            - 80.fast.aws.cli.compute.sh
+          Script: s3://production-5397b8b0/1click-hpc/scripts/post.install.sh
+      Iam:
+        AdditionalIamPolicies:
+          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
+          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
+          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+        S3Access:
+          - BucketName: '*'
+            EnableWriteAccess: true
+      Networking:
+        AdditionalSecurityGroups:
+          - sg-000e6f5c1f4e4e0ce
+        PlacementGroup:
+          Enabled: true
+        SubnetIds:
+          - subnet-0b1fd419324ad200e
+        AssignPublicIp: false
+    - Name: compute-spot-cpu
+      CapacityType: SPOT
+      ComputeResources:
+        - Name: m5zn-12xlarge
+          DisableSimultaneousMultithreading: true
+          Efa:
+            Enabled: true
+          InstanceType: m5zn.12xlarge
+          MaxCount: 100
+          MinCount: 0
+        - Name: c6i-32xlarge
+          DisableSimultaneousMultithreading: true
+          Efa:
+            Enabled: true
+          InstanceType: c6i.32xlarge
+          MaxCount: 300
+          MinCount: 0
+        - Name: m6i-32xlarge
+          DisableSimultaneousMultithreading: true
+          Efa:
+            Enabled: true
+          InstanceType: m6i.32xlarge
+          MaxCount: 300
+          MinCount: 0
+        - Name: r6i-32xlarge
+          DisableSimultaneousMultithreading: true
+          Efa:
+            Enabled: true
+          InstanceType: r6i.32xlarge
+          MaxCount: 300
+          MinCount: 0
+      CustomActions:
+        OnNodeConfigured:
+          Args:
+            - 04.configure.disable.anacron.compute.sh
+            - 40.install.monitoring.compute.sh
+            - 80.fast.aws.cli.compute.sh
+          Script: s3://production-5397b8b0/1click-hpc/scripts/post.install.sh
+      Iam:
+        AdditionalIamPolicies:
+          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
+          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
+          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+        S3Access:
+          - BucketName: '*'
+            EnableWriteAccess: true
+      Networking:
+        AdditionalSecurityGroups:
+          - sg-000e6f5c1f4e4e0ce
+        PlacementGroup:
+          Enabled: true
+        SubnetIds:
+          - subnet-0b1fd419324ad200e
+        AssignPublicIp: false
+    - Name: dcv-gpu
+      CapacityType: ONDEMAND
+      ComputeResources:
+        - Name: g4dn-xlarge
+          DisableSimultaneousMultithreading: true
+          InstanceType: g4dn.xlarge
+          MaxCount: 100
+          MinCount: 0
+        - Name: g4dn-2xlarge
+          DisableSimultaneousMultithreading: true
+          InstanceType: g4dn.2xlarge
+          MaxCount: 100
+          MinCount: 0
+        - Name: g4dn-4xlarge
+          DisableSimultaneousMultithreading: true
+          InstanceType: g4dn.4xlarge
+          MaxCount: 100
+          MinCount: 0
+        - Name: g4dn-8xlarge
+          DisableSimultaneousMultithreading: true
+          InstanceType: g4dn.8xlarge
+          MaxCount: 100
+          MinCount: 0
+        - Name: g4dn-16xlarge
+          DisableSimultaneousMultithreading: true
+          InstanceType: g4dn.16xlarge
+          MaxCount: 100
+          MinCount: 0
+      CustomActions:
+        OnNodeConfigured:
+          Args:
+            - 04.configure.disable.anacron.compute.sh
+            - 25.install.dcv-server.gpu.sh
+            - 26.configure.dcv.alb.compute.sh
+            - 40.install.monitoring.compute.sh
+          Script: s3://production-5397b8b0/1click-hpc/scripts/post.install.sh
+      Iam:
+        AdditionalIamPolicies:
+          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
+          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
+          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+        S3Access:
+          - BucketName: '*'
+            EnableWriteAccess: true
+      Networking:
+        AdditionalSecurityGroups:
+          - sg-000e6f5c1f4e4e0ce
+        PlacementGroup:
+          Enabled: true
+        SubnetIds:
+          - subnet-0b1fd419324ad200e
+        AssignPublicIp: false
+    - Name: dcv
+      CapacityType: ONDEMAND
+      ComputeResources:
+        - Name: m6i-32xlarge
+          DisableSimultaneousMultithreading: true
+          InstanceType: m6i.32xlarge
+          Efa:
+            Enabled: true
+          MaxCount: 200
+          MinCount: 0
+        - Name: m6i-2xlarge
+          DisableSimultaneousMultithreading: true
+          InstanceType: m6i.2xlarge
+          MaxCount: 200
+          MinCount: 0
+        - Name: m6i-8xlarge
+          DisableSimultaneousMultithreading: true
+          InstanceType: m6i.8xlarge
+          MaxCount: 200
+          MinCount: 0
+        - Name: m6i-16xlarge
+          DisableSimultaneousMultithreading: true
+          InstanceType: m6i.16xlarge
+          MaxCount: 200
+          MinCount: 0
+        - Name: m6i-xlarge
+          DisableSimultaneousMultithreading: true
+          InstanceType: m6i.xlarge
+          MaxCount: 200
+          MinCount: 0          
+      CustomActions:
+        OnNodeConfigured:
+          Args:
+            - 04.configure.disable.anacron.compute.sh
+            - 25.install.dcv-server.compute.sh
+            - 26.configure.dcv.alb.compute.sh
+            - 40.install.monitoring.compute.sh
+          Script: s3://production-5397b8b0/1click-hpc/scripts/post.install.sh
+      Iam:
+        AdditionalIamPolicies:
+          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
+          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
+          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+        S3Access:
+          - BucketName: '*'
+            EnableWriteAccess: true
+      Networking:
+        AdditionalSecurityGroups:
+          - sg-000e6f5c1f4e4e0ce
+        PlacementGroup:
+          Enabled: true
+        SubnetIds:
+          - subnet-0b1fd419324ad200e
+        AssignPublicIp: false
+SharedStorage:
+  - MountDir: /fsx
+    Name: existing
+    StorageType: FsxLustre
+    FsxLustreSettings:
+      FileSystemId: fs-00bb39380c5b90f76
+Tags:
+  - Key: EnginFrame
+    Value: 'true'
+  - Key: 1Click-HPC
+    Value: 'true'
+  - Key: 1Click-HPC-version
+    Value: '0.4'
+  - Key: map-migrated
+    Value: d-server-00cnf4wiwofjqb
