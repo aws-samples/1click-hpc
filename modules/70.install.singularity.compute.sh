@@ -1,8 +1,8 @@
 #!/bin/bash
 # Install basic tools for compiling
-yum groupinstall -y 'Development Tools'
+
 # Install RPM packages for dependencies
-yum install -y wget libseccomp-devel glib2-devel squashfs-tools cryptsetup runc
+yum install -y libseccomp-devel glib2-devel squashfs-tools cryptsetup runc
 wget https://go.dev/dl/go1.18.3.linux-amd64.tar.gz
 rm -rf /usr/local/go && tar -C /usr/local -xzf go1.18.3.linux-amd64.tar.gz
 echo 'export PATH=/usr/local/go/bin:$PATH' >> /etc/profile.d/singularity.sh
