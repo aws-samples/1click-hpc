@@ -100,6 +100,7 @@ Scheduling:
           Args:
             - 04.configure.disable.anacron.compute.sh
             - 40.install.monitoring.compute.sh
+            - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
             - 90.install.custom.packages.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
@@ -199,7 +200,7 @@ Scheduling:
             - 45.install.nccl.compute.sh
             - 60.install.gpumon.cloudwatch.metrics.sh
             - 70.install.enroot.pyxis.sh
-            - 70.install.singularity.sh
+            - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
             - 90.install.custom.packages.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
@@ -258,6 +259,7 @@ Scheduling:
           Args:
             - 04.configure.disable.anacron.compute.sh
             - 40.install.monitoring.compute.sh
+            - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
             - 90.install.custom.packages.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
@@ -315,6 +317,7 @@ Scheduling:
             - 25.install.dcv-server.gpu.sh
             - 26.configure.dcv.alb.compute.sh
             - 40.install.monitoring.compute.sh
+            - 70.install.singularity.compute.sh
             - 90.install.custom.packages.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
@@ -373,6 +376,7 @@ Scheduling:
             - 25.install.dcv-server.compute.sh
             - 26.configure.dcv.alb.compute.sh
             - 40.install.monitoring.compute.sh
+            - 70.install.singularity.compute.sh
             - 90.install.custom.packages.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
