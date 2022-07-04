@@ -314,7 +314,7 @@ Scheduling:
         OnNodeConfigured:
           Args:
             - 04.configure.disable.anacron.compute.sh
-            - 25.install.dcv-server.compute.sh
+            - 25.install.dcv-server.gpu.sh
             - 26.configure.dcv.alb.compute.sh
           Script: s3://production-5397b8b0/1click-hpc/scripts/post.install.sh
       Iam:
