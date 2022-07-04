@@ -51,8 +51,10 @@ for line in fstring:
       break
 token = token.split('=')[-1]
 
+username = os.getlogin()
+
 print ("connect with:")
-print (f"ssh -L8888:{jIP}:8888 ec2-user@52.71.232.47")
+print (f"ssh -L8888:{jIP}:8888 {username}@52.71.232.47")
 print()
 print("then browse:")
 print (f"http://127.0.0.1:8888/?token={token}")
