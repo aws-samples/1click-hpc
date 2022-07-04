@@ -9,6 +9,7 @@ HeadNode:
   CustomActions:
     OnNodeConfigured:
       Args:
+        - 00.install.custom.packages.headnode.sh
         - 03.configure.slurm.acct.headnode.sh
         - 04.configure.slurm.AllOrNothing.headnode.sh
         - 07.configure.slurm.tagging.headnode.sh
@@ -97,8 +98,10 @@ Scheduling:
       CustomActions:
         OnNodeConfigured:
           Args:
+            - 00.install.custom.packages.compute.sh
             - 04.configure.disable.anacron.compute.sh
             - 40.install.monitoring.compute.sh
+            - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://production-5397b8b0/1click-hpc/scripts/post.install.sh
       Iam:
@@ -140,6 +143,7 @@ Scheduling:
       CustomActions:
         OnNodeConfigured:
           Args:
+            - 00.install.custom.packages.compute.sh
             - 04.configure.disable.anacron.compute.sh
             - 35.add.nvidia.udev.rules.gpu.sh
             - 35.boost.gpu.clock.gpu.sh
@@ -189,6 +193,7 @@ Scheduling:
       CustomActions:
         OnNodeConfigured:
           Args:
+            - 00.install.custom.packages.compute.sh
             - 04.configure.disable.anacron.compute.sh
             - 35.add.nvidia.udev.rules.gpu.sh
             - 35.boost.gpu.clock.gpu.sh
@@ -196,7 +201,7 @@ Scheduling:
             - 45.install.nccl.compute.sh
             - 60.install.gpumon.cloudwatch.metrics.sh
             - 70.install.enroot.pyxis.sh
-            - 70.install.singularity.sh
+            - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://production-5397b8b0/1click-hpc/scripts/post.install.sh
       Iam:
@@ -252,8 +257,10 @@ Scheduling:
       CustomActions:
         OnNodeConfigured:
           Args:
+            - 00.install.custom.packages.compute.sh
             - 04.configure.disable.anacron.compute.sh
             - 40.install.monitoring.compute.sh
+            - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://production-5397b8b0/1click-hpc/scripts/post.install.sh
       Iam:
@@ -307,9 +314,8 @@ Scheduling:
         OnNodeConfigured:
           Args:
             - 04.configure.disable.anacron.compute.sh
-            - 25.install.dcv-server.gpu.sh
+            - 25.install.dcv-server.compute.sh
             - 26.configure.dcv.alb.compute.sh
-            - 40.install.monitoring.compute.sh
           Script: s3://production-5397b8b0/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
@@ -366,7 +372,6 @@ Scheduling:
             - 04.configure.disable.anacron.compute.sh
             - 25.install.dcv-server.compute.sh
             - 26.configure.dcv.alb.compute.sh
-            - 40.install.monitoring.compute.sh
           Script: s3://production-5397b8b0/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:

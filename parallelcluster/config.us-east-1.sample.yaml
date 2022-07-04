@@ -361,12 +361,9 @@ Scheduling:
       CustomActions:
         OnNodeConfigured:
           Args:
-            - 00.install.custom.packages.compute.sh
             - 04.configure.disable.anacron.compute.sh
             - 25.install.dcv-server.gpu.sh
             - 26.configure.dcv.alb.compute.sh
-            - 40.install.monitoring.compute.sh
-            - 70.install.singularity.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
@@ -420,12 +417,9 @@ Scheduling:
       CustomActions:
         OnNodeConfigured:
           Args:
-            - 00.install.custom.packages.compute.sh
             - 04.configure.disable.anacron.compute.sh
             - 25.install.dcv-server.compute.sh
             - 26.configure.dcv.alb.compute.sh
-            - 40.install.monitoring.compute.sh
-            - 70.install.singularity.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
