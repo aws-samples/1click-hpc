@@ -29,7 +29,11 @@ while not os.path.exists(f'jupyter_{jobId}.out'):
     time.sleep(1)
 
 # wait until notebook server is started
-os.system(f'( tail -f -n0 jupyter_{jobId}.out & ) | grep -q "http://127.0.0.1"')
+content=''
+while not "http://127.0.0.1" in content:
+   with open(f'jupyter_{jobId}.out') as fh:
+      content = fh.read()
+   time.sleep(1)
 
 with open(f'jupyter_{jobId}.out') as fh:
    fstring = fh.readlines()
