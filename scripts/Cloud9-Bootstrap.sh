@@ -160,6 +160,8 @@ sudo bash -c "echo \"$FSX_DNS_NAME@tcp:/$FSX_MOUNT_NAME /home/ec2-user/environme
 sudo chmod 755 fsx
 sudo chown ec2-user:ec2-user fsx
 
+aws s3 cp --quiet bootstrap.log "s3://${S3_BUCKET}/install.log" --region "${AWS_REGION_NAME}"
+
 # send SUCCESFUL to the wait handle
 curl -X PUT -H 'Content-Type:' \
     --data-binary "{\"Status\" : \"SUCCESS\",\"Reason\" : \"Configuration Complete\",\"UniqueId\" : \"$HEADNODE_PRIVATE_IP\",\"Data\" : \"$HEADNODE_PRIVATE_IP\"}" \
