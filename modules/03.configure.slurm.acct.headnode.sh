@@ -29,6 +29,7 @@ configureSACCT() {
     aws s3 cp --quiet "${post_install_base}/sacct/mysql/grant.mysql" /tmp/ --region "${cfn_region}" || exit 1
     aws s3 cp --quiet "${post_install_base}/sacct/slurm/slurmdbd.conf" /tmp/ --region "${cfn_region}" || exit 1
     aws s3 cp --quiet "${post_install_base}/sacct/slurm/slurm_sacct.conf" /tmp/ --region "${cfn_region}" || exit 1
+    aws s3 cp --quiet "${post_install_base}/sacct/slurmdbd.service" /etc/systemd/system/ --region "${cfn_region}" || exit 1
 
     export SLURM_DB_PASS="${ec2user_pass}"
     #FIXME: replace envsubst with sed
@@ -44,7 +45,8 @@ configureSACCT() {
 }
 
 restartSlurmDaemons() {
-    $SLURM_ROOT/sbin/slurmdbd
+    systemctl enable slurmdbd
+    systemctl start slurmdbd
     systemctl restart slurmctld
 }
 
