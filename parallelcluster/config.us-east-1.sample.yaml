@@ -22,7 +22,6 @@ HeadNode:
         - 45.customize.splashpage.headnode.sh
         - 50.install.capacity.reservation.pool.sh
         - 70.install.enroot.pyxis.sh
-        - 100.reboot.sh
       Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
   Iam:
     AdditionalIamPolicies:
