@@ -10,6 +10,8 @@ HeadNode:
     OnNodeConfigured:
       Args:
         - 00.install.custom.packages.headnode.sh
+        - 01.install.disk.quota.headnode.sh
+        - 02.activate.passwordless.AD.headnode.sh
         - 03.configure.slurm.acct.headnode.sh
         - 04.configure.slurm.AllOrNothing.headnode.sh
         - 07.configure.slurm.tagging.headnode.sh
@@ -20,6 +22,7 @@ HeadNode:
         - 45.customize.splashpage.headnode.sh
         - 50.install.capacity.reservation.pool.sh
         - 70.install.enroot.pyxis.sh
+        - 100.reboot.sh
       Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
   Iam:
     AdditionalIamPolicies:
@@ -310,116 +313,6 @@ Scheduling:
             - 40.install.monitoring.compute.sh
             - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
-          Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
-      Iam:
-        AdditionalIamPolicies:
-          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
-          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
-          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
-          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
-        S3Access:
-          - BucketName: '*'
-            EnableWriteAccess: true
-      Networking:
-        AdditionalSecurityGroups:
-          - ${ADDITIONAL_SG}
-        PlacementGroup:
-          Enabled: true
-        SubnetIds:
-          - ${SUBNET_ID}
-        AssignPublicIp: ${USE_PUBLIC_IPS}
-    - Name: dcv-gpu
-      CapacityType: ONDEMAND
-      ComputeResources:
-        - Name: g4dn-xlarge
-          DisableSimultaneousMultithreading: true
-          InstanceType: g4dn.xlarge
-          MaxCount: 100
-          MinCount: 0
-        - Name: g4dn-2xlarge
-          DisableSimultaneousMultithreading: true
-          InstanceType: g4dn.2xlarge
-          MaxCount: 100
-          MinCount: 0
-        - Name: g4dn-4xlarge
-          DisableSimultaneousMultithreading: true
-          InstanceType: g4dn.4xlarge
-          MaxCount: 100
-          MinCount: 0
-        - Name: g4dn-8xlarge
-          DisableSimultaneousMultithreading: true
-          InstanceType: g4dn.8xlarge
-          MaxCount: 100
-          MinCount: 0
-        - Name: g4dn-16xlarge
-          DisableSimultaneousMultithreading: true
-          InstanceType: g4dn.16xlarge
-          MaxCount: 100
-          MinCount: 0
-      CustomActions:
-        OnNodeConfigured:
-          Args:
-            - 04.configure.disable.anacron.compute.sh
-            - 25.install.dcv-server.gpu.sh
-            - 26.configure.dcv.alb.compute.sh
-          Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
-      Iam:
-        AdditionalIamPolicies:
-          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
-          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
-          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
-          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
-        S3Access:
-          - BucketName: '*'
-            EnableWriteAccess: true
-      Networking:
-        AdditionalSecurityGroups:
-          - ${ADDITIONAL_SG}
-        PlacementGroup:
-          Enabled: true
-        SubnetIds:
-          - ${SUBNET_ID}
-        AssignPublicIp: ${USE_PUBLIC_IPS}
-    - Name: dcv
-      CapacityType: ONDEMAND
-      ComputeResources:
-        - Name: m6i-32xlarge
-          DisableSimultaneousMultithreading: true
-          InstanceType: m6i.32xlarge
-          Efa:
-            Enabled: true
-          MaxCount: 200
-          MinCount: 0
-        - Name: m6i-2xlarge
-          DisableSimultaneousMultithreading: true
-          InstanceType: m6i.2xlarge
-          MaxCount: 200
-          MinCount: 0
-        - Name: m6i-8xlarge
-          DisableSimultaneousMultithreading: true
-          InstanceType: m6i.8xlarge
-          MaxCount: 200
-          MinCount: 0
-        - Name: m6i-16xlarge
-          DisableSimultaneousMultithreading: true
-          InstanceType: m6i.16xlarge
-          MaxCount: 200
-          MinCount: 0
-        - Name: m6i-xlarge
-          DisableSimultaneousMultithreading: true
-          InstanceType: m6i.xlarge
-          MaxCount: 200
-          MinCount: 0          
-      CustomActions:
-        OnNodeConfigured:
-          Args:
-            - 04.configure.disable.anacron.compute.sh
-            - 25.install.dcv-server.compute.sh
-            - 26.configure.dcv.alb.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:

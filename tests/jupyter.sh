@@ -3,7 +3,7 @@
 cat > jupyter.sbatch << EOF
 #!/bin/bash
 #SBATCH --job-name=jupyter
-#SBATCH --partition=compute-od-gpu
+#SBATCH --partition=compute-od-jupyter
 #SBATCH --gpus=1
 #SBATCH --cpus-per-gpu=6
 #SBATCH --time=2-00:00:00
