@@ -101,6 +101,7 @@ Scheduling:
         OnNodeConfigured:
           Args:
             - 00.install.custom.packages.compute.sh
+            - 00.install.knot.resolver.cpu.sh
             - 04.configure.disable.anacron.compute.sh
             - 40.install.monitoring.compute.sh
             - 70.install.singularity.compute.sh
