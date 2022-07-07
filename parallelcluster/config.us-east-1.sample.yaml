@@ -10,7 +10,6 @@ HeadNode:
     OnNodeConfigured:
       Args:
         - 00.install.custom.packages.headnode.sh
-        - 01.install.disk.quota.headnode.sh
         - 03.configure.slurm.acct.headnode.sh
         - 04.configure.slurm.AllOrNothing.headnode.sh
         - 07.configure.slurm.tagging.headnode.sh
