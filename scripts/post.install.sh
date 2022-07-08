@@ -59,7 +59,7 @@ export compute_instance_type=$(ec2-metadata -t | awk '{print $2}')
 #FIXME: do not hardcode.
 export SHARED_FS_DIR="/fsx"
 export ec2user_home=$(getent passwd | grep ec2-user | sed 's/^.*:.*:.*:.*:.*:\(.*\):.*$/\1/')
-export NICE_ROOT=$(jq --arg default "${SHARED_FS_DIR}/nice" -r '.post_install.enginframe | if has("nice_root") then .nice_root else $default end' "${dna_json}")
+export NICE_ROOT=$(jq --arg default "${SHARED_FS_DIR}/nice/${stack_name}" -r '.post_install.enginframe | if has("nice_root") then .nice_root else $default end' "${dna_json}")
 export EF_CONF_ROOT=$(jq --arg default "${NICE_ROOT}/enginframe/conf" -r '.post_install.enginframe | if has("ef_conf_root") then .ef_conf_root else $default end' "${dna_json}")
 export EF_DATA_ROOT=$(jq --arg default "${NICE_ROOT}/enginframe/data" -r '.post_install.enginframe | if has("ef_data_root") then .ef_data_root else $default end' "${dna_json}")
 export CLIENT_BROKER_PORT=$(jq --arg default "8446" -r '.post_install.dcvsm | if has("client_broker_port") then .client_broker_port else $default end' "${dna_json}")
