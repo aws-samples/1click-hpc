@@ -49,6 +49,11 @@ sudo cp /etc/resolv.conf.OK /etc/resolv.conf
 #install Lustre client
 sudo amazon-linux-extras install -y lustre2.10 > /dev/null 2>&1
 
+# workaround dependency issue
+python3 -m pip install aws-cdk.aws-ecs==1.155.0
+python3 -m pip install aws-cdk.aws-route53-targets==1.155.0
+python3 -m pip install aws-cdk.aws-batch==1.155.0
+# end workaround
 python3 -m pip install "aws-parallelcluster" --upgrade --user --quiet
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
 chmod ug+x ~/.nvm/nvm.sh
