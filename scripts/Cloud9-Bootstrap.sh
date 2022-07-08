@@ -50,10 +50,11 @@ sudo cp /etc/resolv.conf.OK /etc/resolv.conf
 sudo amazon-linux-extras install -y lustre2.10 > /dev/null 2>&1
 
 # workaround dependency issue
-python3 -m pip install -U pip
-python3 -m pip install -U setuptools
+python3 -m venv venv
+source venv/bin/activate
+python3 -m pip install pyrsistent==0.16.0
 # end workaround
-python3 -m pip install "aws-parallelcluster" --upgrade --user --quiet
+python3 -m pip install "aws-parallelcluster" --upgrade --quiet
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
 chmod ug+x ~/.nvm/nvm.sh
 source ~/.nvm/nvm.sh > /dev/null 2>&1
