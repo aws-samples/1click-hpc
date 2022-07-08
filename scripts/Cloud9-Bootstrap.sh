@@ -166,6 +166,7 @@ sudo chmod 755 fsx
 sudo chown ec2-user:ec2-user fsx
 
 aws s3 cp --quiet bootstrap.log "s3://${S3_BUCKET}/install.log" --region "${AWS_REGION_NAME}"
+aws s3 cp --quiet config.${AWS_REGION_NAME}.yaml "s3://${S3_BUCKET}/config.${AWS_REGION_NAME}.yaml" --region "${AWS_REGION_NAME}"
 
 # send SUCCESFUL to the wait handle
 curl -X PUT -H 'Content-Type:' \
