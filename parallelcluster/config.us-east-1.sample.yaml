@@ -176,7 +176,7 @@ Scheduling:
         SubnetIds:
           - ${SUBNET_ID}
         AssignPublicIp: ${USE_PUBLIC_IPS}
-      - Name: compute-od-jupyter
+    - Name: compute-od-jupyter
       CapacityType: ONDEMAND
       ComputeSettings:
         LocalStorage:
