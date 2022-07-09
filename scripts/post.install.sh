@@ -34,7 +34,7 @@ runScripts() {
 
     chmod 755 -R "${TMP_MODULES_DIR}"*
     # run scripts according to the OnNodeConfigured -> args 
-    find "${TMP_MODULES_DIR}" -type f -name '[0-9][0-9]*.sh' -print0 | sort -z -n | xargs -0 -I '{}' /bin/bash -c '{}'
+    find "${TMP_MODULES_DIR}" -type f -name '[0-9][0-9]*.sh' -print0 | sort -z -n | xargs -0 -I '{}' /bin/bash -c '{}' >> /postinstall.log
 }
 
 # main
