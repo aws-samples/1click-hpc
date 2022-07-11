@@ -121,31 +121,31 @@ Mappings:
     us-east-2:
       ZoneId1: use2-az2
       ZoneId2: use2-az3
-      DbInstanceType: db.t4g.micro
+      DbInstanceType: db.r6g.4xlarge
     us-west-1:
       ZoneId1: usw1-az1
       ZoneId2: usw1-az3
-      DbInstanceType: db.t4g.micro
+      DbInstanceType: db.r6g.4xlarge
     us-west-2:
       ZoneId1: usw2-az1
       ZoneId2: usw2-az2
-      DbInstanceType: db.t4g.micro
+      DbInstanceType: db.r6g.4xlarge
     eu-central-1:
       ZoneId1: euc1-az3
       ZoneId2: euc1-az2
-      DbInstanceType: db.t4g.micro
+      DbInstanceType: db.r6g.4xlarge
     eu-west-1:
       ZoneId1: euw1-az1
       ZoneId2: euw1-az2
-      DbInstanceType: db.t4g.micro
+      DbInstanceType: db.r6g.4xlarge
     eu-north-1:
       ZoneId1: eun1-az2
       ZoneId2: eun1-az1
-      DbInstanceType: db.t4g.micro
+      DbInstanceType: db.r6g.4xlarge
     ca-central-1:
       ZoneId1: cac1-az2
       ZoneId2: cac1-az1
-      DbInstanceType: db.t4g.micro
+      DbInstanceType: db.r6g.4xlarge
     eu-south-1:
       ZoneId1: eus1-az2
       ZoneId2: eus1-az1
@@ -153,19 +153,19 @@ Mappings:
     ap-east-1:
       ZoneId1: ape1-az3
       ZoneId2: ape1-az2
-      DbInstanceType: db.t4g.micro
+      DbInstanceType: db.r6g.4xlarge
     ap-northeast-1:
       ZoneId1: apne1-az4
       ZoneId2: apne1-az1
-      DbInstanceType: db.t4g.micro
+      DbInstanceType: db.r6g.4xlarge
     ap-northeast-2:
       ZoneId1: apne2-az1
       ZoneId2: apne2-az3
-      DbInstanceType: db.t4g.micro
+      DbInstanceType: db.r6g.4xlarge
     ap-south-1:
       ZoneId1: aps1-az2
       ZoneId2: aps1-az3
-      DbInstanceType: db.t4g.micro
+      DbInstanceType: db.r6g.4xlarge
 
 Conditions:
   CreateVpc: !Equals [!Ref VpcId, AUTO]
