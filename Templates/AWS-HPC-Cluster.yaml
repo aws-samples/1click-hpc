@@ -117,7 +117,7 @@ Mappings:
     us-east-1:
       ZoneId1: use1-az6
       ZoneId2: use1-az4
-      DbInstanceType: db.t4g.micro
+      DbInstanceType: db.r6g.4xlarge
     us-east-2:
       ZoneId1: use2-az2
       ZoneId2: use2-az3
