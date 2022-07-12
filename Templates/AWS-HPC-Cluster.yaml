@@ -15,6 +15,9 @@ Metadata:
           - PrivateSubnetAId
           - FSx
           - AD
+          - ADDNS0
+          - ADDNS1
+          - ADPassword
     ParameterLabels: 
       AdminPassword: 
         default: 'Password:'
@@ -30,6 +33,12 @@ Metadata:
         default: 'FSx:'
       AD: 
         default: 'Active Directory:'
+      ADDNS0:
+        default: 'Primary DNS IP:'
+      ADDNS1:
+        default: 'Secondary DNS IP:'
+      ADPassword:
+        default: 'Custom AD Password:'
         
 Parameters:
     AdminPassword:
@@ -75,6 +84,26 @@ Parameters:
       Type: String
       AllowedPattern: ^(AUTO|d-[0-9a-z]+)$
       Default : AUTO
+
+    ADDNS0:
+      Description: 'Please enter IP of the first DNS server of the custom AD domain'
+      Type: String
+      AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
+      Default: '0.0.0.0'
+
+    ADDNS1:
+      Description: 'Please enter IP of the first DNS server of the custom AD domain'
+      Type: String
+      AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
+      Default: '0.0.0.0'
+
+    ADPassword:
+      Description: 'Please enter Admin user password of the custom AD domain'
+      Type: String
+      MinLength: '8'
+      MaxLength: '255'
+      AllowedPattern: (?=^.{8,255}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*
+      NoEcho: 'true'
 
 Mappings: 
   RegionMap: 
@@ -447,6 +476,13 @@ Resources:
       Description: This the password used for RDS and ec2-user
       SecretString: !Ref AdminPassword
 
+  CustomADPassword:
+    Type: 'AWS::SecretsManager::Secret'
+    Properties:
+      Name: !Sub 'hpc-1click-${AWS::StackName}-AD'
+      Description: This the password used for Admin of the custom AD directory
+      SecretString: !If [CreateAD, !Ref AdminPassword, !Ref ADPassword]
+
   Cloud9SSMDocument: 
     Type: AWS::SSM::Document
     Properties: 
@@ -474,6 +510,9 @@ Resources:
             - !Sub
               - echo "export AD_ID=${ADId}" >> cluster_env
               - ADId: !If [CreateAD, !Ref ActiveDirectory, !Ref AD]
+            - !Sub 
+              - echo "export CUSTOMAD=${CUSTOMAD}" >> cluster_env
+              - CUSTOMAD: !If [CreateAD, 'false', 'true']
             - !Sub
               - echo "export PUBLIC_SUBNET_ID=${FinalPublicSubnetAId}" >> cluster_env
               - FinalPublicSubnetAId: !If [CreateVpc, !Ref PublicSubnetA, !Ref PublicSubnetAId]
@@ -873,9 +912,9 @@ Resources:
         - Key: deregistration_delay.timeout_seconds
           Value: 60
       Targets:
-        - Id: !Select [0, !GetAtt ActiveDirectory.DnsIpAddresses]
+        - Id: !If [CreateAD, !Select [0, !GetAtt ActiveDirectory.DnsIpAddresses], !Ref ADDNS0]
           Port: 389
-        - Id: !Select [1, !GetAtt ActiveDirectory.DnsIpAddresses]
+        - Id: !If [CreateAD, !Select [1, !GetAtt ActiveDirectory.DnsIpAddresses], !Ref ADDNS1]
           Port: 389
       TargetType: ip
 
