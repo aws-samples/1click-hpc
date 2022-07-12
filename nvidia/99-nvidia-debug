@@ -1,0 +1,3 @@
+Cmnd_Alias NVIDIA_DEBUG = /usr/bin/nvidia-bug-report.sh
+
+slurm ALL = (root) NOPASSWD: NVIDIA_DEBUG

@@ -57,8 +57,8 @@ EOF
 
     echo "${ec2user_pass}" | passwd ec2-user --stdin
 
-    if [[ -d "${SHARED_FS_DIR}/nice" ]]; then
-        mv  -f "${SHARED_FS_DIR}/nice" "${SHARED_FS_DIR}/nice.$(date "+%d-%m-%Y-%H-%M").BAK"
+    if [[ -d "${SHARED_FS_DIR}/nice/${stack_name}" ]]; then
+        mv  -f "${SHARED_FS_DIR}/nice/${stack_name}" "${SHARED_FS_DIR}/nice/${stack_name}.$(date "+%d-%m-%Y-%H-%M").BAK"
     fi
     
     # finally, launch EnginFrame installer

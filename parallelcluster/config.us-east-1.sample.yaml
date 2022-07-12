@@ -159,6 +159,7 @@ Scheduling:
             - 70.install.enroot.pyxis.sh
             - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
+            - 90.allow.nvidia.debug.gpu.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
@@ -209,6 +210,7 @@ Scheduling:
             - 60.install.gpumon.cloudwatch.metrics.sh
             - 80.fast.aws.cli.compute.sh
             - 85.install.jupiter.notebook.gpu.sh
+            - 90.allow.nvidia.debug.gpu.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
@@ -260,6 +262,7 @@ Scheduling:
             - 70.install.enroot.pyxis.sh
             - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
+            - 90.allow.nvidia.debug.gpu.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
