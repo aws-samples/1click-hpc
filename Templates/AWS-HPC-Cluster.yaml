@@ -477,7 +477,7 @@ Resources:
     Properties:
       DBInstanceIdentifier: !Sub '${AWS::StackName}-SlurmDB'
       DBName: 'SlurmDB'
-      DBInstanceClass: !FindInMap [RegionMap, !Ref AWS::Region, DbInstanceType]
+      DBInstanceClass: 'db.m6g.8xlarge'
       MultiAZ: false
       AllocatedStorage: '20'
       StorageType: gp2
