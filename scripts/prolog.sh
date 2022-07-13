@@ -91,4 +91,21 @@ else
   exit 1
 fi
 
+#make enroot folders to accomodate multiple users on same compute host
+
+runtime_path="$(sudo -u "$SLURM_JOB_USER" sh -c 'echo "/run/enroot/user-$(id -u)"')"
+mkdir -p "$runtime_path"
+chown "$SLURM_JOB_UID:$(id -g "$SLURM_JOB_UID")" "$runtime_path"
+chmod 0700 "$runtime_path"
+
+cache_path="$(sudo -u "$SLURM_JOB_USER" sh -c 'echo "/tmp/group-$(id -g)"')"
+mkdir -p "$cache_path"
+chown "$SLURM_JOB_UID:$(id -g "$SLURM_JOB_UID")" "$cache_path"
+chmod 0770 "$cache_path"
+
+data_path="$(sudo -u "$SLURM_JOB_USER" sh -c 'echo "/tmp/enroot-data/user-$(id -u)"')"
+mkdir -p "$data_path"
+chown "$SLURM_JOB_UID:$(id -g "$SLURM_JOB_UID")" "$data_path"
+chmod 0700 "$data_path"
+
 exit 0
