@@ -150,7 +150,6 @@ Scheduling:
           Args:
             - 00.install.custom.packages.compute.sh
             - 04.configure.disable.anacron.compute.sh
-            - 35.add.nvidia.udev.rules.gpu.sh
             - 35.boost.gpu.clock.gpu.sh
             - 40.install.monitoring.compute.sh
             - 45.install.nccl.compute.sh
@@ -202,7 +201,6 @@ Scheduling:
           Args:
             - 00.install.custom.packages.compute.sh
             - 04.configure.disable.anacron.compute.sh
-            - 35.add.nvidia.udev.rules.gpu.sh
             - 35.boost.gpu.clock.gpu.sh
             - 40.install.monitoring.compute.sh
             - 45.install.nccl.compute.sh
@@ -253,7 +251,6 @@ Scheduling:
           Args:
             - 00.install.custom.packages.compute.sh
             - 04.configure.disable.anacron.compute.sh
-            - 35.add.nvidia.udev.rules.gpu.sh
             - 35.boost.gpu.clock.gpu.sh
             - 40.install.monitoring.compute.sh
             - 45.install.nccl.compute.sh
