@@ -1,4 +1,5 @@
 #!/bin/bash
+sysctl -w kernel.unprivileged_userns_clone=1
 
 DIST=$(. /etc/os-release; echo $ID$VERSION_ID)
 curl -s -L https://nvidia.github.io/libnvidia-container/$DIST/libnvidia-container.repo | \

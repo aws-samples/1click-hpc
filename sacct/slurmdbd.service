@@ -4,10 +4,11 @@ After=network.target munge.service slurmctld.service
 ConditionPathExists=/opt/slurm/etc/slurmdbd.conf
 
 [Service]
-Type=simple
+Type=oneshot
 ExecStart=/opt/slurm/sbin/slurmdbd 
 ExecReload=/bin/kill -HUP $MAINPID
 LimitNOFILE=65536
+RemainAfterExit=yes
 
 [Install]
 WantedBy=multi-user.target
