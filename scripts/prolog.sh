@@ -36,7 +36,7 @@ tags=$($SLURM_ROOT/bin/scontrol show job ${SLURM_JOB_ID} | grep Comment  | sed '
 
 
 #expand the hostnames
-hosts=$($SLURM_ROOT/bin/scontrol show hostnames ${SLURM_NODELIST})
+hosts=$($SLURM_ROOT/bin/scontrol show hostnames ${SLURM_JOB_NODELIST})
 
 instance_id_list=""
 #verify each host
@@ -53,7 +53,6 @@ for host in $hosts
    fi
 done
 
-#fix this
 for host in $instance_id_list
 do
   #consider API throttling 
