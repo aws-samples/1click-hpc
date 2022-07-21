@@ -144,7 +144,7 @@ Scheduling:
             Enabled: true
           InstanceType: p4d.24xlarge
           MaxCount: 198
-          MinCount: 150
+          MinCount: 160
       CustomActions:
         OnNodeConfigured:
           Args:
