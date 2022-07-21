@@ -83,6 +83,7 @@ Scheduling:
           - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
           - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
           - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+          - Policy: arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetTaggingRole
         S3Access:
           - BucketName: '*'
             EnableWriteAccess: true
@@ -126,6 +127,7 @@ Scheduling:
           - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
           - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
           - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+          - Policy: arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetTaggingRole
         S3Access:
           - BucketName: '*'
             EnableWriteAccess: true
@@ -164,6 +166,7 @@ Scheduling:
           - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
           - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
           - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+          - Policy: arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetTaggingRole
         S3Access:
           - BucketName: '*'
             EnableWriteAccess: true
@@ -214,6 +217,7 @@ Scheduling:
           - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
           - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
           - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+          - Policy: arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetTaggingRole
         S3Access:
           - BucketName: '*'
             EnableWriteAccess: true
@@ -269,6 +273,7 @@ Scheduling:
           - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
           - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
           - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+          - Policy: arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetTaggingRole
         S3Access:
           - BucketName: '*'
             EnableWriteAccess: true
@@ -324,6 +329,7 @@ Scheduling:
           - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
           - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
           - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+          - Policy: arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetTaggingRole
         S3Access:
           - BucketName: '*'
             EnableWriteAccess: true
