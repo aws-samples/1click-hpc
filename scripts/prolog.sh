@@ -20,46 +20,6 @@
 # The script assigns the required tags to the EC2 instances of the jobs.
 source /etc/parallelcluster/cfnconfig
 
-#slurm directory
-SLURM_ROOT="/opt/slurm"
-
-#function used to convert the hostname to ip
-function nametoip()
-{
-    instance_ip=$(nslookup $1)
-    echo "${instance_ip}" | awk '/^Address: / { print $2 }'
-}
-
-#load the comments of the job.
-#this is the supported format: Key=aws-tag1,Value=tag-value1 Key=aws-tag2,Value=tag-value2
-tags=$($SLURM_ROOT/bin/scontrol show job ${SLURM_JOB_ID} | grep Comment  | sed 's/Comment=//' | sed 's/^ *//g')
-
-
-#expand the hostnames
-hosts=$($SLURM_ROOT/bin/scontrol show hostnames ${SLURM_NODELIST})
-
-instance_id_list=""
-#verify each host
-for host in $hosts
-  do
-   private_ip=$(nametoip $host)
-   #verify if the instance is running
-   result=$(aws ec2 --region $cfn_region describe-instances --filters "Name=network-interface.addresses.private-ip-address,Values=${private_ip}" --query Reservations[*].Instances[*].InstanceId --output text)
-   if [ ! -z "${result}" ];then
-     num_jobs=$($SLURM_ROOT/bin/squeue -h -w ${host} | wc -l)
-     if [ "${num_jobs}" -eq 1 ];then
-       instance_id_list="${instance_id_list} ${result}"
-     fi
-   fi
-done
-
-#fix this
-for host in $instance_id_list
-do
-  #consider API throttling 
-  aws ec2 create-tags --region $cfn_region --resources ${host} --tags Key=aws-parallelcluster-username,Value=${SLURM_JOB_USER} Key=aws-parallelcluster-jobid,Value=${SLURM_JOBID} Key=aws-parallelcluster-partition,Value=${SLURM_JOB_PARTITION} ${tags}
-done
-
 # fix cuda in containers
 /sbin/modprobe nvidia
 
@@ -93,17 +53,17 @@ fi
 
 #make enroot folders to accomodate multiple users on same compute host
 
-runtime_path="$(sudo -u "$SLURM_JOB_USER" sh -c 'echo "/run/enroot/user-$(id -u)"')"
+runtime_path=$(echo "/run/enroot/user-$(id -u ${SLURM_JOB_USER})")
 mkdir -p "$runtime_path"
 chown "$SLURM_JOB_UID:$(id -g "$SLURM_JOB_UID")" "$runtime_path"
 chmod 0700 "$runtime_path"
 
-cache_path="$(sudo -u "$SLURM_JOB_USER" sh -c 'echo "/tmp/group-$(id -g)"')"
+cache_path=$(echo "/tmp/user-$(id -u ${SLURM_JOB_USER})")
 mkdir -p "$cache_path"
 chown "$SLURM_JOB_UID:$(id -g "$SLURM_JOB_UID")" "$cache_path"
 chmod 0770 "$cache_path"
 
-data_path="$(sudo -u "$SLURM_JOB_USER" sh -c 'echo "/tmp/enroot-data/user-$(id -u)"')"
+data_path=$(echo "/tmp/enroot-data/user-$(id -u ${SLURM_JOB_USER})")
 mkdir -p "$data_path"
 chown "$SLURM_JOB_UID:$(id -g "$SLURM_JOB_UID")" "$data_path"
 chmod 0700 "$data_path"

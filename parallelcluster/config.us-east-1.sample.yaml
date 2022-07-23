@@ -14,12 +14,11 @@ HeadNode:
         - 02.activate.passwordless.AD.headnode.sh
         - 03.configure.slurm.acct.headnode.sh
         - 04.configure.slurm.AllOrNothing.headnode.sh
-        - 07.configure.slurm.tagging.headnode.sh
+        - 07.configure.slurm.prologs.headnode.sh
         - 10.install.enginframe.headnode.sh
         - 12.configure.enginframe.alb.headnode.sh
         - 20.install.dcv.slurm.headnode.sh
         - 40.install.monitoring.headnode.sh
-        - 45.customize.splashpage.headnode.sh
         - 50.install.capacity.reservation.pool.sh
         - 70.install.enroot.pyxis.sh
       Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh

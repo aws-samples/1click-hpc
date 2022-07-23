@@ -1,0 +1,93 @@
+@import url("styleguide.css");
+@import url("https://fonts.googleapis.com/css2?family=Lexend:wght@400;600&display=swap");
+
+
+.stability-ai-hpc-cluster {
+	align-items: center;
+	background: linear-gradient(180deg, rgb(51,0,51)0%, rgb(2,0,12)100%);
+	background-color: rgba(255,255,255,1);
+	display: flex;
+	flex-direction: column;
+	height: 900px;
+	padding: 33px 0;
+	width: auto;
+}
+
+.hidden,
+.hidden * {
+	pointer-events: none;
+	visibility: hidden;
+}
+
+.img {
+	height: 256px;
+	margin-top: 0px;
+	object-fit: cover;
+	width: 256px;
+}
+
+.h1 {
+	color: white;
+	font-family: 'Lexend';
+	font-size: "font-size-m";
+	letter-spacing: 0;
+	margin-left: 0;
+	margin-top: 40px;
+	min-height: 60px;
+	text-align: center;
+	min-width: 0;
+}
+
+.intro {
+	color: white;
+	font-family: 'Lexend';
+	font-size: "font-size-m";
+	font-weight: 400;
+	letter-spacing: 0;
+	line-height: 27px;
+	margin-top: 10px;
+	min-height: 108px;
+	text-align: center;
+	width: 558px;
+}
+
+.button-container {
+	align-items: flex-start;
+	display: flex;
+	margin-top: 55px;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-content: space-around;
+}
+
+.button, .button-2, .button-4 {
+	align-items: center;
+	display: flex;
+	gap: 8px;
+	height: 56px;
+	justify-content: center;
+	margin: 30px;
+	padding: 3px;
+	width: 380px;
+	transition-duration: 0.4s;
+	cursor: pointer;
+}
+
+.button:hover, .button-2:hover, .button-4:hover {
+	background-color: white;
+	color: white;
+}
+
+.button-1, .button-3, .button-5 {
+	letter-spacing: 0;
+	line-height: 24px;
+	white-space: nowrap;
+}
+
+.stability-1 {
+	align-self: flex-start;
+	height: 55px;
+	margin-left: 140px;
+	object-fit: cover;
+	width: 216px;
+}

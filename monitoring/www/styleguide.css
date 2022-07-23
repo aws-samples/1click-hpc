@@ -1,0 +1,23 @@
+/* Styleguide Document */
+
+:root {
+	black: rgba(0,0,0,1);
+	white: rgba(255,255,255,1);
+	font-size-m: 17px;
+	font-size-l: 47px;
+	font-family-inter: "lexend"
+}
+
+.border-1px-white {
+	border-width: 1px;
+	border-style: solid;
+	border-color: white;	
+}
+
+.inter-semi-bold-white-17px {
+	color: white;
+	font-family: "lexend";
+	font-size: "font-size-l";
+	font-weight: 600;
+	font-style: normal;
+}

@@ -19,10 +19,16 @@
 set -x
 set -e
 
-configureSACCT() {
+configurePrologs() {
     aws s3 cp --quiet "${post_install_base}/scripts/prolog.sh" "${SLURM_ETC}/" --region "${cfn_region}" || exit 1
+    aws s3 cp --quiet "${post_install_base}/scripts/prologslurmctld.sh" "${SLURM_ETC}/" --region "${cfn_region}" || exit 1
     chmod +x "${SLURM_ETC}/prolog.sh"
+    chmod +x "${SLURM_ETC}/prologslurmctld.sh"
     echo "Prolog=/opt/slurm/etc/prolog.sh" >> "${SLURM_ETC}/slurm.conf"
+    echo "PrologSlurmctld=/opt/slurm/etc/prologslurmctld.sh" >> "${SLURM_ETC}/slurm.conf"
+    #echo "PrologFlags=Alloc,Contain" >> "${SLURM_ETC}/slurm.conf"
+    echo "TCPTimeout=10" >> "${SLURM_ETC}/slurm.conf"
+    echo "EioTimeout=120" >> "${SLURM_ETC}/slurm.conf"
 }
 
 restartSlurmDaemons() {
@@ -33,7 +39,7 @@ restartSlurmDaemons() {
 # ----------------------------------------------------------------------------
 main() {
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 07.configure.slurm.tagging.headnode.sh: START" >&2
-    configureSACCT
+    configurePrologs
     restartSlurmDaemons
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 07.configure.slurm.tagging.headnode.sh: STOP" >&2
 }
