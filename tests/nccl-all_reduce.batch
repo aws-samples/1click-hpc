@@ -23,4 +23,7 @@ export OMPI_MCA_pml="^cm"
 export OMPI_MCA_btl="tcp,self"
 export OMPI_MCA_btl_tcp_if_exclude="lo,docker1"
 export OMPI_MCA_plm_rsh_no_tree_spawn=1
+
+host=$(curl http://169.254.169.254/latest/meta-data/instance-id)
+aws ec2 create-tags --region us-east-1 --resources ${host} --tags Key=Monitoring,Value=ON
 srun --mpi=pmix_v3 /opt/nccl-tests/build/all_reduce_perf -b 128M -e 8G -f 2 -g 1 -c 1 -n 20
