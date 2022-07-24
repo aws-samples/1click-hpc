@@ -68,4 +68,10 @@ mkdir -p "$data_path"
 chown "$SLURM_JOB_UID:$(id -g "$SLURM_JOB_UID")" "$data_path"
 chmod 0700 "$data_path"
 
+#to add job comment here
+tags=""
+
+host=$(curl http://169.254.169.254/latest/meta-data/instance-id)
+aws ec2 create-tags --region $cfn_region --resources ${host} --tags Key=aws-parallelcluster-username,Value=${SLURM_JOB_USER} Key=aws-parallelcluster-jobid,Value=${SLURM_JOBID} Key=aws-parallelcluster-partition,Value=${SLURM_JOB_PARTITION} ${tags}
+
 exit 0

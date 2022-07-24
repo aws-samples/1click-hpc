@@ -25,7 +25,7 @@ configurePrologs() {
     chmod +x "${SLURM_ETC}/prolog.sh"
     chmod +x "${SLURM_ETC}/prologslurmctld.sh"
     echo "Prolog=/opt/slurm/etc/prolog.sh" >> "${SLURM_ETC}/slurm.conf"
-    echo "PrologSlurmctld=/opt/slurm/etc/prologslurmctld.sh" >> "${SLURM_ETC}/slurm.conf"
+    #echo "PrologSlurmctld=/opt/slurm/etc/prologslurmctld.sh" >> "${SLURM_ETC}/slurm.conf"
     #echo "PrologFlags=Alloc,Contain" >> "${SLURM_ETC}/slurm.conf"
     echo "TCPTimeout=10" >> "${SLURM_ETC}/slurm.conf"
     echo "EioTimeout=120" >> "${SLURM_ETC}/slurm.conf"
