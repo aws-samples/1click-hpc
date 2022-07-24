@@ -9,10 +9,10 @@ cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/metrics_ama
      "metrics": {
          "namespace": "HPC/GpuMonitoring",
          "append_dimensions": {
-             "AutoScalingGroupName": "${aws:AutoScalingGroupName}",
-             "ImageId": "${aws:ImageId}",
-             "InstanceId": "${aws:InstanceId}",
-             "InstanceType": "${aws:InstanceType}" 
+             "AutoScalingGroupName": "\${aws:AutoScalingGroupName}",
+             "ImageId": "\${aws:ImageId}",
+             "InstanceId": "\${aws:InstanceId}",
+             "InstanceType": "\${aws:InstanceType}" 
          },
          "aggregation_dimensions": [["InstanceId"]],
          "metrics_collected": {

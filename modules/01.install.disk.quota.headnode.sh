@@ -8,3 +8,7 @@ grub2-mkconfig -o /boot/grub2/grub.cfg
 
 # manually reboot the headnode and then make default quotas like
 # xfs_quota -x -c 'limit -u bsoft=30000m bhard=40000m -d' /
+
+# default niceness
+echo "@hpc-cluster-users soft priority 10" >> /etc/security/limits.conf
+
