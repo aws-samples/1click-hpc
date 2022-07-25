@@ -92,7 +92,7 @@ Parameters:
     SlurmDBE: 
       Description: 'Please, enter your organization SlurmDB Endpoint, or just leave "AUTO" to create a new one.'
       Type: String
-      AllowedPattern: ^(AUTO|[0-9a-z]+\.rds.amazonaws.com)$
+      AllowedPattern: ^(AUTO|[0-9a-z\-\.]+\.rds.amazonaws.com)$
       Default : AUTO
 
     AD:
