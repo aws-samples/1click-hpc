@@ -43,7 +43,7 @@ installMonitoring() {
 }
 
 patchSlurmConfig() {
-    sed -i "s/ClusterName=parallelcluster/ClusterName=parallelcluster-${stack_name}/g" "/opt/slurm/etc/slurm.conf"
+    sed -i "s/ClusterName=parallelcluster.*/ClusterName=parallelcluster-${stack_name}" "/opt/slurm/etc/slurm.conf"
 }
 
 # main

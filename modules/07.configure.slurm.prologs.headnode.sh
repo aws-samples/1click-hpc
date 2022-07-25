@@ -20,10 +20,14 @@ set -x
 set -e
 
 configurePrologs() {
+    aws s3 cp --quiet "${post_install_base}/scripts/taskprolog.sh" "${SLURM_ETC}/" --region "${cfn_region}" || exit 1
+    aws s3 cp --quiet "${post_install_base}/scripts/taskepilog.sh" "${SLURM_ETC}/" --region "${cfn_region}" || exit 1
     aws s3 cp --quiet "${post_install_base}/scripts/prolog.sh" "${SLURM_ETC}/" --region "${cfn_region}" || exit 1
     aws s3 cp --quiet "${post_install_base}/scripts/prologslurmctld.sh" "${SLURM_ETC}/" --region "${cfn_region}" || exit 1
     chmod +x "${SLURM_ETC}/prolog.sh"
     chmod +x "${SLURM_ETC}/prologslurmctld.sh"
+    echo "TaskProlog=/opt/slurm/etc/taskprolog.sh" >> "${SLURM_ETC}/slurm.conf"
+    echo "TaskEpilog=/opt/slurm/etc/taskepilog.sh" >> "${SLURM_ETC}/slurm.conf"
     echo "Prolog=/opt/slurm/etc/prolog.sh" >> "${SLURM_ETC}/slurm.conf"
     #echo "PrologSlurmctld=/opt/slurm/etc/prologslurmctld.sh" >> "${SLURM_ETC}/slurm.conf"
     #echo "PrologFlags=Alloc,Contain" >> "${SLURM_ETC}/slurm.conf"
