@@ -1,4 +1,7 @@
 #!/bin/bash
+set -e 
+
+installENROOT{
 sysctl -w kernel.unprivileged_userns_clone=1
 
 DIST=$(. /etc/os-release; echo $ID$VERSION_ID)
@@ -92,3 +95,14 @@ ENROOT_RESTRICT_DEV        no
 EOF
 
 systemctl restart slurm*
+}
+
+# main
+# ----------------------------------------------------------------------------
+main() {
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 70.install.enroot.pyxis.sh: START" >&2
+    installENROOT
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 70.install.enroot.pyxis.sh: STOP" >&2
+}
+
+main "$@"

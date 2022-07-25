@@ -15,6 +15,7 @@ Metadata:
           - PrivateSubnetAId
           - FSx
           - SlurmDBE
+          - SlurmDBEPassword
           - AD
           - ADDNS0
           - ADDNS1
@@ -36,6 +37,8 @@ Metadata:
         default: 'FSx:'
       SlurmDBE: 
         default: 'Slurm DB Endpoint:'
+      SlurmDBEPassword: 
+        default: 'Slurm DB Endpoint Pasword:'
       AD: 
         default: 'Active Directory:'
       ADDNS0:
@@ -94,6 +97,14 @@ Parameters:
       Type: String
       AllowedPattern: ^(AUTO|[0-9a-z\-\.]+\.rds.amazonaws.com)$
       Default : AUTO
+
+    SlurmDBEPassword:
+      Description: 'Please, enter the password for the Slurm DB Endpoint. Leave empty if Slurm DB Endpoint is set to AUTO'
+      Type: String
+      MinLength: '0'
+      MaxLength: '255'
+      AllowedPattern: (?=^.{8,255}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*
+      NoEcho: 'true'
 
     AD:
       Description: 'Please, enter your Active Directory ID, or just leave "AUTO" if you want to create a new one.'
@@ -482,6 +493,11 @@ Resources:
         ToPort: 3306
         SourceSecurityGroupId: !Ref PCAdditionalSecurityGroup
 
+  SlurmDBReady:
+    Type: AWS::CloudFormation::WaitConditionHandle
+    Metadata:
+      SlurmEndpointready: !If [ CreateDB, SlurmDB, "" ]
+
   SlurmDB:
     Type: 'AWS::RDS::DBInstance'
     Condition: CreateDB
@@ -514,7 +530,7 @@ Resources:
     Type: 'AWS::Cloud9::EnvironmentEC2'
     DependsOn: 
      - Cloud9BootstrapAssociation
-     - SlurmDB
+     - SlurmDBReady
     Properties:
       Name: !Ref 'AWS::StackName'
       Description: 'Cloud9 IDE for AWS ParallelCluster'
@@ -544,6 +560,13 @@ Resources:
       Name: !Sub 'hpc-1click-${AWS::StackName}-AD'
       Description: This the password used for Admin of the custom AD directory
       SecretString: !If [CreateAD, !Ref AdminPassword, !Ref ADPassword]
+
+  CustomDBPassword:
+    Type: 'AWS::SecretsManager::Secret'
+    Properties:
+      Name: !Sub 'hpc-1click-${AWS::StackName}-DB'
+      Description: This the password used for admin of the custom Slurm DB Endpoint Password
+      SecretString: !If [CreateDB, !Ref AdminPassword, !Ref SlurmDBEPassword]
 
   Cloud9SSMDocument: 
     Type: AWS::SSM::Document
@@ -591,7 +614,6 @@ Resources:
             - !Sub
               - echo "export SLURM_DB_ENDPOINT='${DB_ENDPOINT}'" >> cluster_env
               - DB_ENDPOINT: !If [CreateAD, !GetAtt SlurmDB.Endpoint.Address, !Ref SlurmDBE] 
-
             - !Sub 
               - echo "export ALB_PUBLIC_DNS_NAME='${ALB}'" >> cluster_env
               - ALB: !GetAtt ApplicationLoadBalancer.DNSName

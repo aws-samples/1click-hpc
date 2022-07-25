@@ -38,10 +38,10 @@ restartSlurmDaemons() {
 # main
 # ----------------------------------------------------------------------------
 main() {
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 07.configure.slurm.tagging.headnode.sh: START" >&2
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 07.configure.slurm.prologs.headnode.sh: START" >&2
     configurePrologs
     restartSlurmDaemons
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 07.configure.slurm.tagging.headnode.sh: STOP" >&2
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 07.configure.slurm.prologs.headnode.sh: STOP" >&2
 }
 
 main "$@"

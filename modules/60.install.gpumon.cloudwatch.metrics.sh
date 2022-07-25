@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+installMetrics{
 cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/metrics_amazon_cloudwatch_agent.json << EOF
 {
      "agent": {
@@ -32,3 +33,14 @@ cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/metrics_ama
      }
  }
 EOF
+}
+
+# main
+# ----------------------------------------------------------------------------
+main() {
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 60.install.gpumon.cloudwatch.metrics.sh: START" >&2
+    installMetrics
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 60.install.gpumon.cloudwatch.metrics.sh: STOP" >&2
+}
+
+main "$@"
