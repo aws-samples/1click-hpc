@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 set -e
 
 echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 60.install.gpumon.cloudwatch.metrics.sh: START" >&2

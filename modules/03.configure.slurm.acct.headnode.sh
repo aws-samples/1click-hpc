@@ -31,7 +31,7 @@ configureSACCT() {
     aws s3 cp --quiet "${post_install_base}/sacct/slurm/slurm_sacct.conf" /tmp/ --region "${cfn_region}" || exit 1
     aws s3 cp --quiet "${post_install_base}/sacct/slurmdbd.service" /etc/systemd/system/ --region "${cfn_region}" || exit 1
 
-    export SLURM_DB_PASS="$(aws secretsmanager get-secret-value --secret-id "hpc-1click-${CLUSTER_NAME}-DB" --query SecretString --output text --region "${AWS_REGION_NAME}")"
+    export SLURM_DB_PASS="$(aws secretsmanager get-secret-value --secret-id "hpc-1click-${stack_name}-DB" --query SecretString --output text --region "${cfn_region}")"
     #FIXME: replace envsubst with sed
     /usr/bin/envsubst < slurmdbd.conf > "${SLURM_ETC}/slurmdbd.conf"
     /usr/bin/envsubst < slurm_sacct.conf > "${SLURM_ETC}/slurm_sacct.conf"

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 set -e
 
 echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 50.install.capacity.reservation.pool.sh: START" >&2

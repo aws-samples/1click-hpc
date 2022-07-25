@@ -1,8 +1,8 @@
 #!/bin/bash
+set -x 
+set -e 
 
 installSingularity() {
-    # Install basic tools for compiling
-    sysctl -w kernel.unprivileged_userns_clone=1
 
     # Install RPM packages for dependencies
     yum install -y libseccomp-devel glib2-devel squashfs-tools cryptsetup runc
