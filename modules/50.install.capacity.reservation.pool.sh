@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-installODCR{
+echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 50.install.capacity.reservation.pool.sh: START" >&2
 # Override run_instance attributes
 # Name of the group is still hardcoded, need a way to get variable from cloudformation here
 cat > /opt/slurm/etc/pcluster/run_instances_overrides.json << EOF
@@ -35,15 +35,5 @@ cat > /opt/slurm/etc/pcluster/run_instances_overrides.json << EOF
     }
 }
 EOF
-}
 
-
-# main
-# ----------------------------------------------------------------------------
-main() {
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 50.install.capacity.reservation.pool.sh: START" >&2
-    installODCR
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 50.install.capacity.reservation.pool.sh: STOP" >&2
-}
-
-main "$@"
+echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 50.install.capacity.reservation.pool.sh: STOP" >&2
