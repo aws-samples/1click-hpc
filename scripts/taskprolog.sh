@@ -5,6 +5,7 @@ export SHARED_FS_DIR="/fsx"
 monitoring_dir_name="monitoring"
 prefix="parallelcluster-"
 string=${SLURM_CLUSTER_NAME}
+#remove prefix from string
 stack_name=${string#"$prefix"}
 monitoring_home="${SHARED_FS_DIR}/${monitoring_dir_name}/${stack_name}"
 

@@ -102,6 +102,10 @@ configureMonitoring() {
 	mv -f "${monitoring_home}/prometheus-slurm-exporter/prometheus-slurm-exporter" /usr/bin/prometheus-slurm-exporter
 }
 
+patchSlurmConfig() {
+	sed -i "s/ClusterName=parallelcluster/ClusterName=parallelcluster-${stack_name}/g" "/opt/slurm/etc/slurm.conf"
+}
+
 
 startMonitoringDaemons() {
 
@@ -123,6 +127,8 @@ main() {
     saveClusterConfigLocally
     installMonitoring
     configureMonitoring
+	# pending https://github.com/aws/aws-parallelcluster/issues/4218 
+    patchSlurmConfig
     startMonitoringDaemons
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 40.install.monitoring.headnode.sh: STOP" >&2
 }
