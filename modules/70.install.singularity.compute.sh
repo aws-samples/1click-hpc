@@ -1,6 +1,6 @@
 #!/bin/bash
 
-installSingularity{
+installSingularity() {
     # Install basic tools for compiling
     sysctl -w kernel.unprivileged_userns_clone=1
 

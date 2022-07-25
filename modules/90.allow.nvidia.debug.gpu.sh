@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-allowDebugGPU {
+allowDebugGPU() {
     aws s3 cp --quiet "${post_install_base}/nvidia/99-nvidia-debug" /etc/sudoers.d/ --region "${cfn_region}" || exit 1
 }
 

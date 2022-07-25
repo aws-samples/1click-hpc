@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-installNCCL{
+installNCCL() {
     echo -e '#!/bin/sh\nexport LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/amazon/openmpi/lib64:/opt/amazon/efa/lib64\nexport PATH=$PATH:/opt/amazon/efa/bin:/opt/amazon/openmpi/bin' | sudo tee /etc/profile.d/amazon_efa.sh
 
     cd /opt

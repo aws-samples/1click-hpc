@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e 
 
-installENROOT{
+installENROOT() {
 sysctl -w kernel.unprivileged_userns_clone=1
 
 DIST=$(. /etc/os-release; echo $ID$VERSION_ID)

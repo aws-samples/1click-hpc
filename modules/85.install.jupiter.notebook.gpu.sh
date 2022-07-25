@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-installJypyter{
+installJypyter() {
     python3 -m pip install notebook
 }
 
