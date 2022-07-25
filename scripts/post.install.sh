@@ -76,7 +76,7 @@ else
 fi
 
 monitoring_dir_name="monitoring"
-export monitoring_home="${SHARED_FS_DIR}/${monitoring_dir_name}/${head_node_hostname}"
+export monitoring_home="${SHARED_FS_DIR}/${monitoring_dir_name}/${stack_name}"
 
 export myscripts="${@}"
 

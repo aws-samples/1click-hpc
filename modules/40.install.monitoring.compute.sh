@@ -33,19 +33,13 @@ installPreReq() {
 }
 
 installMonitoring() {
-    
-    gpu_instances="[pg][2-9].*\.[0-9]*[x]*large"
-
-    if [[ $compute_instance_type =~ $gpu_instances ]]; then
+  
 		distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
 		curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.repo | tee /etc/yum.repos.d/nvidia-docker.repo
 		yum -y -q clean expire-cache
 		yum -y -q install nvidia-docker2
 		systemctl restart docker
-		/usr/local/bin/docker-compose -f "${monitoring_home}/docker-compose/docker-compose.compute.gpu.yml" -p monitoring-compute up -d
-    else
-		/usr/local/bin/docker-compose -f "${monitoring_home}/docker-compose/docker-compose.compute.yml" -p monitoring-compute up -d
-    fi
+
 }
 
 # main
@@ -53,13 +47,9 @@ installMonitoring() {
 main() {
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 40.install.monitoring.compute.sh: START" >&2
    
-    job_id=$($SLURM_ROOT/bin/squeue -h -w "${host_name}" | awk '{print $1}')
-    job_comment=$($SLURM_ROOT/bin/scontrol show job $job_id | grep Comment  | sed 's/Comment=//' | sed 's/^ *//g')
-    
-    if [[ $job_comment == *"Key=Monitoring,Value=ON"* ]]; then
-        installPreReq
-        installMonitoring
-    fi
+    installPreReq
+    installMonitoring
+
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 40.install.monitoring.compute.sh: STOP" >&2
 }
 main "$@"
