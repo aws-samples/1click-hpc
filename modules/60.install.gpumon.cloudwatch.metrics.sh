@@ -2,9 +2,9 @@
 set -x
 set -e
 
-echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 60.install.gpumon.cloudwatch.metrics.sh: START" >&2
-
-cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/metrics_amazon_cloudwatch_agent.json << EOF
+installGpumon() {
+    # add cloudwatch agent GPU metrics json
+    cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/metrics_amazon_cloudwatch_agent.json << EOF
 {
      "agent": {
          "run_as_user": "root"
@@ -35,5 +35,16 @@ cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/metrics_ama
      }
  }
 EOF
+}
 
-echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 60.install.gpumon.cloudwatch.metrics.sh: STOP" >&2
+# main
+# ----------------------------------------------------------------------------
+main() {
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 60.install.gpumon.cloudwatch.metrics.sh: START" >&2
+    installGpumon
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 60.install.gpumon.cloudwatch.metrics.sh: STOP" >&2
+}
+
+main "$@"
+
+

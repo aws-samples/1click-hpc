@@ -29,6 +29,7 @@ installEnginFrame() {
     wget -nv -P /tmp/packages https://dn3uclhgxk1jt.cloudfront.net/enginframe/packages/enginframe-latest.jar || exit 1
     
     aws s3 cp --quiet "${post_install_base}/enginframe/efinstall.config" /tmp/packages/ --region "${cfn_region}" || exit 1
+    export EF_DB_PASS="$(aws secretsmanager get-secret-value --secret-id "${stack_name}-DB" --query SecretString --output text --region "${cfn_region}")" 
 
     # set permissions and uncompress
     chmod 755 -R /tmp/packages/*
@@ -49,7 +50,8 @@ ef.data.root.dir = ${NICE_ROOT}/enginframe/data/
 ef.logs.root.dir = ${NICE_ROOT}/enginframe/logs/
 ef.temp.root.dir = ${NICE_ROOT}/enginframe/tmp/
 kernel.server.tomcat.https.ef.hostname = ${host_name}
-kernel.ef.db.admin.password = ${ec2user_pass}
+kernel.ef.db.url = jdbc\:mysql\://${SLURM_DB_ENDPOINT}\:3306/EnginFrameDB_${stack_name}
+kernel.ef.db.admin.password = ${EF_DB_PASS}
 EOF
 
     # add EnginFrame users if not already exist
@@ -76,7 +78,6 @@ createEnginFrameDB(){
     aws s3 cp --quiet "${post_install_base}/enginframe/mysql/efdb.config" /tmp/ --region "${cfn_region}" || exit 1
     aws s3 cp --quiet "${post_install_base}/enginframe/mysql/ef.mysql" /tmp/ --region "${cfn_region}" || exit 1
     
-    export EF_DB_PASS="${ec2user_pass}"
     /usr/bin/envsubst < efdb.config > efdb.pass.config
     
     mysql --defaults-extra-file="efdb.pass.config" < "ef.mysql"
