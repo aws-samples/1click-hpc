@@ -3,32 +3,31 @@ set -x
 set -e 
 
 installENROOT() {
-sysctl -w kernel.unprivileged_userns_clone=1
 
-DIST=$(. /etc/os-release; echo $ID$VERSION_ID)
-curl -s -L https://nvidia.github.io/libnvidia-container/$DIST/libnvidia-container.repo | \
-  sudo tee /etc/yum.repos.d/libnvidia-container.repo
+  DIST=$(. /etc/os-release; echo $ID$VERSION_ID)
+  curl -s -L https://nvidia.github.io/libnvidia-container/$DIST/libnvidia-container.repo | \
+    sudo tee /etc/yum.repos.d/libnvidia-container.repo
 
-yum install -y jq squashfs-tools parallel fuse-overlayfs libnvidia-container-tools pigz squashfuse slurm-devel
-export arch=$(uname -m) && sudo -E yum install -y https://github.com/NVIDIA/enroot/releases/download/v3.4.0/enroot-3.4.0-2.el7.${arch}.rpm
-export arch=$(uname -m) && sudo -E yum install -y https://github.com/NVIDIA/enroot/releases/download/v3.4.0/enroot+caps-3.4.0-2.el7.${arch}.rpm
-sudo mkdir /scratch && sudo chmod -R 777 /scratch
-git clone https://github.com/NVIDIA/pyxis.git /tmp/pyxis
-cd /tmp/pyxis && sudo make rpm && sudo rpm -ihv *.rpm
+  yum install -y jq squashfs-tools parallel fuse-overlayfs libnvidia-container-tools pigz squashfuse slurm-devel
+  export arch=$(uname -m) && sudo -E yum install -y https://github.com/NVIDIA/enroot/releases/download/v3.4.0/enroot-3.4.0-2.el7.${arch}.rpm
+  export arch=$(uname -m) && sudo -E yum install -y https://github.com/NVIDIA/enroot/releases/download/v3.4.0/enroot+caps-3.4.0-2.el7.${arch}.rpm
+  sudo mkdir /scratch && sudo chmod -R 777 /scratch
+  git clone https://github.com/NVIDIA/pyxis.git /tmp/pyxis
+  cd /tmp/pyxis && sudo make rpm && sudo rpm -ihv *.rpm
 
-echo "include /opt/slurm/etc/plugstack.conf.d/*" > /opt/slurm/etc/plugstack.conf
-mkdir /opt/slurm/etc/plugstack.conf.d
-ln -s /usr/share/pyxis/pyxis.conf /opt/slurm/etc/plugstack.conf.d/pyxis.conf
+  echo "include /opt/slurm/etc/plugstack.conf.d/*" > /opt/slurm/etc/plugstack.conf
+  mkdir /opt/slurm/etc/plugstack.conf.d
+  ln -s /usr/share/pyxis/pyxis.conf /opt/slurm/etc/plugstack.conf.d/pyxis.conf
 
-rm /etc/enroot/enroot.conf
-cat > /etc/enroot/enroot.conf << EOF
-#ENROOT_LIBRARY_PATH        /usr/lib/enroot
-#ENROOT_SYSCONF_PATH        /etc/enroot
+  rm /etc/enroot/enroot.conf
+  cat > /etc/enroot/enroot.conf << EOF
+#ENROOT_LIBRARY_PATH       /usr/lib/enroot
+#ENROOT_SYSCONF_PATH       /etc/enroot
 ENROOT_RUNTIME_PATH        /run/enroot/user-\$(id -u)
 ENROOT_CONFIG_PATH         ${HOME}/enroot
 ENROOT_CACHE_PATH          /tmp/group-\$(id -g)
 ENROOT_DATA_PATH           /tmp/enroot-data/user-\$(id -u)
-#ENROOT_TEMP_PATH           ${TMPDIR:-/tmp}
+#ENROOT_TEMP_PATH          ${TMPDIR:-/tmp}
 
 # Gzip program used to uncompress digest layers.
 #ENROOT_GZIP_PROGRAM        gzip
@@ -95,7 +94,7 @@ ENROOT_RESTRICT_DEV        no
 #https_proxy
 EOF
 
-systemctl restart slurm*
+  systemctl restart slurm*
 }
 
 # main
