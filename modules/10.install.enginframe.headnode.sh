@@ -25,6 +25,8 @@ set -e
 # install EnginFrame
 # ----------------------------------------------------------------------------
 installEnginFrame() {
+
+    export EF_RANDOM=$(echo $RANDOM | md5sum | head -c 8; echo;)
     
     wget -nv -P /tmp/packages https://dn3uclhgxk1jt.cloudfront.net/enginframe/packages/enginframe-latest.jar || exit 1
     
@@ -50,7 +52,7 @@ ef.data.root.dir = ${NICE_ROOT}/enginframe/data/
 ef.logs.root.dir = ${NICE_ROOT}/enginframe/logs/
 ef.temp.root.dir = ${NICE_ROOT}/enginframe/tmp/
 kernel.server.tomcat.https.ef.hostname = ${host_name}
-kernel.ef.db.url = jdbc\:mysql\://${SLURM_DB_ENDPOINT}\:3306/EnginFrameDB_${stack_name}
+kernel.ef.db.url = jdbc\:mysql\://${SLURM_DB_ENDPOINT}\:3306/EnginFrameDB_${EF_RANDOM}
 kernel.ef.db.admin.password = ${EF_DB_PASS}
 EOF
 
@@ -79,9 +81,10 @@ createEnginFrameDB(){
     aws s3 cp --quiet "${post_install_base}/enginframe/mysql/ef.mysql" /tmp/ --region "${cfn_region}" || exit 1
     
     /usr/bin/envsubst < efdb.config > efdb.pass.config
+    /usr/bin/envsubst < ef.mysql > ef.pass.mysql
     
-    mysql --defaults-extra-file="efdb.pass.config" < "ef.mysql"
-    rm efdb.pass.config efdb.config ef.mysql
+    mysql --defaults-extra-file="efdb.pass.config" < "ef.pass.mysql"
+    rm efdb.pass.config efdb.config ef.mysql ef.pass.mysql
     
 }
 
