@@ -71,8 +71,8 @@ Scheduling:
           Efa:
             Enabled: true
           InstanceType: p4d.24xlarge
-          MaxCount: 10
-          MinCount: 2
+          MaxCount: 108
+          MinCount: 105
       CustomActions:
         OnNodeConfigured:
           Args:
