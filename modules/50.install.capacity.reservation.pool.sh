@@ -25,6 +25,7 @@ installODCR() {
             }
         }
     },
+    "jupyter": {
         "p4d-24xlarge": {
             "CapacityReservationSpecification": {
                 "CapacityReservationTarget": {
