@@ -12,12 +12,22 @@ activateSSH() {
     systemctl restart sshd
 }
 
+addAdmins2Sudoers() {
+echo "${ec2user_pass}" | passwd ec2-user --stdin
+
+    cat > /etc/sudoers.d/100-AD-admins << EOF
+# add domain admins as sudoers
+%Sudoers  ALL=(ALL) NOPASSWD:ALL
+EOF
+}
+
 
 # main
 # ----------------------------------------------------------------------------
 main() {
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 02.activate.passwordless.AD.headnode.sh: START" >&2
     activateSSH
+    addAdmins2Sudoers
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 02.activate.passwordless.AD.headnode.sh: STOP" >&2
 }
 
