@@ -145,8 +145,7 @@ aws ec2 modify-instance-attribute --instance-id $INSTANCE_ID --groups $SG_CLOUD9
 sudo bash -c 'echo "fs.inotify.max_user_watches=524288" >> /etc/sysctl.conf' && sudo sysctl -p
 
 if [[ $FSX_ID == "AUTO" ]];then
-  FSX_STACK_NAME=$(aws cloudformation describe-stack-resources --stack-name "hpc-1click-${CLUSTER_NAME}" --logical-resource-id FSXSubstack --query "StackResources[*].PhysicalResourceId" --output text)
-  FSX_ID=$(aws cloudformation describe-stacks --stack-name $FSX_STACK_NAME --query "Stacks[*].Outputs[*].OutputValue" --output text)
+  FSX_ID=$(aws cloudformation describe-stack-resources --stack-name "hpc-1click-${CLUSTER_NAME}" --logical-resource-id FSX0 --query "StackResources[*].PhysicalResourceId" --output text)
 fi
 
 FSX_DNS_NAME=$(aws fsx describe-file-systems --file-system-ids $FSX_ID --query "FileSystems[*].DNSName" --output text)
