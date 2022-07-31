@@ -1035,31 +1035,20 @@ Resources:
           TargetGroupArn: !Ref TargetGroupMonitoring
           Type: "forward"
 
-  GrafanaListenerRule:
-    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+  8888SListener:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
     Properties:
-      Actions:
-      - Type: forward
-        TargetGroupArn: !Ref TargetGroupMonitoring
-      Conditions:
-      - Field: path-pattern
-        Values:
-        - "/grafana*"
-      ListenerArn: !Ref HTTPSListener
-      Priority: 1
-      
-  PrometheusListenerRule:
-    Type: AWS::ElasticLoadBalancingV2::ListenerRule
-    Properties:
-      Actions:
-      - Type: forward
-        TargetGroupArn: !Ref TargetGroupMonitoring
-      Conditions:
-      - Field: path-pattern
-        Values:
-        - "/prometheus*"
-      ListenerArn: !Ref HTTPSListener
-      Priority: 2
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
+      Port: 8888
+      Protocol: "HTTPS"
+      SslPolicy: "ELBSecurityPolicy-2016-08"
+      Certificates:
+        - CertificateArn: !GetAtt LBInit.IamCertificateArn
+      DefaultActions: 
+        - 
+          Order: 1
+          TargetGroupArn: arn:aws:elasticloadbalancing:us-east-1:842865360552:targetgroup/ad-selfservice/2e6c3f1b41b09a53
+          Type: "forward"
 
   HTTPListener:
     Type: "AWS::ElasticLoadBalancingV2::Listener"
@@ -1078,19 +1067,6 @@ Resources:
             Query: "#{query}"
             StatusCode: "HTTP_301"
           Type: "redirect"
-
-  TargetGroupEF:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    DependsOn: 
-      - HeadNodeIP
-    Properties:
-      Name: !Sub '${AWS::StackName}-EF'
-      VpcId: !If [CreateVpc, !Ref VPC, !Ref VpcId]
-      Port: 8443
-      Protocol: HTTPS
-      Targets:
-        - Id: !Sub '${HeadNodeIP.HeadNodePrivateIP}'
-      TargetType: ip
   
   TargetGroupMonitoring:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
