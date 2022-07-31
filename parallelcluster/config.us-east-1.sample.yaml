@@ -15,6 +15,7 @@ HeadNode:
         - 03.configure.slurm.acct.headnode.sh
         - 04.configure.slurm.AllOrNothing.headnode.sh
         - 07.configure.slurm.prologs.headnode.sh
+        - 08.install.duc.headnode.sh
         - 40.install.monitoring.headnode.sh
         - 50.install.capacity.reservation.pool.sh
         - 70.install.enroot.pyxis.sh

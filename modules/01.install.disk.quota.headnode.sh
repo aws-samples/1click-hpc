@@ -10,6 +10,9 @@ installQuota() {
 
     # manually reboot the headnode and then make default quotas like
     # xfs_quota -x -c 'limit -u bsoft=30000m bhard=40000m -d' /
+    # or run this script as root
+    aws s3 cp --quiet "${post_install_base}/scripts/post.reboot.headnode.sh" "/root/" --region "${cfn_region}" || exit 1
+    chmod +x "/root/post.reboot.headnode.sh"
 }
 
 changeNice() {
