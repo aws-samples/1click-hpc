@@ -55,10 +55,8 @@ installMonitoring(){
 	cp -rp ${monitoring_home}/custom-metrics/* /usr/local/bin/
 	mv -f "${monitoring_home}/prometheus-slurm-exporter/slurm_exporter.service" /etc/systemd/system/
 	
-	cp -rp ${monitoring_home}/www/* "${NICE_ROOT}/enginframe/conf/tomcat/webapps/ROOT/"
+	#cp -rp ${monitoring_home}/www/* "${NICE_ROOT}/enginframe/conf/tomcat/webapps/ROOT/"
 }
-
-
 
 configureMonitoring() {
 	
