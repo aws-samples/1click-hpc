@@ -447,7 +447,7 @@ Resources:
   ALBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: 'Allow https and http'
+      GroupDescription: 'Allow https and http, plus 8888 for ad self service'
       VpcId: !If [CreateVpc, !Ref VPC, !Ref VpcId]
       SecurityGroupIngress:
       - IpProtocol: tcp
@@ -457,6 +457,10 @@ Resources:
       - IpProtocol: tcp
         FromPort: 80
         ToPort: 80
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 8888
+        ToPort: 8888
         CidrIp: 0.0.0.0/0
 
   PCAdditionalSecurityGroup:
