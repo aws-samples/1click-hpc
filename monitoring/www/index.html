@@ -48,7 +48,7 @@ a:active {
     </div>
 	
  <div class="button-container">
-      <a href=":8888"></a>
+      <a href="https://hpc.stability.ai:8888" target="_blank">
         <div class="button border-1px-white inter-semi-bold-white-17px">
 				    HPC Account Self Service
         </div>
@@ -65,19 +65,4 @@ a:active {
       </a>
  </div>
 </div>
-<script>
-  // delegate event for performance, and save attaching a million events to each anchor
-  document.addEventListener('click', function(event) {
-    var target = event.target;
-    if (target.tagName.toLowerCase() == 'a')
-    {
-        var port = target.getAttribute('href').match(/^:(\d+)(.*)/);
-        if (port)
-        {
-          target.href = window.location.origin;
-          target.port = port[1];
-        }
-    }
-  }, false);
-</script>
 </body>
