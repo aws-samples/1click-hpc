@@ -6,7 +6,7 @@ allowDebugGPU() {
     aws s3 cp --quiet "${post_install_base}/nvidia/99-nvidia-debug" /etc/sudoers.d/ --region "${cfn_region}" || exit 1
 }
 
-installDCGM {
+installDCGM() {
     yum-config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo
     yum clean all
     yum install -y datacenter-gpu-manager
