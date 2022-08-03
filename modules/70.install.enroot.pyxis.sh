@@ -16,7 +16,7 @@ installENROOT() {
 
   echo "include /opt/slurm/etc/plugstack.conf.d/*" > /opt/slurm/etc/plugstack.conf
   mkdir -p /opt/slurm/etc/plugstack.conf.d
-  ln -s /usr/share/pyxis/pyxis.conf /opt/slurm/etc/plugstack.conf.d/pyxis.conf
+  ln -sf /usr/share/pyxis/pyxis.conf /opt/slurm/etc/plugstack.conf.d/pyxis.conf
 
   rm /etc/enroot/enroot.conf
   cat > /etc/enroot/enroot.conf << EOF
