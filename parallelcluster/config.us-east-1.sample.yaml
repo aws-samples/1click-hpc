@@ -14,6 +14,7 @@ HeadNode:
         - 02.activate.passwordless.AD.headnode.sh
         - 03.configure.slurm.acct.headnode.sh
         - 04.configure.slurm.AllOrNothing.headnode.sh
+        - 05.configure.slurm.mem.headnode.sh
         - 07.configure.slurm.prologs.headnode.sh
         - 08.install.duc.headnode.sh
         - 40.install.monitoring.headnode.sh
@@ -30,6 +31,8 @@ HeadNode:
       - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
       - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/${CLUSTER_NAME}-ODCR-Policy
       - Policy: arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetTaggingRole
+      - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
+      - Policy: arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
     S3Access:
       - BucketName: '*'
         EnableWriteAccess: true
@@ -78,6 +81,7 @@ Scheduling:
         OnNodeConfigured:
           Args:
             - 00.install.custom.packages.compute.sh
+            - 02.activate.passwordless.sudo.compute.sh
             - 04.configure.disable.anacron.compute.sh
             - 35.boost.gpu.clock.gpu.sh
             - 40.install.monitoring.gpu.sh
@@ -130,6 +134,7 @@ Scheduling:
         OnNodeConfigured:
           Args:
             - 00.install.custom.packages.compute.sh
+            - 02.activate.passwordless.sudo.compute.sh
             - 04.configure.disable.anacron.compute.sh
             - 35.boost.gpu.clock.gpu.sh
             - 40.install.monitoring.gpu.sh
@@ -181,6 +186,7 @@ Scheduling:
         OnNodeConfigured:
           Args:
             - 00.install.custom.packages.compute.sh
+            - 02.activate.passwordless.sudo.compute.sh
             - 04.configure.disable.anacron.compute.sh
             - 35.boost.gpu.clock.gpu.sh
             - 40.install.monitoring.gpu.sh
@@ -254,6 +260,7 @@ Scheduling:
         OnNodeConfigured:
           Args:
             - 00.install.custom.packages.compute.sh
+            - 02.activate.passwordless.sudo.compute.sh
             - 00.install.knot.resolver.cpu.sh
             - 04.configure.disable.anacron.compute.sh
             - 40.install.monitoring.compute.sh
@@ -315,6 +322,7 @@ Scheduling:
         OnNodeConfigured:
           Args:
             - 00.install.custom.packages.compute.sh
+            - 02.activate.passwordless.sudo.compute.sh
             - 04.configure.disable.anacron.compute.sh
             - 40.install.monitoring.compute.sh
             - 70.install.singularity.compute.sh
