@@ -30,33 +30,13 @@ function nametoip()
     echo "${instance_ip}" | awk '/^Address: / { print $2 }'
 }
 
-#load the comments of the job.
-#this is the supported format: Key=aws-tag1,Value=tag-value1 Key=aws-tag2,Value=tag-value2
+# Fetch the comments attached to the job from Slurm.
+# this is the supported format to transport the Slurm comments to EC2 tags: Key=aws-tag1,Value=tag-value1 Key=aws-tag2,Value=tag-value2
 tags=$($SLURM_ROOT/bin/scontrol show job ${SLURM_JOB_ID} | grep Comment  | sed 's/Comment=//' | sed 's/^ *//g')
 
+# current compute node tags itself, and this prolog script is run on every compute node
+private_ip=$(nametoip $HOSTNAME)
+instance_id=$(aws ec2 --region $cfn_region describe-instances --filters "Name=network-interface.addresses.private-ip-address,Values=${private_ip}" --query Reservations[*].Instances[*].InstanceId --output text)
 
-#expand the hostnames
-hosts=$($SLURM_ROOT/bin/scontrol show hostnames ${SLURM_JOB_NODELIST})
-
-instance_id_list=""
-#verify each host
-for host in $hosts
-  do
-   private_ip=$(nametoip $host)
-   #verify if the instance is running
-   result=$(aws ec2 --region $cfn_region describe-instances --filters "Name=network-interface.addresses.private-ip-address,Values=${private_ip}" --query Reservations[*].Instances[*].InstanceId --output text)
-   if [ ! -z "${result}" ];then
-     num_jobs=$($SLURM_ROOT/bin/squeue -h -w ${host} | wc -l)
-     if [ "${num_jobs}" -eq 1 ];then
-       instance_id_list="${instance_id_list} ${result}"
-     fi
-   fi
-done
-
-for host in $instance_id_list
-do
-  #consider API throttling 
-  aws ec2 create-tags --region $cfn_region --resources ${host} --tags Key=aws-parallelcluster-username,Value=${SLURM_JOB_USER} Key=aws-parallelcluster-jobid,Value=${SLURM_JOBID} Key=aws-parallelcluster-partition,Value=${SLURM_JOB_PARTITION} ${tags}
-done
-
+aws ec2 create-tags --region $cfn_region --resources ${instance_id} --tags Key=aws-parallelcluster-username,Value=${SLURM_JOB_USER} Key=aws-parallelcluster-jobid,Value=${SLURM_JOB_ID} Key=aws-parallelcluster-partition,Value=${SLURM_JOB_PARTITION} ${tags}
 exit 0
