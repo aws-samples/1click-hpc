@@ -23,7 +23,7 @@ installCustomMem() {
             while IFS= read -r line; do
                 if [[ $line == NodeName* ]]; then
                         # NodeName=spot-dy-c52xlarge-[1-16] CPUs=4 State=CLOUD Feature=dynamic,c5.2xlarge,sp-small
-                        instance_type=$(echo "$line" | awk '{print $4}' | cut -f 2 -d',' )
+                        instance_type=$(echo "$line" | awk '{print $5}' | cut -f 2 -d',' )
 
                         memory=$(AWS_DEFAULT_REGION=$cfn_region aws ec2 describe-instance-types --instance-type $instance_type --query "InstanceTypes[*].MemoryInfo[]" --output text)
                         RealMemory=$(python -c 'import sys; print(int(0.85 * int(sys.argv[1])))' $memory)

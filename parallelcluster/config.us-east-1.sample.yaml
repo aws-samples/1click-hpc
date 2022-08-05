@@ -14,7 +14,6 @@ HeadNode:
         - 02.activate.passwordless.AD.headnode.sh
         - 03.configure.slurm.acct.headnode.sh
         - 04.configure.slurm.AllOrNothing.headnode.sh
-        - 05.configure.slurm.mem.headnode.sh
         - 07.configure.slurm.prologs.headnode.sh
         - 08.install.duc.headnode.sh
         - 40.install.monitoring.headnode.sh
