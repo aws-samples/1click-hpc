@@ -32,6 +32,7 @@ HeadNode:
       - Policy: arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetTaggingRole
       - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
       - Policy: arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
+      - Policy: arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
     S3Access:
       - BucketName: '*'
         EnableWriteAccess: true
@@ -58,6 +59,7 @@ Scheduling:
   Scheduler: slurm
   SlurmSettings:
     ScaledownIdletime: 10
+    EnableMemoryBasedScheduling: true
   SlurmQueues:
     - Name: gpu
       CapacityType: ONDEMAND
