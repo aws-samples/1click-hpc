@@ -16,6 +16,7 @@ do
   if [ $? -eq 0 ]; then
     ### Get the created GroupID ###
     groupid=$(echo "$group" | awk '{print $10}')
+    export dcgm_group_id=groupid
     ### Enable DCGM Health Monitoring ###
     ### This enables monitoring of all watches - PCIe, memory, infoROM, thermal and power and NVLink.
     sudo -u "$SLURM_JOB_USER" dcgmi health --host "$base_name$i" -g "$groupid" -s a
@@ -24,7 +25,7 @@ do
     sudo -u "$SLURM_JOB_USER" dcgmi stats --host "$base_name$i" -g "$groupid" --enable
     ### Add Configurations ###
     ### This enable/disables settings like Sync Boost, Target clocks, ECC Mode, Power Limit and Compute Mode
-    sudo -u "$SLURM_JOB_USER" dcgmi config --host "$base_name$i" -g "$groupid" --set -s 1 -e 1 -c 2
+    sudo -u "$SLURM_JOB_USER" dcgmi config --host "$base_name$i" -g "$groupid" --set -s 1 -e 1 -c 0
     ### Add Policies ###
     ### This sets actions and validations for events like PCIe/NVLINK Errors, ECC Errors, Page Retirement Limit,
     ### Power Excursions, Thermal Excursions and XIDs
