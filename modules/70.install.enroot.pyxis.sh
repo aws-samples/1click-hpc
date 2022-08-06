@@ -111,10 +111,10 @@ activateNkernels () {
 
         N=`expr $N3D + $NVGA - 1`
         for i in `seq 0 $N`; do
-          [ ! -f "/dev/nvidia$i" ] && mknod -m 666 /dev/nvidia$i c 195 $i
+          [ ! -f "/dev/nvidia$i" ] && mknod -m 666 /dev/nvidia$i c 195 $i || echo "/dev/nvidia$i already exists"
         done
 
-        [ ! -f "/dev/nvidiactl" ] && mknod -m 666 /dev/nvidiactl c 195 255
+        [ ! -f "/dev/nvidiactl" ] && mknod -m 666 /dev/nvidiactl c 195 255 || echo "/dev/nvidiactl already exists"
       fi
 
       /sbin/modprobe nvidia-uvm
@@ -123,7 +123,7 @@ activateNkernels () {
         # Find out the major device number used by the nvidia-uvm driver
         D=`grep nvidia-uvm /proc/devices | awk '{print $1}'`
 
-        [ ! -f "/dev/nvidia-uvm" ] && mknod -m 666 /dev/nvidia-uvm c $D 0
+        [ ! -f "/dev/nvidia-uvm" ] && mknod -m 666 /dev/nvidia-uvm c $D 0 || echo "/dev/nvidia-uvm already exists"
       fi
   fi
 }
