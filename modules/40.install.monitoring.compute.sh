@@ -40,12 +40,6 @@ installMonitoring() {
 
 }
 
-patchSlurmConfig() {
-    sed -i "s/ClusterName=parallelcluster.*/ClusterName=parallelcluster-${stack_name}/" "/opt/slurm/etc/slurm.conf"
-    rm -f /var/spool/slurm.state/clustername
-    systemctl restart slurmd
-}
-
 # main
 # ----------------------------------------------------------------------------
 main() {
@@ -54,7 +48,6 @@ main() {
     installPreReq
     installMonitoring
     # pending https://github.com/aws/aws-parallelcluster/issues/4218 
-    patchSlurmConfig
 
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 40.install.monitoring.compute.sh: STOP" >&2
 }

@@ -100,13 +100,6 @@ configureMonitoring() {
 	mv -f "${monitoring_home}/prometheus-slurm-exporter/prometheus-slurm-exporter" /usr/bin/prometheus-slurm-exporter
 }
 
-patchSlurmConfig() {
-	sed -i "s/ClusterName=parallelcluster.*/ClusterName=parallelcluster-${stack_name}/" "/opt/slurm/etc/slurm.conf"
-    rm -f /var/spool/slurm.state/clustername
-    systemctl restart slurmctld
-}
-
-
 startMonitoringDaemons() {
 
     /usr/local/bin/docker-compose --env-file /etc/parallelcluster/cfnconfig -f "${monitoring_home}/docker-compose/docker-compose.headnode.yml" -p monitoring-1click-hpc up -d
@@ -128,7 +121,6 @@ main() {
     installMonitoring
     configureMonitoring
 	# pending https://github.com/aws/aws-parallelcluster/issues/4218 
-    patchSlurmConfig
     startMonitoringDaemons
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 40.install.monitoring.headnode.sh: STOP" >&2
 }

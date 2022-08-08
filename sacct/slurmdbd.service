@@ -2,13 +2,16 @@
 Description=Slurm DB controller daemon
 After=network.target munge.service slurmctld.service
 ConditionPathExists=/opt/slurm/etc/slurmdbd.conf
+StartLimitIntervalSec=0
 
 [Service]
-Type=oneshot
-ExecStart=/opt/slurm/sbin/slurmdbd 
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+ExecStart=/opt/slurm/sbin/slurmdbd -D -s
 ExecReload=/bin/kill -HUP $MAINPID
 LimitNOFILE=65536
-RemainAfterExit=yes
 
 [Install]
 WantedBy=multi-user.target

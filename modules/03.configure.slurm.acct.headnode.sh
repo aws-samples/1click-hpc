@@ -41,12 +41,23 @@ configureSACCT() {
     rm db.pass.config db.config
     echo "include slurm_sacct.conf" >> "${SLURM_ETC}/slurm.conf"
     chmod 600 "${SLURM_ETC}/slurmdbd.conf"
+    chmod 666 "${SLURM_ETC}/slurm_sacct.conf"
+    chmod 664 /etc/systemd/system/slurmdbd.service
     chown slurm:slurm "${SLURM_ETC}/slurmdbd.conf"
+}
+
+patchSlurmConfig() {
+	sed -i "s/ClusterName=parallelcluster.*/ClusterName=parallelcluster-${stack_name}/" "/opt/slurm/etc/slurm.conf"
+    rm -f /var/spool/slurm.state/clustername
 }
 
 restartSlurmDaemons() {
     systemctl enable slurmdbd
     systemctl start slurmdbd
+    set +e
+    /opt/slurm/bin/sacctmgr -i create cluster ${stack_name}
+    /opt/slurm/bin/sacctmgr -i create account name=none
+    /opt/slurm/bin/sacctmgr -i create user ${cfn_cluster_user} cluster=${stack_name} account=none
     systemctl restart slurmctld
 }
 
@@ -56,6 +67,7 @@ main() {
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 03.configure.slurm.acct.headnode.sh: START" >&2
     installPreReq
     configureSACCT
+    patchSlurmConfig
     restartSlurmDaemons
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 03.configure.slurm.acct.headnode.sh: STOP" >&2
 }
