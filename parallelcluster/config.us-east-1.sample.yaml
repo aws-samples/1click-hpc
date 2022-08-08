@@ -16,6 +16,7 @@ HeadNode:
         - 04.configure.slurm.AllOrNothing.headnode.sh
         - 07.configure.slurm.prologs.headnode.sh
         - 08.install.duc.headnode.sh
+        - 33.install.cost.control.sh
         - 40.install.monitoring.headnode.sh
         - 50.install.capacity.reservation.pool.sh
         - 70.install.enroot.pyxis.sh
@@ -84,6 +85,7 @@ Scheduling:
             - 00.install.custom.packages.compute.sh
             - 02.activate.passwordless.sudo.compute.sh
             - 04.configure.disable.anacron.compute.sh
+            - 33.install.cost.control.sh
             - 35.boost.gpu.clock.gpu.sh
             - 40.install.monitoring.gpu.sh
             - 40.install.monitoring.compute.sh
@@ -137,6 +139,7 @@ Scheduling:
             - 00.install.custom.packages.compute.sh
             - 02.activate.passwordless.sudo.compute.sh
             - 04.configure.disable.anacron.compute.sh
+            - 33.install.cost.control.sh
             - 35.boost.gpu.clock.gpu.sh
             - 40.install.monitoring.gpu.sh
             - 40.install.monitoring.compute.sh
@@ -189,6 +192,7 @@ Scheduling:
             - 00.install.custom.packages.compute.sh
             - 02.activate.passwordless.sudo.compute.sh
             - 04.configure.disable.anacron.compute.sh
+            - 33.install.cost.control.sh
             - 35.boost.gpu.clock.gpu.sh
             - 40.install.monitoring.gpu.sh
             - 40.install.monitoring.compute.sh
@@ -264,6 +268,7 @@ Scheduling:
             - 02.activate.passwordless.sudo.compute.sh
             - 00.install.knot.resolver.cpu.sh
             - 04.configure.disable.anacron.compute.sh
+            - 33.install.cost.control.sh
             - 40.install.monitoring.compute.sh
             - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
@@ -325,6 +330,7 @@ Scheduling:
             - 00.install.custom.packages.compute.sh
             - 02.activate.passwordless.sudo.compute.sh
             - 04.configure.disable.anacron.compute.sh
+            - 33.install.cost.control.sh
             - 40.install.monitoring.compute.sh
             - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh

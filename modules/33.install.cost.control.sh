@@ -175,9 +175,9 @@ EOF
 # main
 # ----------------------------------------------------------------------------
 main() {
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 33.install.cost.control.compute.sh: START" >&2
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 33.install.cost.control.sh: START" >&2
     configureCostControl
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 33.install.cost.control.compute.sh.sh: STOP" >&2
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 33.install.cost.control.sh.sh: STOP" >&2
 }
 
 main "$@"
