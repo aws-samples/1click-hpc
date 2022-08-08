@@ -364,11 +364,15 @@ Scheduling:
 SharedStorage:
 ${FSX}
 Tags:
-  - Key: EnginFrame
-    Value: 'true'
   - Key: 1Click-HPC
     Value: 'true'
   - Key: 1Click-HPC-version
-    Value: '0.4'
+    Value: 'stability'
   - Key: map-migrated
     Value: ${MAP_MIGRATED}
+  - Key: aws-parallelcluster-username
+    Value: NA
+  - Key: aws-parallelcluster-jobid
+    Value: NA
+  - Key: aws-parallelcluster-project
+    Value: NA
