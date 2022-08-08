@@ -1,0 +1,26 @@
+Bootstrap: docker
+From: public.ecr.aws/w6p6i9i7/aws-efa-nccl-rdma:base-cudnn8-cuda11.3-ubuntu20.04
+
+%environment
+    export OMPI_DIR=/opt/ompi
+    export SINGULARITY_OMPI_DIR=$OMPI_DIR
+    export SINGULARITYENV_APPEND_PATH=$OMPI_DIR/bin
+    export SINGULAIRTYENV_APPEND_LD_LIBRARY_PATH=$OMPI_DIR/lib
+
+%post
+    echo "Installing Open MPI"
+    export OMPI_DIR=/opt/ompi
+    export OMPI_VERSION=4.1.4
+    export OMPI_URL="https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-4.1.4.tar.gz"
+    mkdir -p /tmp/ompi
+    mkdir -p /opt
+    # Download
+    cd /tmp/ompi && wget -O openmpi-$OMPI_VERSION.tar.gz $OMPI_URL && tar -xf openmpi-$OMPI_VERSION.tar.gz
+    # Compile and install
+    cd /tmp/ompi/openmpi-$OMPI_VERSION && ./configure --prefix=$OMPI_DIR && make install
+    # Set env variables
+    export PATH=$OMPI_DIR/bin:$PATH
+    export LD_LIBRARY_PATH=$OMPI_DIR/lib:$LD_LIBRARY_PATH
+    export MANPATH=$OMPI_DIR/share/man:$MANPATH
+
+    # openmpi is already installed in the sample image. this is an example of how to install your own software stack on top of the image with singularity
