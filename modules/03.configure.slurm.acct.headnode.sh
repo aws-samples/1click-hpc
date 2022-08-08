@@ -54,6 +54,8 @@ patchSlurmConfig() {
 restartSlurmDaemons() {
     systemctl enable slurmdbd
     systemctl start slurmdbd
+    #fixme make idempotent
+    sleep 5
     set +e
     /opt/slurm/bin/sacctmgr -i create cluster ${stack_name}
     /opt/slurm/bin/sacctmgr -i create account name=none
