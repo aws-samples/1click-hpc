@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+
+# Create accounts in the Slurm database
+# Note: Organization is set equal to Parent
+# Homepage: https://github.com/OleHolmNielsen/Slurm_tools/
+
+ACCOUNTS_CONF=/opt/slurm/etc/accounts.conf
+# Syntax of the file ACCOUNTS_CONF is:
+# account:parent:FairShare:Description[:Alias_group]
+# The 5th field Alias_group is optional and must be added manually,
+# it says that an account is an alias for the UNIX group Alias_group.
+# The UNIX group Alias_group should have a corresponding Slurm account
+
+if test ! -f $ACCOUNTS_CONF
+then
+        echo Error: No such file $ACCOUNTS_CONF
+        exit 1
+fi
+
+# Set the LANG for 8-bit characters
+export LANG=C
+
+# Print a header
+cat <<EOF
+###
+### Update hierarchical tree of Slurm accounts
+### from the accounts configuration file $ACCOUNTS_CONF
+###
+### The syntax of this file is 4 or 5 items separated by : like:
+###
+### account_name:parent_account:fairshare_value:Description_of_account[:group1[,group2]...]
+###
+### The optional field 5 is a comma-separated list of UNIX groups which are aliased to the Slurm account_name,
+### and this list must be added manually.
+###
+EOF
+
+cat $ACCOUNTS_CONF | awk '
+BEGIN {
+        # Read list of existing accounts (parseable output)
+        command="/opt/slurm/bin/sacctmgr -nrp show accounts WithAssoc format=Account,Descr,Org,Cluster,ParentName,User,Share"
+        FS="|"  # Set the Field Separatator to | for the account list
+        while ((command | getline) > 0) {
+                if ($6 != "") continue          # Only modify non-user accounts
+                if ($1 == "root") continue      # Do not modify the root account
+                account[$1]     = $1
+                desc[$1]        = $2
+                parent[$1]      = $5
+                user[$1]        = $6
+                fairshare[$1]   = $7
+                # Debug: print "Got account ", $0
+        }
+        close(command)
+        FS=":"  # Now set the Field Separatator to : for the input file
+}
+{
+        if (index($1,"#") >= 1) next    # Skip lines with # comments
+        if ($1 == "NOACCOUNT") next     # Ignore NOACCOUNT lines in this script
+        if (NF < 4) next                # Skip lines which have less than 4 fields (incl. empty lines)
+        ACC=tolower($1)
+        PARENT=tolower($2)
+        FAIRSHARE=$3
+        DESC=tolower($4)
+        if (NF >= 5 && length($5)>0) {
+                print "### Slurm account " ACC " is just an alias for the UNIX group " $5
+                if ($5 in account)
+                        print "### Slurm account for UNIX group " $5 " is " account[$5]
+                else {
+                        print "### NOTICE: Slurm account " $5 " does not exist"
+                        account_alias[ACC] = $5 # Record that this account is a UNIX group alias
+                        next            # Skip aliased accounts
+                }
+        }
+        account_exists[ACC] = ACC       # Record that this account is defined in ACCOUNTS_CONF
+        if (account[ACC] == "") {
+                # Create a new account
+                account[ACC] = ACC
+                COMMAND=sprintf("/opt/slurm/bin/sacctmgr -i add account %s Description=\"%s\"", ACC, DESC)
+                if (PARENT != "")       # Set Organization=Parent
+                        COMMAND = COMMAND sprintf(" Organization=%s parent=%s", PARENT, PARENT)
+                if (FAIRSHARE != "") # Account FairShare
+                        COMMAND = COMMAND sprintf(" fairshare=%s", FAIRSHARE)
+                print COMMAND
+        } else {
+                # Existing account - potentially update it
+                COMMAND=""
+                if (PARENT != "" && (PARENT != parent[ACC] || DESC != desc[ACC]))       # Skip in case parent=""
+                        COMMAND = COMMAND sprintf(" set Organization=%s parent=%s Description=\"%s\"", PARENT, PARENT, DESC)
+                if (FAIRSHARE != "" && FAIRSHARE != fairshare[ACC])     # Skip in case fairshare=""
+                        COMMAND = COMMAND sprintf(" set fairshare=%s", FAIRSHARE)
+                if (COMMAND != "")
+                        print "/opt/slurm/bin/sacctmgr -i modify account where name=" ACC COMMAND
+        }
+} END {
+        # Check for accounts not present in the ACCOUNTS_CONF file
+        # Aliases accounts are skipped
+        for (a in account) {
+                if (account[a] == "") continue
+                if (account_exists[a] != "") continue
+                if (account_alias[a] != "") continue
+                print "### Slurm account " a " does not exist in the accounts configuration file"
+                print "/opt/slurm/bin/sacctmgr -i delete account " a
+        }
+}'

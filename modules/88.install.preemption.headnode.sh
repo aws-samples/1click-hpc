@@ -25,8 +25,9 @@ set -e
 installPreemptionQos() {
     echo " " >> /opt/slurm/etc/slurm.conf
     echo "# PREEMPTION" >> /opt/slurm/etc/slurm.conf
-    PreemptMode=Requeue
-    PreemptType=preempt/qos
+    echo "PreemptMode=Requeue" >> /opt/slurm/etc/slurm.conf
+    echo "PreemptType=preempt/qos" >> /opt/slurm/etc/slurm.conf
+    echo "PriorityType=priority/multifactor" >> /opt/slurm/etc/slurm.conf
 }
 
 
