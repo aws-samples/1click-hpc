@@ -1,5 +1,5 @@
-# 1Click-HPC
-This project aims at speeding up the deployment of an HPC Cluster on AWS.
+# Stability-HPC
+This project infrastructure as a code for Stability HPC Cluster on AWS.
 Following the instructions below a fully functional and ready to use HPC cluster will be created with just 1-Click.
 
 # Get Started
@@ -17,7 +17,7 @@ You will be asked a few questions about services like VPC, FSx, etc; if you have
 
 ## Step 2
 1. Just change the "Stack Name" as you like.
-2. Enter the password for the Admin user "ec2-user":
+2. Enter appropriate values in the fields
 2. Check the checkbox to acknowledge the IAM resources creations.
 3. Click the "Create Stack" botton.
 </br>
