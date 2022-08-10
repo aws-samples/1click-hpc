@@ -27,8 +27,8 @@ configureCostControl(){
 
         # Configure the script to run every minute
         echo "
-        * * * * * /opt/slurm/sbin/check_tags.sh
-        " | crontab -
+* * * * * /opt/slurm/sbin/check_tags.sh
+" | crontab -
         exit 0
     else
         # Cron script used to update the instance tags
