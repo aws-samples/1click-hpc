@@ -52,7 +52,7 @@ Parameters:
     MapMigrated:
       Description: 'Please, enter your MapMigrated Tag or leave blank'
       Type: String
-      Default: 'd-server-00cnf4wiwofjqb'
+      Default: ''
 
     AdminPassword:
       Description: 'Please, enter the password for the user "ec2-user". Min 8 chars, three of: lowercase, uppercase, number and symbols'
@@ -66,37 +66,37 @@ Parameters:
       Description: 'Please, enter your VPC ID, or just leave "AUTO" if you want to re-use an existing one.'
       Type: String
       AllowedPattern: ^(AUTO|vpc-[0-9a-z]+)$
-      Default: vpc-4678d63b
+      Default: AUTO
 
     PublicSubnetAId: 
       Description: 'Please, enter the ID of the Public Subnet you wish to use, or just leave "AUTO" if you want to re-use an existing one.'
       Type: String
       AllowedPattern: ^(AUTO|subnet-[0-9a-z]+)$
-      Default : subnet-2fd94770
+      Default : AUTO
 
     PublicSubnetBId: 
       Description: 'Please, enter another ID of the Public Subnet you wish to use, or just leave "AUTO" if you want to re-use an existing one.'
       Type: String
       AllowedPattern: ^(AUTO|subnet-[0-9a-z]+)$
-      Default : subnet-79775a34
+      Default : AUTO
     
     PrivateSubnetAId:
       Description: 'Please, enter the ID of the Private Subnet you wish to use, or put NONE if you want to use only Public Subnets, or just leave "AUTO" if you want to re-use an existing one.'
       Type: String
       AllowedPattern: ^(AUTO|NONE|subnet-[0-9a-z]+)$
-      Default : subnet-0b1fd419324ad200e
+      Default : AUTO
       
     FSx: 
       Description: 'Please, enter your FSx ID, or just leave "AUTO" if you want to re-use an existing one.'
       Type: String
       AllowedPattern: ^(AUTO|fs-[0-9a-z]+)$
-      Default : fs-00bb39380c5b90f76
+      Default : AUTO
 
     SlurmDBE: 
       Description: 'Please, enter your organization SlurmDB Endpoint, or just leave "AUTO" to create a new one.'
       Type: String
       AllowedPattern: ^(AUTO|[0-9a-z\-\.]+\.rds.amazonaws.com)$
-      Default : stability-sacct.c2yrzdczuacd.us-east-1.rds.amazonaws.com
+      Default : AUTO
 
     SlurmDBEPassword:
       Description: 'Please, enter the password for the Slurm DB Endpoint. Leave empty if Slurm DB Endpoint is set to AUTO'
@@ -110,19 +110,19 @@ Parameters:
       Description: 'Please, enter your Active Directory ID, or just leave "AUTO" if you want to create a new one.'
       Type: String
       AllowedPattern: ^(AUTO|d-[0-9a-z]+)$
-      Default : d-9067b1eaa3
+      Default : AUTO
 
     ADDNS0:
       Description: 'Please enter IP of the first DNS server of the custom AD domain'
       Type: String
       AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
-      Default: '172.31.18.41'
+      Default: '0.0.0.0'
 
     ADDNS1:
       Description: 'Please enter IP of the first DNS server of the custom AD domain'
       Type: String
       AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
-      Default: '172.31.38.78'
+      Default: '0.0.0.0'
 
     ADPassword:
       Description: 'Please enter Admin user password of the custom AD domain'
