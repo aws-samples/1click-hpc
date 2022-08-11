@@ -1,0 +1,40 @@
+#!/bin/sh
+
+# Print one or more user names from the Slurm database user_table
+# Usage: slurmusertable [user1 [user2] ...]
+#        All users are printed if there are no arguments.
+
+StorageUser=`grep -i StorageUser /opt/slurm/etc/slurmdbd.conf | sed '/#/d' | awk -F= '$1~"^StorageUser" {print $2}'`
+StoragePass=`grep -i StoragePass /opt/slurm/etc/slurmdbd.conf | sed '/#/d' | awk -F= '$1~"^StoragePass" {print $2}'`
+#AccountingStorageHost=`/opt/slurm/bin/scontrol show config | grep AccountingStorageHost | awk '{print $3}'`
+AccountingStorageHost=`grep -i StorageHost /opt/slurm/etc/slurmdbd.conf | sed '/#/d' | awk -F= '$1~"^StorageHost" {print $2}'`
+database=slurm_acct_db
+format="-B -N"
+
+# Select the appropriate database user:
+# dbuser="$StorageUser"
+# Our custom "readonly" user:
+dbuser="readonly"
+
+# MySQL options combined:
+mysqloptions="-p$StoragePass --host=$AccountingStorageHost -u $dbuser $format $database"
+sorting="ORDER BY creation_time"
+
+# Select which fields we want:
+# Default fields='*' are: creation_time mod_time deleted name admin_level
+fields='name,creation_time,mod_time'
+
+function print_name {
+	# Print the $1 name record (all records if empty)
+	mysql $mysqloptions -e "select $fields from user_table $1 $sorting ;"
+}
+
+if test $# -eq 0
+then
+	print_name ""	# Print entire user list
+else
+	for i in $*
+	do
+		print_name "where name=\"$i\""
+	done
+fi

@@ -142,7 +142,7 @@ export assoc_tmp="/tmp/assoc.$$"
 export users_tmp="/tmp/users.$$"
 export newusers_tmp="/tmp/newusers.$$"
 # $remote getent passwd > $passwd_tmp
-$remote getent group > $group_tmp
+$remote getent group | grep -v -E ' .*:.*' > $group_tmp
 
 # Set default time format
 export -n SLURM_TIME_FORMAT
@@ -192,7 +192,7 @@ $remote sacctmgr -nrp list transactions Action="Add Users" Start=`date -d "-$new
 #edit sssd.conf, add/modify enumerate=true below the [domain/default]
 
 # cat $passwd_tmp | gawk -F: '
-$remote getent passwd | gawk -F: '
+$remote getent passwd | grep -E '^[^IP-].*' | grep  -E '^[^Admin].*' | grep  -E '^[^EC2].*' | grep  -E '^[^WIN-].*' | gawk -F: '
 BEGIN {
 	MINUID = ENVIRON["MINUID"]
 	skip_locked = ENVIRON["skip_locked"]

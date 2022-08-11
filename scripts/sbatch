@@ -21,7 +21,18 @@ parameters=$@
 #enable or disable the budget checks for the projects
 budget="no"
 
-project=$(echo $@ | sed -n -e 's/.*comment //p' | awk '{print $1}')
+#traversing through all arguments using  for loop
+for i in "$@"
+do
+  if [ -f $i ]
+  then
+    #echo "The provided argument $i is the file."
+    project=$(grep -E '^#SBATCH\s--comment(.*)' $i | head | sed 's/.*--comment\s*=*\s*\(.*\).*/\1/' | tr -d '"')
+  fi
+done
+if [ -z "${project}" ];then
+  project=$(echo $@ | sed -n -e 's/.*comment //p' | awk '{print $1}')
+fi
 slurm_command=$(basename "$0")
 
 if [ -z "${project}" ];then

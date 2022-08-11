@@ -1,0 +1,22 @@
+$users = Get-ADObject -Filter "ObjectCategory -eq 'person'" -SearchBase 'OU=RESEARCH,DC=research,DC=stability,DC=ai' -Properties info,altSecurityIdentities
+$curtime = (get-date).ToString('H:m')
+$curdate = (get-date).ToString('y-M-d')
+
+Add-Content c:\PS\ssh-keys-${curdate}.log "Time: $curtime"
+
+foreach ($user in $users) {
+ if ( $user.altSecurityIdentities -contains $user.info ) {
+    Add-Content c:\PS\ssh-keys-${curdate}.log "             Key already set for user $user.DistinguishedName"
+ }
+ else {
+    if ($user.info -like 'ssh-ed25519*' -or $user.info -like 'ecdsa-*' ){
+        Add-Content c:\PS\ssh-keys-${curdate}.log " +++++++++++ Updating key for user $user.DistinguishedName"
+        Set-ADUser -Identity $user.DistinguishedName -Add @{altSecurityIdentities = $user.info}
+    }
+    else {
+        Add-Content c:\PS\ssh-keys-${curdate}.log " ----------- Clean all keys for user $user.DistinguishedName"
+        Set-ADUser -Identity $user.DistinguishedName -Clear altSecurityIdentities
+    }
+    
+ } 
+}

@@ -10,6 +10,8 @@ installENROOT() {
   yum install -y jq squashfs-tools parallel fuse-overlayfs libnvidia-container-tools pigz squashfuse slurm-devel
   export arch=$(uname -m) && sudo -E yum install -y https://github.com/NVIDIA/enroot/releases/download/v3.4.0/enroot-3.4.0-2.el7.${arch}.rpm
   export arch=$(uname -m) && sudo -E yum install -y https://github.com/NVIDIA/enroot/releases/download/v3.4.0/enroot+caps-3.4.0-2.el7.${arch}.rpm
+  # enable pmi and pytorch hooks for enroot
+  cp /usr/share/enroot/hooks.d/50-slurm-pmi.sh /usr/share/enroot/hooks.d/50-slurm-pytorch.sh /etc/enroot/hooks.d
   mkdir -p /scratch && sudo chmod -R 777 /scratch
   git clone https://github.com/NVIDIA/pyxis.git /tmp/pyxis
   cd /tmp/pyxis && sudo make rpm && sudo rpm -ihv *.rpm
@@ -17,6 +19,9 @@ installENROOT() {
   echo "include /opt/slurm/etc/plugstack.conf.d/*" > /opt/slurm/etc/plugstack.conf
   mkdir -p /opt/slurm/etc/plugstack.conf.d
   ln -sf /usr/share/pyxis/pyxis.conf /opt/slurm/etc/plugstack.conf.d/pyxis.conf
+
+  # make pmix_v3 the default mpi
+  sed -i 's/MpiDefault=.*/MpiDefault=pmix_v3/' /opt/slurm/etc/slurm.conf
 
   rm /etc/enroot/enroot.conf
   cat > /etc/enroot/enroot.conf << EOF

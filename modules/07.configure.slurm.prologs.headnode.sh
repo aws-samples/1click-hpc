@@ -20,23 +20,10 @@ set -x
 set -e
 
 configurePrologs() {
-    aws s3 cp --quiet "${post_install_base}/scripts/taskprolog.sh" "${SLURM_ETC}/" --region "${cfn_region}" || exit 1
-    aws s3 cp --quiet "${post_install_base}/scripts/taskepilog.sh" "${SLURM_ETC}/" --region "${cfn_region}" || exit 1
-    aws s3 cp --quiet "${post_install_base}/scripts/prolog.sh" "${SLURM_ETC}/" --region "${cfn_region}" || exit 1
-    aws s3 cp --quiet "${post_install_base}/scripts/prologslurmctld.sh" "${SLURM_ETC}/" --region "${cfn_region}" || exit 1
     aws s3 cp --quiet "${post_install_base}/scripts/debug_prolog.sh" "${SLURM_ETC}/" --region "${cfn_region}" || exit 1
     aws s3 cp --quiet "${post_install_base}/scripts/debug_epilog.sh" "${SLURM_ETC}/" --region "${cfn_region}" || exit 1
-    chmod +x "${SLURM_ETC}/prolog.sh"
-    chmod +x "${SLURM_ETC}/taskprolog.sh"
-    chmod +x "${SLURM_ETC}/taskepilog.sh"
-    chmod +x "${SLURM_ETC}/prologslurmctld.sh"
     chmod +x "${SLURM_ETC}/debug_prolog.sh"
     chmod +x "${SLURM_ETC}/debug_epilog.sh"
-    #echo "TaskProlog=/opt/slurm/etc/taskprolog.sh" >> "${SLURM_ETC}/slurm.conf"
-    #echo "TaskEpilog=/opt/slurm/etc/taskepilog.sh" >> "${SLURM_ETC}/slurm.conf"
-    echo "Prolog=/opt/slurm/etc/prolog.sh" >> "${SLURM_ETC}/slurm.conf"
-    #echo "PrologSlurmctld=/opt/slurm/etc/prologslurmctld.sh" >> "${SLURM_ETC}/slurm.conf"
-    #echo "PrologFlags=Alloc,Contain" >> "${SLURM_ETC}/slurm.conf"
     echo "TCPTimeout=10" >> "${SLURM_ETC}/slurm.conf"
     echo "EioTimeout=120" >> "${SLURM_ETC}/slurm.conf"
 }

@@ -133,6 +133,23 @@ if [ ! -z "${Project}" ];then
 echo "${Project}" >> /tmp/jobs/jobs_projects
 fi
 
+#make enroot folders to accomodate multiple users on same compute host
+
+runtime_path=$(echo "/run/enroot/user-$(id -u ${SLURM_JOB_USER})")
+mkdir -p "$runtime_path"
+chown "$SLURM_JOB_UID:$(id -g "$SLURM_JOB_UID")" "$runtime_path"
+chmod 0700 "$runtime_path"
+
+cache_path=$(echo "/tmp/user-$(id -u ${SLURM_JOB_USER})")
+mkdir -p "$cache_path"
+chown "$SLURM_JOB_UID:$(id -g "$SLURM_JOB_UID")" "$cache_path"
+chmod 0770 "$cache_path"
+
+data_path=$(echo "/tmp/enroot-data/user-$(id -u ${SLURM_JOB_USER})")
+mkdir -p "$data_path"
+chown "$SLURM_JOB_UID:$(id -g "$SLURM_JOB_UID")" "$data_path"
+chmod 0700 "$data_path"
+
 EOF
 
         cat <<'EOF' > /opt/slurm/sbin/epilog.sh
