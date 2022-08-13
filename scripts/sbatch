@@ -45,7 +45,8 @@ fi
 # instead of above, maintain groups for projects in AD and make users members of these groups
 
 getent group ${project} | grep $USER > /dev/null
-if [ $? -eq 0 ];then
+# if group member or root
+if [ $? -eq 0 ] || [ $EUID -eq 0 ];then
  if [ "${budget}" == "yes" ]; then
      account_id=$(aws sts get-caller-identity --query "Account" --output text)
      budget=$(aws budgets describe-budget --account-id ${account_id} --budget-name "${project}" --query 'Budget.[CalculatedSpend.ActualSpend.Amount,BudgetLimit.Amount]' --output text 2>/dev/null)
