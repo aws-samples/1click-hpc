@@ -72,11 +72,17 @@ EOF
 )
 else
 FSX=$(cat <<EOF
-  - MountDir: /fsx
+  - Name: FsxLustre0
+    MountDir: /fsx
     Name: existing
     StorageType: FsxLustre
     FsxLustreSettings:
       FileSystemId: ${FSX_ID}
+  - Name: FsxLustre1
+    StorageType: FsxLustre
+    MountDir: /opt/df
+    FsxLustreSettings:
+      FileSystemId: fs-0d774d6a99935d41f
 EOF
 )
 fi
