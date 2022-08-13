@@ -293,6 +293,86 @@ Scheduling:
         SubnetIds:
           - ${SUBNET_ID}
         AssignPublicIp: ${USE_PUBLIC_IPS}
+- Name: dev
+      CapacityType: ONDEMAND
+      ComputeResources:
+        - Name: t2-xlarge
+          DisableSimultaneousMultithreading: false
+          InstanceType: t2.xlarge
+          MaxCount: 30
+          MinCount: 0
+      CustomActions:
+        OnNodeConfigured:
+          Args:
+            - 00.install.custom.packages.compute.sh
+            - 02.activate.passwordless.sudo.compute.sh
+            - 00.install.knot.resolver.cpu.sh
+            - 04.configure.disable.anacron.compute.sh
+            - 33.install.cost.control.sh
+            - 40.install.monitoring.compute.sh
+            - 70.install.singularity.compute.sh
+            - 80.fast.aws.cli.compute.sh
+          Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
+      Iam:
+        AdditionalIamPolicies:
+          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
+          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
+          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+          - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/pclusterTagsAndBudget #make sure this policy is created https://pcluster.cloud/02-tutorials/04-cost-tracking.html
+        S3Access:
+          - BucketName: '*'
+            EnableWriteAccess: true
+      Networking:
+        AdditionalSecurityGroups:
+          - ${ADDITIONAL_SG}
+        PlacementGroup:
+          Enabled: true
+        SubnetIds:
+          - ${HN_SUBNET_ID}
+        AssignPublicIp: ${USE_PUBLIC_IPS}
+- Name: login
+      CapacityType: ONDEMAND
+      ComputeResources:
+        - Name: c4-4xlarge
+          DisableSimultaneousMultithreading: false
+          InstanceType: c4.4xlarge
+          MaxCount: 8
+          MinCount: 8
+      CustomActions:
+        OnNodeConfigured:
+          Args:
+            - 00.install.custom.packages.compute.sh
+            - 02.activate.passwordless.sudo.compute.sh
+            - 00.install.knot.resolver.cpu.sh
+            - 04.configure.disable.anacron.compute.sh
+            - 33.install.cost.control.sh
+            - 40.install.monitoring.compute.sh
+            - 70.install.singularity.compute.sh
+            - 80.fast.aws.cli.compute.sh
+          Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
+      Iam:
+        AdditionalIamPolicies:
+          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
+          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
+          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+          - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/pclusterTagsAndBudget #make sure this policy is created https://pcluster.cloud/02-tutorials/04-cost-tracking.html
+        S3Access:
+          - BucketName: '*'
+            EnableWriteAccess: true
+      Networking:
+        AdditionalSecurityGroups:
+          - ${ADDITIONAL_SG}
+        PlacementGroup:
+          Enabled: true
+        SubnetIds:
+          - ${HN_SUBNET_ID}
+        AssignPublicIp: ${USE_PUBLIC_IPS}
     - Name: spot-cpu
       CapacityType: SPOT
       ComputeResources:
