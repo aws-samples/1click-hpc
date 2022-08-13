@@ -331,7 +331,7 @@ Scheduling:
         PlacementGroup:
           Enabled: true
         SubnetIds:
-          - ${HN_SUBNET_ID}
+          - ${SUBNET_ID}
         AssignPublicIp: ${USE_PUBLIC_IPS}
     - Name: login
       CapacityType: ONDEMAND
@@ -371,7 +371,7 @@ Scheduling:
         PlacementGroup:
           Enabled: true
         SubnetIds:
-          - ${HN_SUBNET_ID}
+          - ${SUBNET_ID}
         AssignPublicIp: ${USE_PUBLIC_IPS}
     - Name: spot-cpu
       CapacityType: SPOT
