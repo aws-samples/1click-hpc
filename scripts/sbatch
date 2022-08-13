@@ -40,11 +40,10 @@ if [ -z "${project}" ];then
  exit 1
 fi
 
-
 #cat /opt/slurm/etc/projects_list.conf | grep $USER | grep ${project} > /dev/null
 # instead of above, maintain groups for projects in AD and make users members of these groups
 
-getent group ${project} | grep $USER > /dev/null
+id --groups --name | grep ${project} > /dev/null
 # if group member or root
 if [ $? -eq 0 ] || [ $EUID -eq 0 ];then
  if [ "${budget}" == "yes" ]; then
