@@ -293,7 +293,7 @@ Scheduling:
         SubnetIds:
           - ${SUBNET_ID}
         AssignPublicIp: ${USE_PUBLIC_IPS}
-- Name: dev
+    - Name: dev
       CapacityType: ONDEMAND
       ComputeResources:
         - Name: t2-xlarge
@@ -333,7 +333,7 @@ Scheduling:
         SubnetIds:
           - ${HN_SUBNET_ID}
         AssignPublicIp: ${USE_PUBLIC_IPS}
-- Name: login
+    - Name: login
       CapacityType: ONDEMAND
       ComputeResources:
         - Name: c4-4xlarge
