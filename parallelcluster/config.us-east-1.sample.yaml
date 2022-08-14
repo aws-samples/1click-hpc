@@ -77,8 +77,8 @@ Scheduling:
           Efa:
             Enabled: true
           InstanceType: p4d.24xlarge
-          MaxCount: 107
-          MinCount: 107
+          MaxCount: 450
+          MinCount: 450
       CustomActions:
         OnNodeConfigured:
           Args:
@@ -131,7 +131,7 @@ Scheduling:
           Efa:
             Enabled: true
           InstanceType: p4d.24xlarge
-          MaxCount: 16
+          MaxCount: 4
           MinCount: 0
       CustomActions:
         OnNodeConfigured:
@@ -184,7 +184,7 @@ Scheduling:
           Efa:
             Enabled: true
           InstanceType: p4d.24xlarge
-          MaxCount: 16
+          MaxCount: 8
           MinCount: 0
       CustomActions:
         OnNodeConfigured:
@@ -339,8 +339,8 @@ Scheduling:
         - Name: c4-4xlarge
           DisableSimultaneousMultithreading: false
           InstanceType: c4.4xlarge
-          MaxCount: 8
-          MinCount: 8
+          MaxCount: 2
+          MinCount: 2
       CustomActions:
         OnNodeConfigured:
           Args:
