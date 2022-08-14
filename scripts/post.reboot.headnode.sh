@@ -9,6 +9,9 @@ systemctl stop sssd; rm -rf /var/lib/sss/{db,mc}/*; systemctl start sssd
 # establish disk quota
 xfs_quota -x -c 'limit -u bsoft=30000m bhard=40000m -d' /
 
+# run this on production, comment on sandbox
+#sed -E -i 's|^#?(PasswordAuthentication)\s.*|\1 no|' /etc/ssh/sshd_config
+
 # index /home and /fsx
 duc index /home
 #duc index /fsx
