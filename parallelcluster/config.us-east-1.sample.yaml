@@ -340,7 +340,7 @@ Scheduling:
           DisableSimultaneousMultithreading: false
           InstanceType: c4.4xlarge
           MaxCount: 2
-          MinCount: 2
+          MinCount: 0
       CustomActions:
         OnNodeConfigured:
           Args:
