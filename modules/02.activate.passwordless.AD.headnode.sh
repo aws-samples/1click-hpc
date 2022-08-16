@@ -24,6 +24,7 @@ EOF
 
 removePasswordAuth(){
     sed -E -i 's|^#?(PasswordAuthentication)\s.*|\1 no|' /etc/ssh/sshd_config
+    systemctl restart sshd
 }
 
 setupCron(){
