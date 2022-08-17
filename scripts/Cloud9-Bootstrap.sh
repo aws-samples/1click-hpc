@@ -72,8 +72,7 @@ EOF
 )
 else
 FSX=$(cat <<EOF
-  - Name: FsxLustre0
-    MountDir: /fsx
+  - MountDir: /fsx
     Name: existing
     StorageType: FsxLustre
     FsxLustreSettings:
