@@ -29,7 +29,7 @@ configureCostControl(){
         echo "
 * * * * * /opt/slurm/sbin/check_tags.sh
 " | crontab -
-        exit 0
+
     else
         # Cron script used to update the instance tags
 

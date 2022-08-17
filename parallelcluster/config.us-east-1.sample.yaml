@@ -37,7 +37,8 @@ HeadNode:
     S3Access:
       - BucketName: '*'
         EnableWriteAccess: true
-  InstanceType: c4.8xlarge #c5n.18xlarge
+  InstanceType: c4.8xlarge
+   #c5n.18xlarge
   Networking:
     AdditionalSecurityGroups:
       - ${ADDITIONAL_SG}
@@ -77,8 +78,8 @@ Scheduling:
           Efa:
             Enabled: true
           InstanceType: p4d.24xlarge
-          MaxCount: 25
-          MinCount: 25
+          MaxCount: 2
+          MinCount: 2
       CustomActions:
         OnNodeConfigured:
           Args:
