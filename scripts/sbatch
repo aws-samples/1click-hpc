@@ -28,6 +28,8 @@ do
   then
     #echo "The provided argument $i is the file."
     project=$(grep -E '^#SBATCH\s--comment(.*)' $i | head | sed 's/.*--comment\s*=*\s*\(.*\).*/\1/' | tr -d '"')
+    # remove account line
+    
   fi
 done
 if [ -z "${project}" ];then
@@ -39,6 +41,9 @@ if [ -z "${project}" ];then
  echo 'You need to specify a project. "--comment ProjectName"'
  exit 1
 fi
+
+# make account = project
+account=$(echo $project | awk '{print tolower($0)}')
 
 #cat /opt/slurm/etc/projects_list.conf | grep $USER | grep ${project} > /dev/null
 # instead of above, maintain groups for projects in AD and make users members of these groups
@@ -56,7 +61,7 @@ if [ $? -eq 0 ] || [ $EUID -eq 0 ];then
        ActualSpend=$(echo ${budget} | awk '{print $1}')
        BudgetLimit=$(echo ${budget} | awk '{print $2}')
        if (( $(echo "${ActualSpend} < ${BudgetLimit}" | bc -l) ));then
-         /opt/slurm/sbin/${slurm_command} $@
+         /opt/slurm/sbin/${slurm_command} --account=${account} $@
          exit 0
        else
          echo "The Project ${project} does not have more budget allocated for this month."
@@ -64,7 +69,7 @@ if [ $? -eq 0 ] || [ $EUID -eq 0 ];then
        fi
      fi
   else
-    /opt/slurm/sbin/${slurm_command} $@
+    /opt/slurm/sbin/${slurm_command} --account=${account} $@
   fi
 else
  echo "You are not allowed to use the project ${project}"
