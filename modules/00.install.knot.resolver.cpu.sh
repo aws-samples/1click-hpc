@@ -5,7 +5,8 @@ set -e
 installCustom() {
     amazon-linux-extras install epel -y
     yum install -y knot-resolver knot-utils
-    systemctl enable --now kresd@{1..2}.service
+    sh -c 'echo nameserver 127.0.0.1 > /etc/resolv.conf'
+    systemctl enable --now kresd@{1..4}.service
 }
 
 
