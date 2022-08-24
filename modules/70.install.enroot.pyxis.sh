@@ -2,6 +2,8 @@
 set -x
 set -e 
 
+source "/etc/parallelcluster/cfnconfig"
+
 installENROOT() {
 
   DIST=$(. /etc/os-release; echo $ID$VERSION_ID)
@@ -16,12 +18,13 @@ installENROOT() {
   git clone https://github.com/NVIDIA/pyxis.git /tmp/pyxis
   cd /tmp/pyxis && sudo make rpm && sudo rpm -ihv *.rpm
 
-  echo "include /opt/slurm/etc/plugstack.conf.d/*" > /opt/slurm/etc/plugstack.conf
-  mkdir -p /opt/slurm/etc/plugstack.conf.d
-  ln -sf /usr/share/pyxis/pyxis.conf /opt/slurm/etc/plugstack.conf.d/pyxis.conf
-
-  # make pmix_v3 the default mpi
-  sed -i 's/MpiDefault=.*/MpiDefault=pmix_v3/' /opt/slurm/etc/slurm.conf
+  if [ "${cfn_node_type}" == "HeadNode" ];then
+    echo "include /opt/slurm/etc/plugstack.conf.d/*" > /opt/slurm/etc/plugstack.conf
+    mkdir -p /opt/slurm/etc/plugstack.conf.d
+    ln -sf /usr/share/pyxis/pyxis.conf /opt/slurm/etc/plugstack.conf.d/pyxis.conf
+    # make pmix_v3 the default mpi
+    sed -i 's/MpiDefault=.*/MpiDefault=pmix_v3/' /opt/slurm/etc/slurm.conf
+  fi
 
   rm /etc/enroot/enroot.conf
   cat > /etc/enroot/enroot.conf << EOF
