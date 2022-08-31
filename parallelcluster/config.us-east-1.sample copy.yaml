@@ -296,9 +296,9 @@ Scheduling:
     - Name: dev
       CapacityType: ONDEMAND
       ComputeResources:
-        - Name: t2-xlarge
+        - Name: c4-xlarge
           DisableSimultaneousMultithreading: false
-          InstanceType: t2.xlarge
+          InstanceType: c4.xlarge
           MaxCount: 30
           MinCount: 0
       CustomActions:
