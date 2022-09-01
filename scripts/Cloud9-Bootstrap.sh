@@ -63,6 +63,7 @@ FSX=$(cat <<EOF
     FsxLustreSettings:
       StorageCapacity: 1200
       DeploymentType: PERSISTENT_2
+      PerUnitStorageThroughput: 1000
       DataCompressionType: LZ4
 EOF
 )
