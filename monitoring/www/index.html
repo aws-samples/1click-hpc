@@ -1,68 +1,61 @@
 <!doctype html><head>
-	
-<link href="css.css" rel="stylesheet" type="text/css">
-<link href="styleguide.css" rel="stylesheet" type="text/css">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600&display=swap" >
-	
-<style>
-	h1 {font-family: 'Lexend Black', 'Lexend ExtraBold', 'Lexend ExtraLight', 'Lexend Light', 'Lexend Medium', 'Lexend SemiBold', 'Lexend Thin'sans-serif;}
-</style>
-	
-
-<style>
-html, body, .stability-ai-hpc-cluster {
-  height: 100%;
-}
-
-body {
-  overflow: hidden;
-}
-
-a:link, a:visited {
-  color: white;
-  background-color: transparent;
-  text-decoration: none;
-}
-
-.button:hover a, .button-2:hover a, .button-4:hover a {
-  color: #a384fb;
-  background-color: transparent;
-}
-
-a:active {
-  color:#330033;
-  background-color: transparent;
-  text-decoration: underline;
-}
-</style>
-	
-</head>
-<body>
-
-<div class="stability-ai-hpc-cluster screen"> <img class="stability-1" src="stability.png" alt=""/> <img class="img" src="stability.logo.gif" alt="stability logo"/>
-    
-	<h1 class="h1">Stability.AI HPC Cluster</h1>
-    
-	<div class="intro" 
-		 >Welcome to Stability.AI HPC Cluster Console. <br/>Login with your provided username and password in the workspace. <br/>At this time Grafana monitoring is reserved for administrators, we will develop a reasercher interface in the near future.
-    </div>
-	
- <div class="button-container">
-      <a href="https://hpc.stability.ai:8888" target="_blank">
-        <div class="button border-1px-white inter-semi-bold-white-17px">
-				    HPC Account Self Service
-        </div>
-      </a>
-      <a href="/grafana/">
-        <div class="button border-1px-white inter-semi-bold-white-17px">
-            Cluster Monitoring Dashboards (admin)
-        </div>
-      </a>
-      <a href="/prometheus/">
-        <div class="button border-1px-white inter-semi-bold-white-17px">
-            Prometheus Server (admin)
-        </div>
-      </a>
- </div>
-</div>
-</body>
+  <link href="css.css" rel="stylesheet" type="text/css">
+  <link href="styleguide.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600&display=swap">
+  <style>
+  html, body, .stability-ai-hpc-cluster {
+    height: 100%;
+    font-family: 'Lexend Black', 'Lexend ExtraBold', 'Lexend ExtraLight', 'Lexend Light', 'Lexend Medium', 'Lexend SemiBold', 'Lexend Thin', sans-serif;
+  }
+  body {
+    overflow: hidden;
+  }
+  a:link, a:visited {
+    color: white;
+    background-color: transparent;
+    text-decoration: none;
+  }
+  .button:hover a, .button-2:hover a, .button-4:hover a {
+    color: #a384fb;
+    background-color: transparent;
+  }
+  a:active {
+    color:#330033;
+    background-color: transparent;
+  }
+  .footer {
+    margin-top:40px;
+    color: white;
+  }
+  .footer a:link {
+    text-decoration: underline;
+  }
+  </style>
+  </head><body>
+  <div class="stability-ai-hpc-cluster screen">
+   <img class="stability-1" src="stability.png" alt=""/>
+   <img class="img" src="stability.logo.gif" alt="stability logo" />
+   <h1 class="h1">Stability.AI HPC Cluster</h1>
+   <div class="intro">
+       Welcome to Stability.AI HPC Cluster Console. <br/>Login with your provided username and password in the workspace. <br/>At this time Grafana monitoring is reserved for administrators, we will develop a reasercher interface in the near future.
+   </div>
+   <div class="button-container">
+        <a href="https://hpc.stability.ai:8888" target="_blank">
+          <div class="button border-1px-white inter-semi-bold-white-17px">
+              HPC Account Self Service
+          </div>
+        </a>
+        <a href="https://docs.google.com/document/d/1eMJaVj1B_fhA-qU57ATZInqmA36nyDTuEL9G5ip1YIQ/edit?usp=sharing" target="_blank">
+          <div class="button border-1px-white inter-semi-bold-white-17px">
+              HPC Cluster Usage Guide
+          </div>
+        </a>
+        <a href="https://stabilityai.atlassian.net/servicedesk/customer/portals" target="_blank">
+          <div class="button border-1px-white inter-semi-bold-white-17px">
+              HPC Help Center
+          </div>
+        </a>
+   </div>
+  <div class="footer">Other links: <a href="/grafana/">Cluster Monitoring Dashboards (admin)</a> &nbsp; <a href="/prometheus/">Prometheus Server (admin)</a></div>
+  </div>
+  </body></html>
