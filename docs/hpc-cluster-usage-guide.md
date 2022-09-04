@@ -301,9 +301,7 @@ For debugging and getting up and running, one can start an interactive job.
 
 For example, the following command requests a job with an interactive bash session.
 ```
-|                                                                                             |
-| ------------------------------------------------------------------------------------------- |
-| srun --partition=gpu --nodes=1 --gpus=8 --cpus-per-gpu=6 --job-name=MyProject --pty bash -i |
+srun --partition=gpu --nodes=1 --gpus=8 --cpus-per-gpu=6 --job-name=MyProject --pty bash -i
 ```
 The arguments should be interpreted as follows:
 
@@ -333,9 +331,7 @@ The arguments should be interpreted as follows:
 
 You can launch a Jupyter Notebook server within the HPC cluster with 1GPU and 48 hours time limit using this command:
 ```
-|                           |
-| ------------------------- |
-| sh /fsx/shared/jupyter.sh |
+sh /fsx/shared/jupyter.sh
 ```
 Please close the job at the end if used less than 48 hours. to do so, follow these steps:
 
@@ -379,15 +375,19 @@ For mor information and examples see [Section: Running containers](https://docs.
 
 Running:
 ```
-|       |
-| ----- |
-| sinfo |
+sinfo
 ```
 Yields:
 ```
-|                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| PARTITION        AVAIL  TIMELIMIT  NODES  STATE NODELISTcpu\*     up   infinite   1100  idle~ cpu-dy-c6i-32xlarge-\[1-300],cpu-dy-m5zn-12xlarge-\[1-100],cpu-dy-m6i-32xlarge-\[1-300],cpu-dy-r6i-32xlarge-\[1-300],cpu-dy-x2iezn-12xlarge-\[1-100]gpu      up   infinite     64  idle~ gpu-dy-p4d-24xlarge-\[1-64]mig      up   infinite    194  idle~ mig-dy-p4d-24xlarge-\[1-194]compute-spot-cpu    up   infinite   1000  idle~ compute-spot-cpu-dy-c6i-32xlarge-\[1-300],compute-spot-cpu-dy-m5zn-12xlarge-\[1-100],compute-spot-cpu-dy-m6i-32xlarge-\[1-300],compute-spot-cpu-dy-r6i-32xlarge-\[1-300]dcv-gpu             up   infinite    500  idle~ dcv-gpu-dy-g4dn-2xlarge-\[1-100],dcv-gpu-dy-g4dn-4xlarge-\[1-100],dcv-gpu-dy-g4dn-8xlarge-\[1-100],dcv-gpu-dy-g4dn-16xlarge-\[1-100],dcv-gpu-dy-g4dn-xlarge-\[1-100]dcv                 up   infinite   1000  idle~ dcv-dy-m6i-2xlarge-\[1-200],dcv-dy-m6i-8xlarge-\[1-200],dcv-dy-m6i-16xlarge-\[1-200],dcv-dy-m6i-32xlarge-\[1-200],dcv-dy-m6i-xlarge-\[1-200] |
+PARTITION        AVAIL  TIMELIMIT  NODES  STATE NODELIST
+
+cpu\*     up   infinite   1100  idle~ cpu-dy-c6i-32xlarge-\[1-300],cpu-dy-m5zn-12xlarge-\[1-100],cpu-dy-m6i-32xlarge-\[1-300],cpu-dy-r6i-32xlarge-\[1-300],cpu-dy-x2iezn-12xlarge-\[1-100]
+
+gpu      up   infinite     64  idle~ gpu-dy-p4d-24xlarge-\[1-64]
+
+jupyter     up   infinite    194  idle~ mig-dy-p4d-24xlarge-\[1-194]
+
+spot-cpu    up   infinite   1000  idle~ compute-spot-cpu-dy-c6i-32xlarge-\[1-300],compute-spot-cpu-dy-m5zn-12xlarge-\[1-100],compute-spot-cpu-dy-m6i-32xlarge-\[1-300],compute-spot-cpu-dy-r6i-32xlarge-\[1-300]
 ```
 You will see that slurm has a number of queues (or partitions in slurm lingua). Partitions will display instance types and the quantity theoretically available for each partition.
 
@@ -403,9 +403,30 @@ Activating monitoring for your job is WIP. I will update here with new instructi
 
 This is an example of how to run the nccl tests, and it is a good template to run another kind of distributed jobs based on nccl:
 ```
-|                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| \#!/bin/bash\#SBATCH --partition=gpu\#SBATCH --job-name=nccl-tests\#SBATCH --nodes=40\#SBATCH --ntasks-per-node=8\#SBATCH --exclusive\#SBATCH --output=%x\_%j.outmodule load openmpiexport LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/nccl/build/lib:/opt/aws-ofi-nccl-install/libexport NCCL_PROTO=simpleexport LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/aws-ofi-nccl/libexport PATH=$PATH:/opt/amazon/efa/bin:/opt/amazon/openmpi/binexport FI_EFA_FORK_SAFE=1export FI_LOG_LEVEL=1export FI_EFA_USE_DEVICE_RDMA=1 # use for p4dnexport NCCL_DEBUG=infoexport OMPI_MCA_mtl_base_verbose=1export FI_EFA_ENABLE_SHM_TRANSFER=0export FI_PROVIDER=efaexport FI_EFA_TX_MIN_CREDITS=64export NCCL_TREE_THRESHOLD=0export OMPI_MCA_pml="^cm"export OMPI_MCA_btl="tcp,self"export OMPI_MCA_btl_tcp_if_exclude="lo,docker1"export OMPI_MCA_plm_rsh_no_tree_spawn=1srun --mpi=pmix_v3 /opt/nccl-tests/build/all_reduce_perf -b 128M -e 8G -f 2 -g 1 -c 1 -n 20 |
+#!/bin/bash\
+#SBATCH --partition=gpu
+#SBATCH --job-name=nccl-tests
+#SBATCH --nodes=40
+#SBATCH --ntasks-per-node=8
+#SBATCH --exclusive
+#SBATCH --output=%x\_%j.out
+
+module load openmpi
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/nccl/build/lib:/opt/aws-ofi-nccl-install/lib
+export NCCL_PROTO=simpleexport LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/aws-ofi-nccl/lib
+export PATH=$PATH:/opt/amazon/efa/bin:/opt/amazon/openmpi/bin
+export FI_EFA_FORK_SAFE=1
+export FI_LOG_LEVEL=1
+export FI_EFA_USE_DEVICE_RDMA=1 # use for p4dn
+export NCCL_DEBUG=info
+export OMPI_MCA_mtl_base_verbose=1
+export FI_EFA_ENABLE_SHM_TRANSFER=0
+export FI_PROVIDER=efa
+export FI_EFA_TX_MIN_CREDITS=64
+export NCCL_TREE_THRESHOLD=0
+export OMPI_MCA_pml="^openib"
+
+srun /opt/nccl-tests/build/all_reduce_perf -b 128M -e 8G -f 2 -g 1 -c 1 -n 20
 ```
 The above set environment is the right one to activate EFA internode comms.
 
@@ -417,11 +438,13 @@ The compute nodes come with two ways to run containerised projects
 
 1\. Singularity is an HPC-friendly drop-in replacement for docker that runs docker images in the user context without much fuss. It integrates as simple as any other command. to run something; you can do
 
-singularity exec --nv --bind /fsx:/fsx docker://image:tag nvidia-smi 
+`singularity exec --nv --bind /fsx:/fsx docker://image:tag nvidia-smi`
 
 to execute nvidia-smi interactively.
 
-singularity shell --nv --bind /fsx:/fsx docker://image:tag to get a shell into the container.
+`singularity shell --nv --bind /fsx:/fsx docker://image:tag`
+
+to get a shell into the container.
 
 Note the way to bind the host os folder into the container. Also --nv is required to expose Nvidia resources to the container
 
@@ -462,19 +485,17 @@ srun singularity exec --nv docker://public.ecr.aws/w6p6i9i7/aws-efa-nccl-rdma:ba
 
 Here is how to run something interactive from the HeadNode
 ```
-srun --partition=gpu --nodes=1 --gpus=8 --cpus-per-gpu=6 --container-image=image:tag nvidia-smi will execute nvidia-smi within the container and will return the result in stdout at the HeadNode
+srun --partition=gpu --nodes=1 --gpus=8 --cpus-per-gpu=6 --container-image=image:tag nvidia-smi
 ```
+will execute nvidia-smi within the container and will return the result in stdout at the HeadNode
+
 With the above information, I was able to run nice-tests also inside both container platforms with indiscernible differences in performance. The containers got marginally better results than the host OS. If you get an interactive prompt inside a compute node, the environment variables will be properly set by the compute node configuration. try this:
 ```
-|                                                                        |
-| ---------------------------------------------------------------------- |
-| srun --partition=gpu --nodes=1 --gpus=8 --cpus-per-gpu=6 --pty bash -i |
+srun --partition=gpu --nodes=1 --gpus=8 --cpus-per-gpu=6 --pty bash -i
 ```
 How to access AWS baseami ML containers: 
 ```
-|                                                                                             |
-| ------------------------------------------------------------------------------------------- |
-| \--container-image=public.ecr.aws#w6p6i9i7/aws-efa-nccl-rdma:base-cudnn8-cuda11-ubuntu20.04 |
+--container-image=public.ecr.aws#w6p6i9i7/aws-efa-nccl-rdma:base-cudnn8-cuda11-ubuntu20.04
 ```
 
 #### Singularity
