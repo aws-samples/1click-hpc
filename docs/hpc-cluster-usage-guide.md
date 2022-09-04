@@ -5,7 +5,7 @@
    1. you can create your venv, use pip install
    2. never use the /home dir to store the venv, or any data
    3. symlink your ~/.cache to some folder on fsx cause some packages will try to write temp data into the above and break item b
-   4. if you need to transfer data, do so from a compute node such as thissrun --partition=login --nodes=1 --ntasks-per-node=1 --cpus-per-task=2 --pty bash -i
+   4. if you need to transfer data, do so from a compute node such as this `srun --partition=login --nodes=1 --ntasks-per-node=1 --cpus-per-task=2 --pty bash -i`
 
 2. the only IDE allowed to connect is VS Studio
 
@@ -46,13 +46,9 @@ In addition to this document, which contains more detailed information, please s
 Users all connect to the cluster via what’s known as the “headnode”, from which you later request compute resources via [SLURM](https://slurm.schedmd.com/documentation.html). 
 
 - The 3600 A100 Production Headnode is  **login.hpc.stability.ai**
-- The 200 A100 Sandbox Headnode is** sandbox.hpc.stability.ai**
+- The 200 A100 Sandbox Headnode is **sandbox.hpc.stability.ai**
 
 Note: the sandbox cluster can be accessed with password- or key-based SSH, while the production cluster can only be accessed with key-based SSH.
-
-**If this is your first time with Stability.AI,** see the [following section](https://docs.google.com/document/d/1eMJaVj1B_fhA-qU57ATZInqmA36nyDTuEL9G5ip1YIQ/edit#heading=h.5fpymy2t4xri) to configure your temporary password and SSH keys properly.
-
-After configuring them wait up to 15 minutes for propagation to the above headnodes then connect.
 
 ## Cluster updates
 
@@ -100,9 +96,9 @@ HPC v4 - August 14
 
 **Important instructions:** quota management only allows you to run jobs for the projects you are allocated. Nevertheless, you are allocated by default to your affiliated institution: Stability, Laion, Eleuther, MILA, CompVis etc. All jobs launched with the project set as the affiliate institution **WILL BE preemptible**. This means the compute nodes can be requested by high-priority jobs immediately, crashing your script. **Please make scripts resilient to preemption** for such jobs. This setup is intended for everyone to be able to run preemptible jobs when the GPUs are idle. Detailed instructions about how to set such jobs will follow next week. As opposed to the above, jobs launched for projects with quotas will have high priority and preempt the above at the start.
 
-You have to specify the target project for the job to be launched with:--comment ProjectName
+You have to specify the target project for the job to be launched with: `--comment ProjectName`. For the above affiliation please use their names in lowercase.
 
-use this for both sbatch and srun commands. use it for srun commands inside the sbatch file too like:
+Use this for both sbatch and srun commands. Use it for `srun` commands inside the `sbatch` file too like:
 
 ```
 #!/bin/bash
@@ -133,12 +129,13 @@ export FI_EFA_TX_MIN_CREDITS=64
 export NCCL_TREE_THRESHOLD=0
 export OMPI_MCA_pml="^openib"
 
-source my-project-env/bin/activate && srun **--comment Laion** --mpi=pmix_v3 python3 translate_data.py
+source my-project-env/bin/activate && srun **--comment Laion** python3 translate_data.py
 ```
 
 if you are unsure which projects you are allowed to use, find it like this:
 
 `[login_node ~]$ id --groups --name
+
 laion Domain Users AWS Delegated Add Workstations To Domain Users`
 
 Ignore these groups:
@@ -146,7 +143,7 @@ Ignore these groups:
 - Domain Users
 - AWS Delegated Add Workstations To Domain Users
 
-It means the user awesome has only access to the project `laion`. The name is case sensitive.
+It means the user has only access to the project `laion`. The name is case sensitive.
 
 HPC v3 - July 24, 2022 changelog:
 
@@ -208,15 +205,15 @@ Please remember to keep the FSx storage clean, i.e. move out final results once 
 
 ## Configure your Stability.AI login
 
-**If you were given a temporary password, please change your temporary password ASAP.**** **
+**If you were given a temporary password, please change your temporary password ASAP.**
 
 **During the first login on the self-service portal at **<https://hpc.stability.ai:8888>** you will be asked to fill out your profile.**
 
-**It is recommended to add your ****ed25519 ****_public SSH key_**** as well because, in the future, access to the cluster will be restricted to key-based SSH logins. ****_Standard RSA keys will not fit the size of that field and will not function. ECDSA keys will fit, but they are less secure._**
+It is recommended to add your **ed25519 _public SSH key_** as well because, in the future, access to the cluster will be restricted to key-based SSH logins. **_Standard RSA keys will not fit the size of that field and will not function. ECDSA keys will fit, but they are less secure._**
 
 `ssh-keygen -t ed25519`
 
-After the key pair is generated, you will be presented with two new files like **somekeyname** and **somekeyname.pub** . These files are part of a cryptography system meant to maintain a secure connection and a secure authorisation to access a remote resource. The specific of public key cryptography is that the public part can be shared with the rest of the world while the private part must be kept secret. This is why the key pair is best created from the home computer so that the private key never gets transferred over the wire. Once generated, please place the safe shareable key, somekeyname.pub, into the profile in the portal
+After the key pair is generated, you will be presented with two new files like **somekeyname** and **somekeyname.pub**. These files are part of a cryptography system meant to maintain a secure connection and a secure authorisation to access a remote resource. The specific of public key cryptography is that the public part can be shared with the rest of the world while the private part must be kept secret. This is why the key pair is best created from the home computer so that the private key never gets transferred over the wire. Once generated, please place the safe shareable key, somekeyname.pub, into the profile in the portal
 
 COPY output of **cat ~/.ssh/somekeyname.pub** that should look like
 
@@ -303,11 +300,11 @@ For most use cases, you can manage your jobs with the following Slurm commands:
 For debugging and getting up and running, one can start an interactive job.
 
 For example, the following command requests a job with an interactive bash session.
-
+```
 |                                                                                             |
 | ------------------------------------------------------------------------------------------- |
 | srun --partition=gpu --nodes=1 --gpus=8 --cpus-per-gpu=6 --job-name=MyProject --pty bash -i |
-
+```
 The arguments should be interpreted as follows:
 
 - **partition**
@@ -335,11 +332,11 @@ The arguments should be interpreted as follows:
 #### Jupyter Notebooks
 
 You can launch a Jupyter Notebook server within the HPC cluster with 1GPU and 48 hours time limit using this command:
-
+```
 |                           |
 | ------------------------- |
 | sh /fsx/shared/jupyter.sh |
-
+```
 Please close the job at the end if used less than 48 hours. to do so, follow these steps:
 
 1. ssh into headnode as usual
@@ -381,27 +378,23 @@ For mor information and examples see [Section: Running containers](https://docs.
 #### The sinfo command
 
 Running:
-
+```
 |       |
 | ----- |
 | sinfo |
-
+```
 Yields:
-
+```
 |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | PARTITION        AVAIL  TIMELIMIT  NODES  STATE NODELISTcpu\*     up   infinite   1100  idle~ cpu-dy-c6i-32xlarge-\[1-300],cpu-dy-m5zn-12xlarge-\[1-100],cpu-dy-m6i-32xlarge-\[1-300],cpu-dy-r6i-32xlarge-\[1-300],cpu-dy-x2iezn-12xlarge-\[1-100]gpu      up   infinite     64  idle~ gpu-dy-p4d-24xlarge-\[1-64]mig      up   infinite    194  idle~ mig-dy-p4d-24xlarge-\[1-194]compute-spot-cpu    up   infinite   1000  idle~ compute-spot-cpu-dy-c6i-32xlarge-\[1-300],compute-spot-cpu-dy-m5zn-12xlarge-\[1-100],compute-spot-cpu-dy-m6i-32xlarge-\[1-300],compute-spot-cpu-dy-r6i-32xlarge-\[1-300]dcv-gpu             up   infinite    500  idle~ dcv-gpu-dy-g4dn-2xlarge-\[1-100],dcv-gpu-dy-g4dn-4xlarge-\[1-100],dcv-gpu-dy-g4dn-8xlarge-\[1-100],dcv-gpu-dy-g4dn-16xlarge-\[1-100],dcv-gpu-dy-g4dn-xlarge-\[1-100]dcv                 up   infinite   1000  idle~ dcv-dy-m6i-2xlarge-\[1-200],dcv-dy-m6i-8xlarge-\[1-200],dcv-dy-m6i-16xlarge-\[1-200],dcv-dy-m6i-32xlarge-\[1-200],dcv-dy-m6i-xlarge-\[1-200] |
-
+```
 You will see that slurm has a number of queues (or partitions in slurm lingua). Partitions will display instance types and the quantity theoretically available for each partition.
 
 
 #### Grafana Monitoring
 
-We can monitor the cluster with Grafana monitoring available at the “Cluster Monitoring Dashboards” section at <https://hpc.stability.ai> . To log in, please use these credentials:
-
-admin
-
-JBJ@mef!ndt-jxr3tnp
+We can monitor the cluster with Grafana monitoring available at the “Cluster Monitoring Dashboards” section at <https://hpc.stability.ai> . To log in, please use credentials provided by the HPC staff.
 
 Activating monitoring for your job is WIP. I will update here with new instructions when done.
 
@@ -409,17 +402,15 @@ Activating monitoring for your job is WIP. I will update here with new instructi
 ### Allocating and running jobs
 
 This is an example of how to run the nccl tests, and it is a good template to run another kind of distributed jobs based on nccl:
-
+```
 |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | \#!/bin/bash\#SBATCH --partition=gpu\#SBATCH --job-name=nccl-tests\#SBATCH --nodes=40\#SBATCH --ntasks-per-node=8\#SBATCH --exclusive\#SBATCH --output=%x\_%j.outmodule load openmpiexport LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/nccl/build/lib:/opt/aws-ofi-nccl-install/libexport NCCL_PROTO=simpleexport LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/aws-ofi-nccl/libexport PATH=$PATH:/opt/amazon/efa/bin:/opt/amazon/openmpi/binexport FI_EFA_FORK_SAFE=1export FI_LOG_LEVEL=1export FI_EFA_USE_DEVICE_RDMA=1 # use for p4dnexport NCCL_DEBUG=infoexport OMPI_MCA_mtl_base_verbose=1export FI_EFA_ENABLE_SHM_TRANSFER=0export FI_PROVIDER=efaexport FI_EFA_TX_MIN_CREDITS=64export NCCL_TREE_THRESHOLD=0export OMPI_MCA_pml="^cm"export OMPI_MCA_btl="tcp,self"export OMPI_MCA_btl_tcp_if_exclude="lo,docker1"export OMPI_MCA_plm_rsh_no_tree_spawn=1srun --mpi=pmix_v3 /opt/nccl-tests/build/all_reduce_perf -b 128M -e 8G -f 2 -g 1 -c 1 -n 20 |
-
+```
 The above set environment is the right one to activate EFA internode comms.
 
 
 ### 
-
-
 ### Running containers,
 
 The compute nodes come with two ways to run containerised projects
