@@ -13,7 +13,9 @@ installENROOT() {
   export arch=$(uname -m) && sudo -E yum install -y https://github.com/NVIDIA/enroot/releases/download/v3.4.0/enroot-3.4.0-2.el7.${arch}.rpm
   export arch=$(uname -m) && sudo -E yum install -y https://github.com/NVIDIA/enroot/releases/download/v3.4.0/enroot+caps-3.4.0-2.el7.${arch}.rpm
   # enable pmi and pytorch hooks for enroot
-  cp /usr/share/enroot/hooks.d/50-slurm-pmi.sh /usr/share/enroot/hooks.d/50-slurm-pytorch.sh /etc/enroot/hooks.d
+  #cp /usr/share/enroot/hooks.d/50-slurm-pmi.sh /usr/share/enroot/hooks.d/50-slurm-pytorch.sh /etc/enroot/hooks.d
+  cp /usr/share/enroot/hooks.d/50-slurm-pytorch.sh /etc/enroot/hooks.d
+  
   mkdir -p /scratch && sudo chmod -R 777 /scratch
   git clone https://github.com/NVIDIA/pyxis.git /tmp/pyxis
   cd /tmp/pyxis && sudo make rpm && sudo rpm -ihv *.rpm
