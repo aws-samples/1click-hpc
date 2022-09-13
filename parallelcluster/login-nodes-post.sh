@@ -82,3 +82,23 @@ umount /home
 echo "fs-0b6e54db851b7b814.fsx.us-east-1.amazonaws.com@tcp:/xznwbbev /home lustre defaults,_netdev,flock,user_xattr,noatime,noauto,x-systemd.automount 0 0" >> /etc/fstab
 mount -a
 
+# add rules to motd
+cat << REALEND > /etc/update-motd.d/90-HPCrules
+#!/bin/sh
+cat << EOF
+ _   _ ____   ____   ____        _
+| | | |  _ \ / ___| |  _ \ _   _| | ___  ___
+| |_| | |_) | |     | |_) | | | | |/ _ \/ __|
+|  _  |  __/| |___  |  _ <| |_| | |  __/\__ \\
+|_| |_|_|    \____| |_| \_\\__,_|_|\___||___/
+
+1. never use the /home dir to store the venv, or any data
+2. use anothe folder on /fsx instead of the default ~/.cache with various libs such as HF ones
+3. if you need to transfer data, do so from a compute node such as this
+srun --partition=login --nodes=1 --ntasks-per-node=1 --cpus-per-task=2 --pty bash -i
+
+Failing no2 will lead us to block access to ~/.cache and scripts will fail
+EOF
+REALEND
+
+chmod +x /etc/update-motd.d/90-HPCrules
