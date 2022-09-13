@@ -161,7 +161,7 @@ sed -i "0,/${SLURM_JOBID}/d" /tmp/jobs/jobs_ids
 
 #load the comment of the job.
 Project=$($SLURM_ROOT/bin/scontrol show job ${SLURM_JOB_ID} | grep Comment | awk -F'=' '{print $2}')
-Project_Tag=""
+Project_Tag="NA"
 if [ ! -z "${Project}" ];then
 sed -i "0,/${Project}/d" /tmp/jobs/jobs_projects
 fi

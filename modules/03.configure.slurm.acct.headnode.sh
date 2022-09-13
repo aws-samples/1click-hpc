@@ -50,7 +50,7 @@ patchSlurmConfig() {
 	sed -i "s/ClusterName=parallelcluster.*/ClusterName=parallelcluster-${stack_name}/" "/opt/slurm/etc/slurm.conf"
     sed -i "s/SlurmctldPort=*/SlurmctldPort=6820-6949/" "/opt/slurm/etc/slurm.conf"
     rm -f /var/spool/slurm.state/clustername
-    ifconfig eth0 txqueuelen 4096
+    ifconfig eth0 txqueuelen 512
 }
 
 restartSlurmDaemons() {
