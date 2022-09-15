@@ -102,3 +102,4 @@ EOF
 REALEND
 
 chmod +x /etc/update-motd.d/90-HPCrules
+/usr/sbin/update-motd
