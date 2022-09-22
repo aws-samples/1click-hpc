@@ -1,12 +1,26 @@
 #!/bin/bash
 set -x
 set -e
+source '/etc/parallelcluster/cfnconfig'
 
 installCustom() {
     amazon-linux-extras install epel -y
     yum install -y knot-resolver knot-utils
-    sh -c 'echo nameserver 127.0.0.1 > /etc/resolv.conf'
-    systemctl enable --now kresd@{1..4}.service
+    mac=$(curl http://169.254.169.254/latest/meta-data/mac)
+    cidrblock=$(curl http://169.254.169.254/latest/meta-data/network/interfaces/macs/${mac}/vpc-ipv4-cidr-block)
+    read A B C D <<<"${cidrblock//./ }"
+    read E F <<< "${D//// }"
+    G=$((${E}+2))
+    vpcdns="${A}.${B}.${C}.${G}"
+    
+    echo "supersede domain-name-servers 127.0.0.1, ${vpcdns};" >> /etc/dhcp/dhclient.conf
+    dhclient
+    dhclient
+    echo "internalDomains = policy.todnames({'ec2.internal', '${stack_name}.pcluster'})" >> /etc/knot-resolver/kresd.conf
+    echo "policy.add(policy.suffix(policy.FLAGS({'NO_CACHE'}), internalDomains))" >> /etc/knot-resolver/kresd.conf
+    echo "policy.add(policy.suffix(policy.STUB({'${vpcdns}'}), internalDomains))" >> /etc/knot-resolver/kresd.conf
+
+    systemctl enable --now kresd@{1..2}.service
 }
 
 
