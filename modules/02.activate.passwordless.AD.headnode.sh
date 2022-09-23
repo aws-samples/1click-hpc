@@ -6,6 +6,7 @@ activateSSH() {
     sed -i '0,/use_fully_qualified_names = False$/s//use_fully_qualified_names = False\nldap_user_extra_attrs = altSecurityIdentities\nldap_user_ssh_public_key = altSecurityIdentities/' /etc/sssd/sssd.conf
     #sed -i '/^ldap_search_base/ s/$/?subtree?(&(!(objectClass=computer))(!(userAccountControl:1.2.840.113556.1.4.803:=2)))/' /etc/sssd/sssd.conf
     sed -i '0,/^[domain/default]/a enumerate = true' /etc/sssd/sssd.conf
+    sed -i 's/fallback_homedir.*/override_homedir = /fsx/%u/g' /etc/sssd/sssd.conf
     systemctl stop sssd
     rm -rf /var/lib/sss/{db,mc}/*
     systemctl start sssd
