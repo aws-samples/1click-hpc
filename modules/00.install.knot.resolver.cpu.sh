@@ -14,13 +14,13 @@ installCustom() {
     vpcdns="${A}.${B}.${C}.${G}"
     
     echo "supersede domain-name-servers 127.0.0.1, ${vpcdns};" >> /etc/dhcp/dhclient.conf
-    dhclient
 
     echo "internalDomains = policy.todnames({'ec2.internal', '${stack_name}.pcluster','${cfn_region}.amazonaws.com'})" >> /etc/knot-resolver/kresd.conf
     echo "policy.add(policy.suffix(policy.FLAGS({'NO_CACHE'}), internalDomains))" >> /etc/knot-resolver/kresd.conf
     echo "policy.add(policy.suffix(policy.STUB({'${vpcdns}'}), internalDomains))" >> /etc/knot-resolver/kresd.conf
 
     systemctl enable --now kresd@{1..2}.service
+    dhclient
 }
 
 
