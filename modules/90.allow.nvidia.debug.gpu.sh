@@ -14,6 +14,11 @@ installDCGM() {
     sudo -u root nv-hostengine -b 0
 }
 
+bumpUp(){
+    sudo yum-config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo
+    sudo yum -y install cuda-toolkit-11-6 libcudnn8 libcudnn8-devel
+}
+
 
 # main
 # ----------------------------------------------------------------------------
@@ -21,6 +26,7 @@ main() {
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 90.allow.nvidia.debug.gpu.sh: START" >&2
     allowDebugGPU
     installDCGM
+    bumpUp
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 90.allow.nvidia.debug.gpu.sh: STOP" >&2
 }
 
