@@ -15,8 +15,8 @@ installDCGM() {
 }
 
 bumpUp(){
-    sudo yum-config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo
-    sudo yum -y install cuda-toolkit-11-6 libcudnn8 libcudnn8-devel
+    yum-config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo
+    yum -y install cuda-toolkit-11-6 libcudnn8 libcudnn8-devel
 }
 
 

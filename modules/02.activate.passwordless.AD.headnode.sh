@@ -43,7 +43,7 @@ main() {
     activateSSH
     addAdmins2Sudoers
     #removePasswordAuth
-    setupCron
+    #setupCron
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 02.activate.passwordless.AD.headnode.sh: STOP" >&2
 }
 
