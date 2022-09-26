@@ -5,7 +5,7 @@ source '/etc/parallelcluster/cfnconfig'
 
 installCustom() {
     amazon-linux-extras install epel -y
-    yum install -y knot-resolver knot-utils
+    yum install -y knot-resolver knot-utils knot-resolver-module-http
     mac=$(curl http://169.254.169.254/latest/meta-data/mac)
     cidrblock=$(curl http://169.254.169.254/latest/meta-data/network/interfaces/macs/${mac}/vpc-ipv4-cidr-block)
     read A B C D <<<"${cidrblock//./ }"
