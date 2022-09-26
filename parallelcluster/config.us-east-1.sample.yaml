@@ -55,6 +55,14 @@ DirectoryService:
   PasswordSecretArn: ${SECRET_ARN}
   DomainReadOnlyUser: cn=ReadOnlyUser,ou=Users,ou=${OU},dc=${DC0},dc=${DC1},dc=${DC2}
   LdapTlsReqCert: never
+  AdditionalSssdConfigs:
+    debug_level: "0xFFF0"
+    ldap_search_base: dc=research,dc=stability,dc=ai?subtree?(&(!(objectClass=computer))(!(userAccountControl:1.2.840.113556.1.4.803:=2)))
+    cache_credentials: False
+    enumerate: True
+    ldap_user_extra_attrs: "altSecurityIdentities"
+    ldap_user_ssh_public_key: "altSecurityIdentities"
+
 Region: ${AWS_REGION_NAME}
 Scheduling:
   Scheduler: slurm
@@ -78,7 +86,7 @@ Scheduling:
             Enabled: true
           InstanceType: p4d.24xlarge
           MaxCount: 2
-          MinCount: 2
+          MinCount: 0
       CustomActions:
         OnNodeConfigured:
           Args:
