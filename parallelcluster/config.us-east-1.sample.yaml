@@ -78,7 +78,7 @@ Scheduling:
             Enabled: true
           InstanceType: p4d.24xlarge
           MaxCount: 2
-          MinCount: 0
+          MinCount: 2
       CustomActions:
         OnNodeConfigured:
           Args:
@@ -112,7 +112,7 @@ Scheduling:
         AdditionalSecurityGroups:
           - ${ADDITIONAL_SG}
         PlacementGroup:
-          Enabled: true
+          Enabled: false
         SubnetIds:
           - ${SUBNET_ID}
         AssignPublicIp: ${USE_PUBLIC_IPS}
