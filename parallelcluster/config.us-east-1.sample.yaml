@@ -341,8 +341,6 @@ Scheduling:
       ComputeResources:
         - Name: m5zn-6xlarge
           DisableSimultaneousMultithreading: false
-          Efa:
-            Enabled: true
           InstanceType: m5zn.6xlarge
           MaxCount: 200
           MinCount: 0
