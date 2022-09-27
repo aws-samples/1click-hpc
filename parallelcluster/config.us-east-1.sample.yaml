@@ -150,22 +150,16 @@ Scheduling:
       ComputeResources:
         - Name: c6i-16xlarge
           DisableSimultaneousMultithreading: false
-          Efa:
-            Enabled: true
           InstanceType: c6i.16xlarge
           MaxCount: 100
           MinCount: 0
         - Name: m6i-16xlarge
           DisableSimultaneousMultithreading: false
-          Efa:
-            Enabled: true
           InstanceType: m6i.16xlarge
           MaxCount: 100
           MinCount: 0
         - Name: r6i-16xlarge
           DisableSimultaneousMultithreading: false
-          Efa:
-            Enabled: true
           InstanceType: r6i.16xlarge
           MaxCount: 100
           MinCount: 0
@@ -217,30 +211,22 @@ Scheduling:
             Iops: 5000
       ComputeResources:
         - Name: c6i-12xlarge
-          DisableSimultaneousMultithreading: true
-          Efa:
-            Enabled: true
+          DisableSimultaneousMultithreading: false
           InstanceType: c6i.12xlarge
           MaxCount: 100
           MinCount: 0
         - Name: m6i-12xlarge
-          DisableSimultaneousMultithreading: true
-          Efa:
-            Enabled: true
+          DisableSimultaneousMultithreading: false
           InstanceType: m6i.12xlarge
           MaxCount: 100
           MinCount: 0
         - Name: r6i-12xlarge
-          DisableSimultaneousMultithreading: true
-          Efa:
-            Enabled: true
+          DisableSimultaneousMultithreading: false
           InstanceType: r6i.12xlarge
           MaxCount: 100
           MinCount: 0
         - Name: m5zn-12xlarge
-          DisableSimultaneousMultithreading: true
-          Efa:
-            Enabled: true
+          DisableSimultaneousMultithreading: false
           InstanceType: m5zn.12xlarge
           MaxCount: 100
           MinCount: 0
@@ -292,23 +278,17 @@ Scheduling:
             Iops: 5000
       ComputeResources:
         - Name: c6i-8xlarge
-          DisableSimultaneousMultithreading: true
-          Efa:
-            Enabled: true
+          DisableSimultaneousMultithreading: false
           InstanceType: c6i.8xlarge
           MaxCount: 200
           MinCount: 0
         - Name: m6i-8xlarge
-          DisableSimultaneousMultithreading: true
-          Efa:
-            Enabled: true
+          DisableSimultaneousMultithreading: false
           InstanceType: m6i.8xlarge
           MaxCount: 200
           MinCount: 0
         - Name: r6i-8xlarge
-          DisableSimultaneousMultithreading: true
-          Efa:
-            Enabled: true
+          DisableSimultaneousMultithreading: false
           InstanceType: r6i.8xlarge
           MaxCount: 200
           MinCount: 0
@@ -360,7 +340,7 @@ Scheduling:
             Iops: 5000
       ComputeResources:
         - Name: m5zn-6xlarge
-          DisableSimultaneousMultithreading: true
+          DisableSimultaneousMultithreading: false
           Efa:
             Enabled: true
           InstanceType: m5zn.6xlarge
@@ -414,23 +394,17 @@ Scheduling:
             Iops: 5000
       ComputeResources:
         - Name: c6i-4xlarge
-          DisableSimultaneousMultithreading: true
-          Efa:
-            Enabled: true
+          DisableSimultaneousMultithreading: false
           InstanceType: c6i.4xlarge
           MaxCount: 400
           MinCount: 0
         - Name: m6i-4xlarge
-          DisableSimultaneousMultithreading: true
-          Efa:
-            Enabled: true
+          DisableSimultaneousMultithreading: false
           InstanceType: m6i.4xlarge
           MaxCount: 400
           MinCount: 0
         - Name: r6i-4xlarge
-          DisableSimultaneousMultithreading: true
-          Efa:
-            Enabled: true
+          DisableSimultaneousMultithreading: false
           InstanceType: r6i.4xlarge
           MaxCount: 400
           MinCount: 0
