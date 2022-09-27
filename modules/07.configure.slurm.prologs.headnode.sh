@@ -26,6 +26,11 @@ configurePrologs() {
     chmod +x "${SLURM_ETC}/debug_epilog.sh"
     echo "TCPTimeout=10" >> "${SLURM_ETC}/slurm.conf"
     echo "EioTimeout=120" >> "${SLURM_ETC}/slurm.conf"
+    #flatten the slurm tree
+    echo "" >> "${SLURM_ETC}/slurm.conf"
+    echo "#CUSTOM" >> "${SLURM_ETC}/slurm.conf"
+    echo "TreeWidth=65533" >> "${SLURM_ETC}/slurm.conf"
+
 }
 
 restartSlurmDaemons() {
