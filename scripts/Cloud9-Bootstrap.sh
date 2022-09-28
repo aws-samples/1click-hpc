@@ -98,19 +98,13 @@ fi
 /usr/bin/envsubst < "stability-hpc/parallelcluster/config.${AWS_REGION_NAME}.sample.yaml" > config.${AWS_REGION_NAME}.yaml
 /usr/bin/envsubst < "stability-hpc/modules/50.install.capacity.reservation.pool.sh" > 50.install.capacity.reservation.pool.sh
 /usr/bin/envsubst '${SLURM_DB_ENDPOINT}' < "stability-hpc/sacct/mysql/db.config" > db.config
-/usr/bin/envsubst '${SLURM_DB_ENDPOINT}' < "stability-hpc/enginframe/mysql/efdb.config" > efdb.config
 /usr/bin/envsubst '${SLURM_DB_ENDPOINT}' < "stability-hpc/sacct/slurm/slurmdbd.conf" > slurmdbd.conf
-/usr/bin/envsubst '${SLURM_DB_ENDPOINT}' < "stability-hpc/enginframe/efinstall.config" > efinstall.config
-/usr/bin/envsubst '${S3_BUCKET}' < "stability-hpc/enginframe/fm.browse.ui" > fm.browse.ui
 
 aws s3 cp --quiet 50.install.capacity.reservation.pool.sh "s3://${S3_BUCKET}/1click-hpc/modules/50.install.capacity.reservation.pool.sh" --region "${AWS_REGION_NAME}"
 
 aws s3 cp --quiet db.config "s3://${S3_BUCKET}/1click-hpc/sacct/mysql/db.config" --region "${AWS_REGION_NAME}"
-aws s3 cp --quiet efdb.config "s3://${S3_BUCKET}/1click-hpc/enginframe/mysql/efdb.config" --region "${AWS_REGION_NAME}"
 aws s3 cp --quiet slurmdbd.conf "s3://${S3_BUCKET}/1click-hpc/sacct/slurm/slurmdbd.conf" --region "${AWS_REGION_NAME}"
-aws s3 cp --quiet efinstall.config "s3://${S3_BUCKET}/1click-hpc/enginframe/efinstall.config" --region "${AWS_REGION_NAME}"
-aws s3 cp --quiet fm.browse.ui "s3://${S3_BUCKET}/1click-hpc/enginframe/fm.browse.ui" --region "${AWS_REGION_NAME}"
-rm -f db.config slurmdbd.conf fm.browse.ui efinstall.config
+rm -f slurmdbd.conf
 
 #Create the key pair (remove the existing one if it has the same name)
 aws ec2 create-key-pair --key-name ${KEY_PAIR} --query KeyMaterial --output text > /home/ec2-user/.ssh/id_rsa
