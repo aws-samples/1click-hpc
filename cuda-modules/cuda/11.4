@@ -1,0 +1,27 @@
+#%Module1.0#####################################################################
+##
+## modules cuda/11.4
+##
+## modulefiles/cuda/11.4. Written by Quentin Anthony
+##
+proc ModulesHelp { } {
+        global version prefix
+
+        puts stderr "cuda/11.4 - Sets the environment for CUDA 11.4"
+}
+
+module-whatis   "Sets the environment for using CUDA 11.4"
+
+# for Tcl script use only
+set     version         11.4
+set     prefix          /usr/share/Modules
+set     exec_prefix     /usr/share/Modules
+set     datarootdir     ${prefix}/share
+
+prepend-path    PATH                /usr/local/cuda-11.4/bin
+prepend-path    MANPATH             /usr/local/cuda-11.4/share/man
+prepend-path    LD_LIBRARY_PATH     /usr/local/cuda-11.4/lib64
+prepend-path    LIBRARY_PATH        /usr/local/cuda-11.4/lib64
+prepend-path    CUDA_HOME           /usr/local/cuda-11.4
+
+#module         use
