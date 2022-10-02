@@ -10,6 +10,7 @@ HeadNode:
     OnNodeConfigured:
       Args:
         - 00.install.custom.packages.headnode.sh
+        - 00.install.knot.resolver.cpu.sh
         - 02.activate.passwordless.AD.headnode.sh
         - 03.configure.slurm.acct.headnode.sh
         - 04.configure.slurm.AllOrNothing.headnode.sh
@@ -20,7 +21,6 @@ HeadNode:
         - 50.install.capacity.reservation.pool.sh
         - 70.install.enroot.pyxis.sh
         - 88.install.preemption.headnode.sh
-        - 00.install.knot.resolver.cpu.sh
       Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
   Iam:
     AdditionalIamPolicies:
@@ -84,8 +84,8 @@ Scheduling:
           Efa:
             Enabled: true
           InstanceType: p4d.24xlarge
-          MaxCount: 8
-          MinCount: 8
+          MaxCount: 465
+          MinCount: 465
       CustomActions:
         OnNodeConfigured:
           Args:
@@ -97,11 +97,11 @@ Scheduling:
             - 35.boost.gpu.clock.gpu.sh
             - 40.install.monitoring.gpu.sh
             - 40.install.monitoring.compute.sh
+            - 43.allow.nvidia.debug.gpu.sh
             - 45.install.nccl.compute.sh
             - 70.install.enroot.pyxis.sh
             - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
-            - 90.allow.nvidia.debug.gpu.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
