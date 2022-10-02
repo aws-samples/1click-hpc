@@ -37,7 +37,7 @@ main() {
     installDCGM
     bumpUp
     installCudaModules
-    installNcclModules
+    #installNcclModules
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 90.allow.nvidia.debug.gpu.sh: STOP" >&2
 }
 
