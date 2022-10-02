@@ -7,8 +7,8 @@ installCustom() {
     tar -xzvf duc-1.4.5.tar.gz
     cd duc-1.4.5
     ./configure
-    make
-    sudo make install
+    make -j40
+    make install
 }
 
 # main

@@ -17,9 +17,9 @@ installENROOT() {
   # fix missing path for slurm pmi hooks
   echo "PATH=/opt/slurm/sbin:/opt/slurm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin" >> /etc/sysconfig/slurmd
 
-  mkdir -p /scratch && sudo chmod -R 777 /scratch
+  mkdir -p /scratch && chmod -R 777 /scratch
   git clone https://github.com/NVIDIA/pyxis.git /tmp/pyxis
-  cd /tmp/pyxis && sudo make rpm && sudo rpm -ihv *.rpm
+  cd /tmp/pyxis && make rpm && rpm -ihv *.rpm
 
   if [ "${cfn_node_type}" == "HeadNode" ];then
     echo "include /opt/slurm/etc/plugstack.conf.d/*" > /opt/slurm/etc/plugstack.conf

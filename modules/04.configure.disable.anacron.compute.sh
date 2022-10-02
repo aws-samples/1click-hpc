@@ -21,8 +21,8 @@ set -e
 
 #temporary fix to manually disable Anacron, up until PC handles this.
 disableAnacron() {
-    sudo sed 's/^/#/' /etc/anacrontab | sudo tee /etc/anacrontab.tmp
-    sudo mv -f --backup /etc/anacrontab.tmp /etc/anacrontab
+    sed 's/^/#/' /etc/anacrontab | tee /etc/anacrontab.tmp
+    mv -f --backup /etc/anacrontab.tmp /etc/anacrontab
 }
 
 # main
