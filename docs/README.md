@@ -1,5 +1,5 @@
 # QuickStart
-In case you do not want to use our 1Click-HPC Cloudformation template, but you still want to build your cluster with all the components and modules available in thie reporitory, you can follow the instruction below to configure your ParallelCluster configuration file. 
+In case you do not want to use our 1Click-HPC Cloudformation template, but you still want to build your cluster with all the components and modules available in thie repository, you can follow the instruction below to configure your ParallelCluster configuration file. 
 You can create a new cluster using your existing configuration file and just add the following parameters, everything will be installed and configured automatically.<br/>
 If this is your first approach to AWS ParallelCluster, either go back to the section above or follow all the steps of our [Workshop](https://www.hpcworkshops.com/03-hpc-aws-parallelcluster-workshop.html) and include the following configuration:
 ```ini
@@ -45,7 +45,7 @@ See below a example:
  * <b>`ef_admin`</b> by default `ec2-user` , is the EnginFrame user with administrative rights.
  * <b>`ef_conf_root`</b> by default `${NICE_ROOT}/enginframe/conf`, is the path of the EnginFrame configuration directory.
  * <b>`ef_data_root`</b> by default `${NICE_ROOT}/enginframe/data`, is the path of the EnginFrame data directory.
- * <b>`ef_spooler`</b> by default `${NICE_ROOT}/enginframe/spoolers`, is the path of the EnginFrame Spoolers. Please consider that the Spoolers are the loaction where your jobs are executed.
+ * <b>`ef_spooler`</b> by default `${NICE_ROOT}/enginframe/spoolers`, is the path of the EnginFrame Spoolers. Please consider that the Spoolers are the location where your jobs are executed.
  * <b>`ef_repository`</b> by default `${NICE_ROOT}/enginframe/repository`, is the EnginFrame repository directory path.
  * <b>`ef_admin_pass`</b> by default `Change_this!` , is the EnginFrame admin password. Use this user and pass for your first login into EnginFrame.
  * <b>`agent_broker_port`</b> by default `8445`, is the DCV Session Manager Broker port.
@@ -83,7 +83,7 @@ post_install_args = "01.install.enginframe.headnode.sh 03.install.dcv.slurm.head
 The first one, <b>`post_install`</b>, specifies the S3 bucket you choose to store your post_install bash script. 
 This is the main script that will run all the secondary scripts for installing EnginFrame, DCV Session Manager, DCV Server, and other components.<br/>
 The second parameter, <b>`post_install_args`</b>, contains the scripts being launched for installing the selected components.<br/>
-EnginFrame and DCV Session Manager Broker, and all the other secondary scripts are build indipendently, so you can potentially install just one of them.<br/>
+EnginFrame and DCV Session Manager Broker, and all the other secondary scripts are build independently, so you can potentially install just one of them.<br/>
 <br/>
 
 <blockquote id='PfT9CA19ub2'><b>Note:</b> This procedure has been tested with <i>EnginFrame version 2020.0</i> and <i>DCV Session Manager Broker version 2020.2. </i>With easy modifications, though, it can work with previous versions, just mind to add the license management.</blockquote>
