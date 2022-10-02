@@ -9,7 +9,7 @@ HeadNode:
   CustomActions:
     OnNodeConfigured:
       Args:
-        #- 00.install.custom.packages.headnode.sh
+        - 00.install.custom.packages.headnode.sh
         - 00.install.knot.resolver.cpu.sh
         - 02.activate.passwordless.AD.headnode.sh
         - 03.configure.slurm.acct.headnode.sh
@@ -89,7 +89,7 @@ Scheduling:
       CustomActions:
         OnNodeConfigured:
           Args:
-            #- 00.install.custom.packages.compute.sh
+            - 00.install.custom.packages.compute.sh
             - 00.install.knot.resolver.cpu.sh
             - 02.activate.passwordless.sudo.compute.sh
             - 04.configure.disable.anacron.compute.sh
