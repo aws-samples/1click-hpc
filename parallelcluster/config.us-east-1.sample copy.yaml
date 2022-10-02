@@ -450,3 +450,7 @@ Tags:
     Value: NA
   - Key: aws-parallelcluster-project
     Value: NA
+DevSettings:
+  Timeouts:
+    HeadNodeBootstrapTimeout: 3600
+    ComputeNodeBootstrapTimeout: 3600
