@@ -1,0 +1,27 @@
+#%Module1.0#####################################################################
+##
+## modules nccl/2.12.12-1-cuda11.4
+##
+## modulefiles/nccl/2.12.12-1-cuda11.4. Written by Quentin Anthony
+##
+proc ModulesHelp { } {
+        global version prefix
+
+        puts stderr "nccl/2.12.12-1-cuda11.4 - Sets the environment for NCCL 2.12.12-1 with CUDA 11.4"
+}
+
+module-whatis   "Sets the environment for using NCCL 2.12.12-1 with CUDA 11.4"
+
+# for Tcl script use only
+set     version         2.12.12-1-cuda11.4
+set     prefix          /usr/share/Modules
+set     exec_prefix     /usr/share/Modules
+set     datarootdir     ${prefix}/share
+
+
+prepend-path    CPATH               /opt/nccl-cuda11.4/build/include
+prepend-path    LD_LIBRARY_PATH     /opt/nccl-cuda11.4/build/lib
+prepend-path    LIBRARY_PATH        /opt/nccl-cuda11.4/build/lib
+prepend-path    NCCL_HOME           /opt/nccl-cuda11.4/build
+
+#module         use
