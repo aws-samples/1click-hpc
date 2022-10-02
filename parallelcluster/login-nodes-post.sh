@@ -16,7 +16,7 @@ mkdir -p /opt/slurm
 mkdir -p /opt/df
 
 #echo "172.31.36.138:/home /home nfs hard,_netdev,noatime 0 2" >> /etc/fstab
-echo "172.31.36.138:/opt/slurm /opt/slurm nfs hard,_netdev,noatime 0 2" >> /etc/fstab
+echo "172.31.40.115:/opt/slurm /opt/slurm nfs hard,_netdev,noatime 0 2" >> /etc/fstab
 mount -a
 
 # note: not all volumes mount at boot. A mount -a command post reboot solves the problem.
@@ -58,48 +58,6 @@ systemctl start slurmd.service
 # can also deregister the initial headnode AMI to save on expenses
 # do not forget to manually tag the new login nodes with relevant tags 
 
-# block .cache folders on home. run on the headnode at the end
-#find /home -type d -name ".cache" | xargs -l chown root:root
-#find /home -type d -name ".cache" | xargs -l chmod 700
-
-# try to mount fsx at /home
-# this works in conjunction with compute nodes post install script
-# the below script needs to be run at headnode
-mkdir -p /temphome
-cp -R /home/* /temphome/
-echo "fs-0b6e54db851b7b814.fsx.us-east-1.amazonaws.com@tcp:/xznwbbev /home lustre defaults,_netdev,flock,user_xattr,noatime,noauto,x-systemd.automount 0 0" >> /etc/fstab
-mount -a
-cp -R /temphome/* /home/
-
-
 ### add this code to the compute nodes in the post-install script
-awk '/hvtqvbev/{t[1]=$0;next}/bozqnbev/{t[2]=$0;next}{print $0};END {print t[1]}{print t[2]}' fstab
+# awk '/hvtqvbev/{t[1]=$0;next}/bozqnbev/{t[2]=$0;next}{print $0};END {print t[1]}{print t[2]}' fstab
 
-
-#delete the NFS mount at /home
-sed -i '/\/home/d' /etc/fstab
-umount /home
-echo "fs-0b6e54db851b7b814.fsx.us-east-1.amazonaws.com@tcp:/xznwbbev /home lustre defaults,_netdev,flock,user_xattr,noatime,noauto,x-systemd.automount 0 0" >> /etc/fstab
-mount -a
-
-# add rules to motd
-cat << REALEND > /etc/update-motd.d/90-HPCrules
-#!/bin/sh
-cat << EOF
- _   _ ____   ____   ____        _
-| | | |  _ \ / ___| |  _ \ _   _| | ___  ___
-| |_| | |_) | |     | |_) | | | | |/ _ \/ __|
-|  _  |  __/| |___  |  _ <| |_| | |  __/\__ \\
-|_| |_|_|    \____| |_| \_\\__,_|_|\___||___/
-
-1. never use the /home dir to store the venv, or any data
-2. use anothe folder on /fsx instead of the default ~/.cache with various libs such as HF ones
-3. if you need to transfer data, do so from a compute node such as this
-srun --partition=login --nodes=1 --ntasks-per-node=1 --cpus-per-task=2 --pty bash -i
-
-Failing no2 will lead us to block access to ~/.cache and scripts will fail
-EOF
-REALEND
-
-chmod +x /etc/update-motd.d/90-HPCrules
-/usr/sbin/update-motd
