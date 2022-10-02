@@ -1,7 +1,7 @@
 HeadNode:
   LocalStorage:
     RootVolume:
-      Size: 2000
+      Size: 256
       Encrypted: false
       VolumeType: gp3
       Iops: 10000
