@@ -10,7 +10,7 @@ proc ModulesHelp { } {
         puts stderr "cuda/11.6 - Sets the environment for CUDA 11.6"
 }
 
-module-whatis   "Sets the environment for using CUDA 11.6"
+module-whatis   "Sets the environment for using CUDA 11.6 (including NCCL builds)"
 
 # for Tcl script use only
 set     version         11.6
@@ -18,12 +18,26 @@ set     prefix          /usr/share/Modules
 set     exec_prefix     /usr/share/Modules
 set     datarootdir     ${prefix}/share
 
-
+# CUDA paths
 prepend-path    PATH                /usr/local/cuda-11.6/bin
 prepend-path    CPATH               /usr/local/cuda-11.6/include
 prepend-path    MANPATH             /usr/local/cuda-11.6/share/man
 prepend-path    LD_LIBRARY_PATH     /usr/local/cuda-11.6/lib64
 prepend-path    LIBRARY_PATH        /usr/local/cuda-11.6/lib64
 prepend-path    CUDA_HOME           /usr/local/cuda-11.6
+
+# NCCL paths
+prepend-path    CPATH               /opt/nccl/build/include
+prepend-path    LD_LIBRARY_PATH     /opt/nccl/build/lib
+prepend-path    LIBRARY_PATH        /opt/nccl/build/lib
+prepend-path    NCCL_HOME           /opt/nccl/build
+
+# AWS-OFI-NCCL paths
+prepend-path    LD_LIBRARY_PATH     /opt/aws-ofi-nccl/lib
+prepend-path    LIBRARY_PATH        /opt/aws-ofi-nccl/lib
+prepend-path    AWS_OFI_NCCL_HOME   /opt/aws-ofi-nccl
+
+# nccl-tests paths
+prepend-path    PATH               /opt/nccl-tests/build
 
 #module         use
