@@ -36,7 +36,7 @@ HeadNode:
     S3Access:
       - BucketName: '*'
         EnableWriteAccess: true
-  InstanceType: c5n.18xlarge
+  InstanceType: c5n.9xlarge
   Networking:
     AdditionalSecurityGroups:
       - ${ADDITIONAL_SG}
