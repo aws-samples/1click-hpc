@@ -138,6 +138,10 @@ Tags:
     Value: NA
   - Key: aws-parallelcluster-project
     Value: NA
+Monitoring:
+  Logs:
+    CloudWatch:
+      RetentionInDays: 60
 DevSettings:
   Timeouts:
     HeadNodeBootstrapTimeout: 3600
