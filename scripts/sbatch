@@ -64,8 +64,9 @@ if [ $? -eq 0 ] || [ $EUID -eq 0 ];then
          /opt/slurm/sbin/${slurm_command} --account=${account} $@
          exit 0
        else
-         echo "The Project ${project} does not have more budget allocated for this month."
-         exit 1
+         echo "The Project ${project} does not have more budget allocated for this month. We will queue your job in preemptible mode."
+         /opt/slurm/sbin/${slurm_command} --account=${account} --qos=idle $@
+         exit 0
        fi
      fi
   else
