@@ -19,6 +19,13 @@
 set -x
 set -e
 
+configureFederatedSlurmDBD(){
+    aws s3 cp --quiet "${post_install_base}/sacct/slurm/slurm_fed_sacct.conf" /tmp/ --region "${cfn_region}" || exit 1
+    export SLURM_FED_DBD_HOST="$(aws secretsmanager get-secret-value --secret-id "SLURM_FED_DBD_HOST" --query SecretString --output text --region "${cfn_region}")"
+    /usr/bin/envsubst < slurm_fed_sacct.conf > "${SLURM_ETC}/slurm_sacct.conf"
+    echo "include slurm_sacct.conf" >> "${SLURM_ETC}/slurm.conf"
+}
+
 installPreReq() {
     yum -y -q install mysql
 }
@@ -54,10 +61,10 @@ patchSlurmConfig() {
 }
 
 restartSlurmDaemons() {
-    systemctl enable slurmdbd
-    systemctl start slurmdbd
+    #systemctl enable slurmdbd
+    #systemctl start slurmdbd
     #fixme make idempotent
-    sleep 5
+    #sleep 5
     set +e
     /opt/slurm/bin/sacctmgr -i create cluster ${stack_name}
     /opt/slurm/bin/sacctmgr -i create account name=none
@@ -69,8 +76,9 @@ restartSlurmDaemons() {
 # ----------------------------------------------------------------------------
 main() {
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 03.configure.slurm.acct.headnode.sh: START" >&2
-    installPreReq
-    configureSACCT
+    configureFederatedSlurmDBD
+    #installPreReq
+    #configureSACCT
     patchSlurmConfig
     restartSlurmDaemons
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 03.configure.slurm.acct.headnode.sh: STOP" >&2
