@@ -20,16 +20,24 @@ set -x
 set -e
 
 configureFederatedSlurmDBD(){
+    # slurm accounting must be preinstalled in the VPC.
+    # slurm accouting secrets must be defined
     aws s3 cp --quiet "${post_install_base}/sacct/slurm/slurm_fed_sacct.conf" /tmp/ --region "${cfn_region}" || exit 1
+    aws s3 cp --quiet "${post_install_base}/sacct/slurm/munge.key.gpg" /tmp/ --region "${cfn_region}" || exit 1
     export SLURM_FED_DBD_HOST="$(aws secretsmanager get-secret-value --secret-id "SLURM_FED_DBD_HOST" --query SecretString --output text --region "${cfn_region}")"
+    export SLURM_FED_PASSPHRASE="$(aws secretsmanager get-secret-value --secret-id "SLURM_FED_PASSPHRASE" --query SecretString --output text --region "${cfn_region}")"
     /usr/bin/envsubst < slurm_fed_sacct.conf > "${SLURM_ETC}/slurm_sacct.conf"
     echo "include slurm_sacct.conf" >> "${SLURM_ETC}/slurm.conf"
+    gpg --batch --passphrase "$SLURM_FED_PASSPHRASE" -d -o munge.key munge.key.gpg
+    mv -f munge.key /etc/munge/munge.key
+    chown munge:munge /etc/munge/munge.key
+    chmod 600 /etc/munge/munge.key
+    cp /etc/munge/munge.key /home/ec2-user/.munge/.munge.key
 }
 
 installPreReq() {
     yum -y -q install mysql
 }
-
 
 configureSACCT() {
     aws s3 cp --quiet "${post_install_base}/sacct/mysql/db.config" /tmp/ --region "${cfn_region}" || exit 1
@@ -66,6 +74,7 @@ restartSlurmDaemons() {
     #fixme make idempotent
     #sleep 5
     set +e
+    systemctl restart munge
     /opt/slurm/bin/sacctmgr -i create cluster ${stack_name}
     /opt/slurm/bin/sacctmgr -i create account name=none
     /opt/slurm/bin/sacctmgr -i create user ${cfn_cluster_user} cluster=${stack_name} account=none
