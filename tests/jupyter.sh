@@ -3,11 +3,12 @@
 cat > jupyter.sbatch << EOF
 #!/bin/bash
 #SBATCH --job-name=jupyter
-#SBATCH --partition=compute-od-jupyter
+#SBATCH --partition=gpu
 #SBATCH --gpus=1
 #SBATCH --cpus-per-gpu=6
 #SBATCH --time=2-00:00:00
 #SBATCH --output=%x_%j.out
+#SBATCH --comment=stability
 
 cat /etc/hosts
 python3.8 -m pip install notebook
@@ -20,8 +21,9 @@ import re
 import time
 
 # get slurm job ID
-jobId = os.popen('sbatch jupyter.sbatch').read()
+jobId = os.popen('sbatch $1 $2 jupyter.sbatch').read()
 print(jobId)
+host = os.popen('curl http://169.254.169.254/latest/meta-data/public-ipv4').read()
 jobId = [int(s) for s in jobId.split() if s.isdigit()][0]
 
 # wait for the output file to appear
@@ -58,13 +60,13 @@ token = token.split('=')[-1]
 username = os.getlogin()
 
 print ("connect with:")
-print (f"ssh -L8888:{jIP}:8888 {username}@52.71.232.47")
+print (f"ssh -i ~/.ssh/yourkey -L8888:{jIP}:8888 {username}@{host}")
 print()
 print("then browse:")
 print (f"http://127.0.0.1:8888/?token={token}")
 print()
 print("when done, close the job:")
-print(f"scancel {jobId}")
+print(f"run: scancel {jobId}")
 EOF
 
 # run this command every time in the future
