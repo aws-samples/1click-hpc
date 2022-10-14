@@ -1,18 +1,23 @@
 import mysql.connector
 from mysql.connector import Error
+import subprocess
 import json
 import botocore 
 import botocore.session 
 from aws_secretsmanager_caching import SecretCache, SecretCacheConfig 
 
 def main():
-    client = botocore.session.get_session().create_client('secretsmanager')
+    client = botocore.session.get_session().create_client('secretsmanager', region_name='us-east-1')
     cache_config = SecretCacheConfig()
     cache = SecretCache( config = cache_config, client = client)
 
     secret_value = json.loads(cache.get_secret_string('serviceDBcred'))
 
     try:
+        bashCommand = """/opt/slurm/bin/scontrol show config | grep ClusterName | awk '{print $3}'"""
+        process = subprocess.Popen(bashCommand, shell=True, stdout=subprocess.PIPE)
+        cluster, error = process.communicate()
+
         connection = mysql.connector.connect(host=secret_value["host"],
                                             database="service",
                                             user=secret_value["username"],
@@ -24,10 +29,7 @@ def main():
             cursor.execute("select database();")
             record = cursor.fetchone()
             #print("You're connected to database: ", record)
-#----------------------------------------------
-#TODO: find current cluster name, replace the parallelcluster-test placeholder with that
-#----------------------------------------------
-            query = "select distinct hostname from health where defect = 1 and cluster = 'parallelcluster-test' order by hostname asc;"
+            query = f"select distinct hostname from health where defect = 1 and cluster = '{cluster.decode().strip()}' order by hostname asc;"
             cursor.execute(query)
             records = cursor.fetchall()
             base = ""

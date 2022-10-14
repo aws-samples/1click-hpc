@@ -8,6 +8,9 @@ set -e
 
 configMySQLcredentials(){
 
+    # install some python libs
+    python3.8 -m pip install mysql-connector-python botocore aws-secretsmanager-caching
+
     creds=$(aws secretsmanager get-secret-value --secret-id serviceDBcred --region us-east-1 | jq -r '.SecretString')
     export host=$(jq -r '.host' <<< "$creds")
     export user=$(jq -r '.username' <<< "$creds")
