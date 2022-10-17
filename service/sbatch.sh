@@ -63,7 +63,11 @@ if [ $? -eq 0 ] || [ $EUID -eq 0 ];then
        ActualSpend=$(echo ${budget} | awk '{print $1}')
        BudgetLimit=$(echo ${budget} | awk '{print $2}')
        if (( $(echo "${ActualSpend} < ${BudgetLimit}" | bc -l) ));then
-         /opt/slurm/sbin/${slurm_command} --account=${account} --exclude=${excluded} $@
+         if [ $excluded != '-[]' ]; then
+            /opt/slurm/sbin/${slurm_command} --account=${account} --exclude=${excluded} $@
+         else
+            /opt/slurm/sbin/${slurm_command} --account=${account} $@
+         fi
          exit 0
        else
          echo "The Project ${project} does not have more budget allocated for this month."
@@ -71,7 +75,11 @@ if [ $? -eq 0 ] || [ $EUID -eq 0 ];then
        fi
      fi
   else
-    /opt/slurm/sbin/${slurm_command} --account=${account} --exclude=${excluded} $@
+    if [ $excluded != '-[]' ]; then
+      /opt/slurm/sbin/${slurm_command} --account=${account} --exclude=${excluded} $@
+    else
+      /opt/slurm/sbin/${slurm_command} --account=${account} $@
+    fi
   fi
 else
  echo "You are not allowed to use the project ${project}"

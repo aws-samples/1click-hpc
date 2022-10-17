@@ -4,7 +4,7 @@ set -e
 
 installItems(){
     # install some python libs
-    python3.8 -m pip install mysql-connector-python
+    python3.8 -m pip install mysql-connector-python botocore aws_secretsmanager_caching
 
     #install files
     aws s3 cp --quiet "${post_install_base}/service/report.sh" /opt/slurm/sbin/ --region "${cfn_region}" || exit 1

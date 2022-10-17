@@ -29,7 +29,7 @@ def main():
             cursor.execute("select database();")
             record = cursor.fetchone()
             #print("You're connected to database: ", record)
-            query = f"select distinct hostname from health where defect = 1 and cluster = '{cluster.decode().strip()}' order by hostname asc;"
+            query = f"select distinct hostname from health where defect > 0 and cluster = '{cluster.decode().strip()}' order by hostname asc;"
             cursor.execute(query)
             records = cursor.fetchall()
             base = ""
