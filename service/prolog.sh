@@ -5,14 +5,15 @@ date >> /fsx/shared/debug.log
 echo "${SLURM_JOB_USER}" >> /fsx/shared/debug.log
 echo "${SLURM_JOBID}" >> /fsx/shared/debug.log
 
-
 #slurm directory
 export SLURM_ROOT=/opt/slurm
 echo "${SLURM_JOB_USER}" >> /tmp/jobs/jobs_users
 echo "${SLURM_JOBID}" >> /tmp/jobs/jobs_ids
 
 #load the comment of the job.
-Project=$($SLURM_ROOT/bin/scontrol show job ${SLURM_JOB_ID} | grep Comment | awk -F'=' '{print $2}')
+#Project=$($SLURM_ROOT/bin/scontrol show job ${SLURM_JOB_ID} | grep Comment | awk -F'=' '{print $2}')
+Project=$SLURM_JOB_COMMENT
+echo "job comment is $SLURM_JOB_COMMENT"
 Project_Tag=""
 if [ ! -z "${Project}" ];then
 echo "${Project}" >> /tmp/jobs/jobs_projects
@@ -37,7 +38,6 @@ chmod 0700 "$data_path"
 
 
 #kill all stray processes on the allocated GPUS
-echo "Kill stray processes from GPUs" >> /fsx/shared/debug.log
 awk_ndx=1
 procs=$(nvidia-smi)
 while [ 1 -eq 1 ]; do
@@ -74,7 +74,6 @@ if [ $SLURM_JOB_GPUS == '0,1,2,3,4,5,6,7' ]; then
     ENVIRON_VARS="-x LD_LIBRARY_PATH -x NCCL_SHM_DISABLE=1 -x NCCL_P2P_DISABLE=1 -x NCCL_NET_GDR_LEVEL=SYS"
     NCCL_ARGS="-b 500M -f 2 -g 1 -e 1G -n 50 -w 10"
 
-    echo "finding which all_reduce_perf" >> /fsx/shared/debug.log
     source /etc/profile.d/modules.sh
     module load cuda/11.6
 
@@ -92,6 +91,7 @@ if [ $SLURM_JOB_GPUS == '0,1,2,3,4,5,6,7' ]; then
     function dbg() {
         echo "$*" >> /fsx/shared/debug.log
         echo "nccl tests debugged" >> /fsx/shared/debug.log
+        #todo: add here new results based on defect types
     }
 
     function collect_nccl_allreduce_ib_loopback_data() {
@@ -128,26 +128,27 @@ if [ $SLURM_JOB_GPUS == '0,1,2,3,4,5,6,7' ]; then
             return 1
         fi
     }
-    echo "Try nccl test" >> /fsx/shared/debug.log
     check_nccl_allreduce_ib_loopback
-    echo "End nccl test" >> /fsx/shared/debug.log
-###########################
+
     serials=$(nvidia-smi --query-gpu="serial" --format=csv,noheader | tr '\n' ',' | sed 's/.$//')
 
-    # serials='sn0,sn1,sn2,sn3,sn4,sn5,sn6,sn7'
-    # results="r0,r1,r2,r3,r4,r5,r6,r7" in the format 0 if healthy, 1 if defect
+    # results="r0,r1,r2,r3,r4,r5,r6,r7" in the format 0 if healthy, 1 if slow nccl, 2 ecc defect, 3 unresponsive
+    dbhost=$(awk -F "=" '/host/ {print $2}' /root/.my.cnf | /usr/bin/xargs)
+    password=$(awk -F "=" '/password/ {print $2}' /root/.my.cnf | /usr/bin/xargs)
+    database=$(awk -F "=" '/database/ {print $2}' /root/.my.cnf | /usr/bin/xargs)
+    awk_ndx=1
     while [ 1 -eq 1 ]; do
-        result=`echo $results | awk '{ print $n }' n=$awk_ndx FS=","`
-        gpusn=`echo $serials | awk '{ print $n }' n=$awk_ndx FS=","`
-        gpuid=`echo $SLURM_JOB_GPUS | awk '{ print $n }' n=$awk_ndx FS=","`
+        result=$(echo $results | awk '{ print $n }' n=$awk_ndx FS=",")
+        gpusn=$(echo $serials | awk '{ print $n }' n=$awk_ndx FS=",")
+        gpuid=$(echo $SLURM_JOB_GPUS | awk '{ print $n }' n=$awk_ndx FS=",")
         [ "$result" = "" ] && break
-        mysql --batch -e "call RecordGPUhealth('$gpusn','$SLURM_CLUSTER_NAME','$SLURMD_NODENAME',$gpuid,'$instanceid','$ipaddr',$result)"
+        /usr/bin/mysql --host=$dbhost --user=admin --password=$password --database=$database --batch -e "call RecordGPUhealth('$gpusn','$SLURM_CLUSTER_NAME','$SLURMD_NODENAME',$gpuid,'$instanceid','$ipaddr',$result)"
         defect=$($defect + $result)
         awk_ndx=`expr $awk_ndx + 1`
     done
 
     if [ $defect -gt 0 ]; then
-        sbatch --nodelist $host --comment defective /opt/slurm/sbin/debug.sbatch $result
+        /opt/slurm/bin/sbatch --nodelist $host --comment defective /opt/slurm/sbin/debug.sbatch $result
         /opt/slurm/bin/scancel $jobid
         echo "prolog script cancelled job $jobid" >> /fsx/shared/debug.log
     fi
