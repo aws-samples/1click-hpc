@@ -5,7 +5,7 @@ CREATE TABLE health(
     gpuno INT NOT NULL,
     instanceid varchar(30) NOT NULL,
     ipaddr VARCHAR(15) NOT NULL,
-    defect BIT,
+    defect INT,
     lastlogged timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY(gpusn)
 );
@@ -17,6 +17,6 @@ CREATE TABLE healthlog(
     gpuno INT NOT NULL,
     instanceid varchar(30) NOT NULL,
     ipaddr VARCHAR(15) NOT NULL,
-    defect BIT,
+    defect INT,
     lastlogged timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

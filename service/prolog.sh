@@ -1,7 +1,10 @@
 #!/bin/bash
 
-source /etc/profile.d/modules.sh
+echo "#######################" >> /fsx/shared/debug.log
 date >> /fsx/shared/debug.log
+echo "${SLURM_JOB_USER}" >> /fsx/shared/debug.log
+echo "${SLURM_JOBID}" >> /fsx/shared/debug.log
+
 
 #slurm directory
 export SLURM_ROOT=/opt/slurm
@@ -40,26 +43,20 @@ procs=$(nvidia-smi)
 while [ 1 -eq 1 ]; do
   gpu=`echo $SLURM_JOB_GPUS | awk '{ print $n }' n=$awk_ndx FS=","`
   [ "$gpu" = "" ] && break
-  echo "killing stray processes found on gpu $gpu"
-  kill $(echo "$procs" | awk '$2=="Processes:" {p=1} p && $2 == "'"$gpu"'" && $5 > 0 {print $5}') 2>/dev/null
+  echo "killing stray processes found on gpu $gpu" >> /fsx/shared/debug.log
+  kill $(echo "$procs" | awk '$2=="Processes:" {p=1} p && $2 == "'"$gpu"'" && $5 > 0 {print $5}') &>> /fsx/shared/debug.log
   awk_ndx=`expr $awk_ndx + 1`
 done
 
 if [ $SLURM_JOB_GPUS == '0,1,2,3,4,5,6,7' ]; then
     echo "Test nccl and EFA" >> /fsx/shared/debug.log
-    cluster="$SLURM_CLUSTER_NAME"
-    jobid="$SLURM_JOB_ID"
-    host="$SLURMD_NODENAME"
+    results='0,0,0,0,0,0,0,0'
     instanceid=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
     ipaddr=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
-
-    echo "$cluster - $host - $instanceid - $ipaddr - $jobid" >> /fsx/shared/debug.log
 
     defect=0
 
     export LD_LIBRARY_PATH=/opt/amazon/openmpi/lib64:/opt/amazon/efa/lib64
-    module load /usr/share/Modules/modulefiles/cuda/11.6
-
     export PATH=/opt/amazon/efa/bin:$PATH
     export FI_EFA_FORK_SAFE=1
     export FI_LOG_LEVEL=1
@@ -77,16 +74,24 @@ if [ $SLURM_JOB_GPUS == '0,1,2,3,4,5,6,7' ]; then
     ENVIRON_VARS="-x LD_LIBRARY_PATH -x NCCL_SHM_DISABLE=1 -x NCCL_P2P_DISABLE=1 -x NCCL_NET_GDR_LEVEL=SYS"
     NCCL_ARGS="-b 500M -f 2 -g 1 -e 1G -n 50 -w 10"
 
+    echo "finding which all_reduce_perf" >> /fsx/shared/debug.log
+    source /etc/profile.d/modules.sh
+    module load cuda/11.6
+
     function die() {
-        echo "$*" 1>&2
+        echo "$*" >> /fsx/shared/debug.log
+        echo "nccl tests died" >> /fsx/shared/debug.log
+        results='1,1,1,1,1,1,1,1'
         #exit 1
         # failed node, arrest it with service job, cancel initial job
     }
     function log() {
-        echo "$*" 1>&2
+        echo "$*" >> /fsx/shared/debug.log
+        echo "nccl tests logged" >> /fsx/shared/debug.log
     }
     function dbg() {
-        echo "$*" 1>&2
+        echo "$*" >> /fsx/shared/debug.log
+        echo "nccl tests debugged" >> /fsx/shared/debug.log
     }
 
     function collect_nccl_allreduce_ib_loopback_data() {
@@ -127,6 +132,7 @@ if [ $SLURM_JOB_GPUS == '0,1,2,3,4,5,6,7' ]; then
     check_nccl_allreduce_ib_loopback
     echo "End nccl test" >> /fsx/shared/debug.log
 ###########################
+    serials=$(nvidia-smi --query-gpu="serial" --format=csv,noheader | tr '\n' ',' | sed 's/.$//')
 
     # serials='sn0,sn1,sn2,sn3,sn4,sn5,sn6,sn7'
     # results="r0,r1,r2,r3,r4,r5,r6,r7" in the format 0 if healthy, 1 if defect
@@ -135,7 +141,7 @@ if [ $SLURM_JOB_GPUS == '0,1,2,3,4,5,6,7' ]; then
         gpusn=`echo $serials | awk '{ print $n }' n=$awk_ndx FS=","`
         gpuid=`echo $SLURM_JOB_GPUS | awk '{ print $n }' n=$awk_ndx FS=","`
         [ "$result" = "" ] && break
-        mysql --batch -e "call RecordGPUhealth('$gpusn','$cluster','$host',$gpuid,'$instanceid','$ipaddr',$result)"
+        mysql --batch -e "call RecordGPUhealth('$gpusn','$SLURM_CLUSTER_NAME','$SLURMD_NODENAME',$gpuid,'$instanceid','$ipaddr',$result)"
         defect=$($defect + $result)
         awk_ndx=`expr $awk_ndx + 1`
     done

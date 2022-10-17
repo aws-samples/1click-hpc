@@ -5,7 +5,7 @@ CREATE OR REPLACE PROCEDURE RecordGPUhealth(
     IN in_gpuno            INT,
     IN in_instanceid       varchar(30),
     IN in_ipaddr           VARCHAR(15), 
-    IN in_defect           BIT
+    IN in_defect           INT
 )
 BEGIN
     INSERT INTO health

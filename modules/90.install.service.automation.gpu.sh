@@ -9,6 +9,7 @@ set -e
 configMySQLcredentials(){
 
     # install some python libs
+    yum -y install mysql
     python3.8 -m pip install mysql-connector-python botocore aws-secretsmanager-caching
 
     creds=$(aws secretsmanager get-secret-value --secret-id serviceDBcred --region us-east-1 | jq -r '.SecretString')
