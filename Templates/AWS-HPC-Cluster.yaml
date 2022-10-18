@@ -14,12 +14,11 @@ Metadata:
           - PublicSubnetBId
           - PrivateSubnetAId
           - FSx
-          - SlurmDBE
-          - SlurmDBEPassword
           - AD
           - ADDNS0
           - ADDNS1
           - ADPassword
+          - LdapsEndpoint
     ParameterLabels:
       MapMigrated:
         default: ''
@@ -35,10 +34,6 @@ Metadata:
         default: 'Private Subnet:'
       FSx: 
         default: 'FSx:'
-      SlurmDBE: 
-        default: 'Slurm DB Endpoint:'
-      SlurmDBEPassword: 
-        default: 'Slurm DB Endpoint Pasword:'
       AD: 
         default: 'Active Directory:'
       ADDNS0:
@@ -47,6 +42,8 @@ Metadata:
         default: ''
       ADPassword:
         default: ''
+      LdapsEndpoint:
+        default: 'LDAPS endpoint'
         
 Parameters:
     MapMigrated:
@@ -92,20 +89,6 @@ Parameters:
       AllowedPattern: ^(AUTO|fs-[0-9a-z]+)$
       Default : AUTO
 
-    SlurmDBE: 
-      Description: 'Please, enter your organization SlurmDB Endpoint, or just leave "AUTO" to create a new one.'
-      Type: String
-      AllowedPattern: ^(AUTO|[0-9a-z\-\.]+\.rds.amazonaws.com)$
-      Default : AUTO
-
-    SlurmDBEPassword:
-      Description: 'Please, enter the password for the Slurm DB Endpoint. Leave empty if Slurm DB Endpoint is set to AUTO'
-      Type: String
-      MinLength: '0'
-      MaxLength: '255'
-      AllowedPattern: (?=^.{8,255}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*
-      NoEcho: 'true'
-
     AD:
       Description: 'Please, enter your Active Directory ID, or just leave "AUTO" if you want to create a new one.'
       Type: String
@@ -131,6 +114,12 @@ Parameters:
       MaxLength: '255'
       AllowedPattern: (?=^.{8,255}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*
       NoEcho: 'true'
+
+    LdapsEndpoint:
+      Description: 'Please, enter your custom LDAPS endpoint, or just leave "AUTO" to create a new one.'
+      Type: String
+      AllowedPattern: ^(AUTO|[0-9a-z\-\.]+\.elb\.us-east-1\.amazonaws\.com)$
+      Default : AUTO
 
 Mappings: 
   RegionMap: 
@@ -191,7 +180,7 @@ Conditions:
   CreateVpc: !Equals [!Ref VpcId, AUTO]
   CreatePrivateSubnet: !And [!Condition CreateVpc, !Equals [!Ref PrivateSubnetAId, AUTO]]
   CreateAD: !Equals [!Ref AD, AUTO]
-  CreateDB: !Equals [!Ref SlurmDBE, AUTO]
+  CreateLDAPSELB: !Equals [!Ref LdapsEndpoint, AUTO]
 
 Resources:
 
@@ -462,6 +451,10 @@ Resources:
         FromPort: 8888
         ToPort: 8888
         CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 8080
+        ToPort: 8080
+        CidrIp: 0.0.0.0/0
 
   PCAdditionalSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -485,50 +478,6 @@ Resources:
         FromPort: 389
         ToPort: 389
         SourceSecurityGroupId: !Ref ALBSecurityGroup
-
-  SlurmDBSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: 'Allow 3306 from the PC Additional SG'
-      VpcId: !If [CreateVpc, !Ref VPC, !Ref VpcId]
-      SecurityGroupIngress:
-      - IpProtocol: tcp
-        FromPort: 3306
-        ToPort: 3306
-        SourceSecurityGroupId: !Ref PCAdditionalSecurityGroup
-
-  SlurmDBReady:
-    Type: AWS::CloudFormation::WaitConditionHandle
-    Metadata:
-      SlurmEndpointready: !If [ CreateDB, SlurmDB, "" ]
-
-  SlurmDB:
-    Type: 'AWS::RDS::DBInstance'
-    Condition: CreateDB
-    Properties:
-      DBInstanceIdentifier: !Sub '${AWS::StackName}-SlurmDB'
-      DBName: 'SlurmDB'
-      DBInstanceClass: 'db.m6g.8xlarge'
-      MultiAZ: false
-      AllocatedStorage: '20'
-      StorageType: gp2
-      MaxAllocatedStorage: 2000
-      Engine: MySQL
-      EngineVersion: 8.0.28
-      MasterUsername: 'admin'
-      MasterUserPassword: !Ref 'AdminPassword'
-      DBSubnetGroupName: !Ref 'SlurmDBSubnetGroup'
-      VPCSecurityGroups: 
-        - !Ref 'SlurmDBSecurityGroup'
-
-  SlurmDBSubnetGroup: 
-      Type: 'AWS::RDS::DBSubnetGroup'
-      Condition: CreateDB
-      Properties:
-        DBSubnetGroupDescription: SubnetGroup
-        SubnetIds: 
-          - !If [CreateVpc, !Ref PublicSubnetA, !Ref PublicSubnetAId]
-          - !If [CreateVpc, !Ref PublicSubnetB, !Ref PublicSubnetBId]
 
   Cloud9:
     Type: 'AWS::Cloud9::EnvironmentEC2'
@@ -564,13 +513,6 @@ Resources:
       Name: !Sub 'hpc-1click-${AWS::StackName}-AD'
       Description: This the password used for Admin of the custom AD directory
       SecretString: !If [CreateAD, !Ref AdminPassword, !Ref ADPassword]
-
-  CustomDBPassword:
-    Type: 'AWS::SecretsManager::Secret'
-    Properties:
-      Name: !Sub 'hpc-1click-${AWS::StackName}-DB'
-      Description: This the password used for admin of the custom Slurm DB Endpoint Password
-      SecretString: !If [CreateDB, !Ref AdminPassword, !Ref SlurmDBEPassword]
 
   Cloud9SSMDocument: 
     Type: AWS::SSM::Document
@@ -615,15 +557,12 @@ Resources:
             - !Sub echo "export CLUSTER_NAME=${AWS::StackName}" >> cluster_env
             - !Sub echo "export ADDITIONAL_SG=${PCAdditionalSecurityGroup}" >> cluster_env
             - !Sub echo "export WAIT_HANDLE='${WaitHandle}'" >> cluster_env
-            - !Sub
-              - echo "export SLURM_DB_ENDPOINT='${DB_ENDPOINT}'" >> cluster_env
-              - DB_ENDPOINT: !If [CreateAD, !GetAtt SlurmDB.Endpoint.Address, !Ref SlurmDBE] 
             - !Sub 
               - echo "export ALB_PUBLIC_DNS_NAME='${ALB}'" >> cluster_env
               - ALB: !GetAtt ApplicationLoadBalancer.DNSName
             - !Sub 
               - echo "export NLB_PUBLIC_DNS_NAME='${NLB}'" >> cluster_env
-              - NLB: !GetAtt NetworkLoadBalancer.DNSName
+              - NLB: !If [CreateLDAPSELB, !GetAtt NetworkLoadBalancer.DNSName, !Ref LdapsEndpoint]
             - !Sub
               - echo "export KEY_PAIR=\"${AWS::StackName}-${RANDOM}\"" >> cluster_env
               - RANDOM: !Select [0, !Split ['-', !Select [2, !Split ['/', !Ref 'AWS::StackId' ]]]]
@@ -981,6 +920,7 @@ Resources:
 
   NetworkLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Condition: CreateLDAPSELB
     Properties:
       Scheme: internal
       Subnets: 
@@ -990,6 +930,7 @@ Resources:
 
   LdapTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Condition: CreateLDAPSELB
     Properties:
       Name: !Sub '${AWS::StackName}-Ldap'
       Port: 389
@@ -1013,6 +954,7 @@ Resources:
 
   LdapListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
+    Condition: CreateLDAPSELB
     Properties:
       DefaultActions:
         - Type: forward
