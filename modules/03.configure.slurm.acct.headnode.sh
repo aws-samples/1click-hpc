@@ -35,32 +35,6 @@ configureFederatedSlurmDBD(){
     cp /etc/munge/munge.key /home/ec2-user/.munge/.munge.key
 }
 
-installPreReq() {
-    yum -y -q install mysql
-}
-
-configureSACCT() {
-    aws s3 cp --quiet "${post_install_base}/sacct/mysql/db.config" /tmp/ --region "${cfn_region}" || exit 1
-    aws s3 cp --quiet "${post_install_base}/sacct/mysql/grant.mysql" /tmp/ --region "${cfn_region}" || exit 1
-    aws s3 cp --quiet "${post_install_base}/sacct/slurm/slurmdbd.conf" /tmp/ --region "${cfn_region}" || exit 1
-    aws s3 cp --quiet "${post_install_base}/sacct/slurm/slurm_sacct.conf" /tmp/ --region "${cfn_region}" || exit 1
-    aws s3 cp --quiet "${post_install_base}/sacct/slurmdbd.service" /etc/systemd/system/ --region "${cfn_region}" || exit 1
-
-    export SLURM_DB_PASS="$(aws secretsmanager get-secret-value --secret-id "${stack_name}-DB" --query SecretString --output text --region "${cfn_region}")"
-    #FIXME: replace envsubst with sed
-    /usr/bin/envsubst < slurmdbd.conf > "${SLURM_ETC}/slurmdbd.conf"
-    /usr/bin/envsubst < slurm_sacct.conf > "${SLURM_ETC}/slurm_sacct.conf"
-    /usr/bin/envsubst < db.config > db.pass.config
-    
-    mysql --defaults-extra-file="db.pass.config" < "grant.mysql"
-    rm db.pass.config db.config
-    echo "include slurm_sacct.conf" >> "${SLURM_ETC}/slurm.conf"
-    chmod 600 "${SLURM_ETC}/slurmdbd.conf"
-    chmod 666 "${SLURM_ETC}/slurm_sacct.conf"
-    chmod 664 /etc/systemd/system/slurmdbd.service
-    chown slurm:slurm "${SLURM_ETC}/slurmdbd.conf"
-}
-
 patchSlurmConfig() {
 	sed -i "s/ClusterName=parallelcluster.*/ClusterName=parallelcluster-${stack_name}/" "/opt/slurm/etc/slurm.conf"
     sed -i "s/SlurmctldPort=6820-6829/SlurmctldPort=6820-6849/" "/opt/slurm/etc/slurm.conf"
@@ -69,10 +43,6 @@ patchSlurmConfig() {
 }
 
 restartSlurmDaemons() {
-    #systemctl enable slurmdbd
-    #systemctl start slurmdbd
-    #fixme make idempotent
-    #sleep 5
     set +e
     systemctl restart munge
     /opt/slurm/bin/sacctmgr -i create cluster ${stack_name}
@@ -86,8 +56,6 @@ restartSlurmDaemons() {
 main() {
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 03.configure.slurm.acct.headnode.sh: START" >&2
     configureFederatedSlurmDBD
-    #installPreReq
-    #configureSACCT
     patchSlurmConfig
     restartSlurmDaemons
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 03.configure.slurm.acct.headnode.sh: STOP" >&2
