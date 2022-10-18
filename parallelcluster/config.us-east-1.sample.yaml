@@ -84,8 +84,8 @@ Scheduling:
           Efa:
             Enabled: true
           InstanceType: p4d.24xlarge
-          MaxCount: 1
-          MinCount: 1
+          MaxCount: 88
+          MinCount: 88
       CustomActions:
         OnNodeConfigured:
           Args:
@@ -95,7 +95,6 @@ Scheduling:
             - 33.install.cost.control.sh
             - 35.boost.gpu.clock.gpu.sh
             - 40.install.monitoring.gpu.sh
-            #- 40.install.monitoring.compute.sh
             - 43.allow.nvidia.debug.gpu.sh
             - 45.install.nccl.compute.sh
             - 70.install.enroot.pyxis.sh
