@@ -12,8 +12,6 @@ echo "${SLURM_JOBID}" >> /tmp/jobs/jobs_ids
 
 #load the comment of the job.
 Project=$($SLURM_ROOT/bin/scontrol show job ${SLURM_JOB_ID} | grep Comment | awk -F'=' '{print $2}')
-#Project=$SLURM_JOB_COMMENT
-echo "job comment is $SLURM_JOB_COMMENT"
 Project_Tag=""
 if [ ! -z "${Project}" ];then
 echo "${Project}" >> /tmp/jobs/jobs_projects
@@ -48,13 +46,11 @@ while [ 1 -eq 1 ]; do
   awk_ndx=`expr $awk_ndx + 1`
 done
 
-if [ $SLURM_JOB_GPUS == '0,1,2,3,4,5,6,7' ]; then
+if [ $SLURM_JOB_GPUS == '0,1,2,3,4,5,6,7' ] && [ $Project != 'defective' ]; then
     echo "Test nccl and EFA" >> /fsx/shared/debug.log
     results='0,0,0,0,0,0,0,0'
     instanceid=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
     ipaddr=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
-
-    defect=0
 
     export LD_LIBRARY_PATH=/opt/amazon/openmpi/lib64:/opt/amazon/efa/lib64
     export PATH=/opt/amazon/efa/bin:$PATH
@@ -80,9 +76,9 @@ if [ $SLURM_JOB_GPUS == '0,1,2,3,4,5,6,7' ]; then
     function die() {
         echo "$*" >> /fsx/shared/debug.log
         echo "nccl tests died" >> /fsx/shared/debug.log
-        results='1,1,1,1,1,1,1,1'
         #exit 1
         # failed node, arrest it with service job, cancel initial job
+        return results
     }
     function log() {
         echo "$*" >> /fsx/shared/debug.log
@@ -100,6 +96,7 @@ if [ $SLURM_JOB_GPUS == '0,1,2,3,4,5,6,7' ]; then
         if [[ $nccl_allreduce_ib_loopback_out_rc != 0 ]]; then
             log "nccl_allreduce_ib_loopback_freq_out"
             die 1 "$FUNCNAME: nccl_allreduce (IB loopback) returned error code $nccl_allreduce_ib_loopback_out_rc"
+            results='1,1,1,1,1,1,1,1'
         fi
         IFS=$'\n'
         nccl_allreduce_ib_loopback_out_lines=( $nccl_allreduce_ib_loopback_out )
@@ -143,15 +140,14 @@ if [ $SLURM_JOB_GPUS == '0,1,2,3,4,5,6,7' ]; then
         gpuid=$(echo $SLURM_JOB_GPUS | awk '{ print $n }' n=$awk_ndx FS=",")
         [ "$result" = "" ] && break
         /usr/bin/mysql --host=$dbhost --user=admin --password=$password --database=$database --batch -e "call RecordGPUhealth('$gpusn','$SLURM_CLUSTER_NAME','$SLURMD_NODENAME',$gpuid,'$instanceid','$ipaddr',$result)"
-        defect=$($defect + $result)
         awk_ndx=`expr $awk_ndx + 1`
     done
 
-    if [ $defect -gt 0 ]; then
-        /opt/slurm/bin/sbatch --nodelist $host --comment defective /opt/slurm/sbin/debug.sbatch $result
-        /opt/slurm/bin/scancel $jobid
-        echo "prolog script cancelled job $jobid" >> /fsx/shared/debug.log
+    if [ "$result" != '0,0,0,0,0,0,0,0' ]; then
+        /opt/slurm/bin/sbatch --nodelist $SLURMD_NODENAME --comment defective /opt/slurm/sbin/debug.sbatch
+        /opt/slurm/bin/scancel ${SLURM_JOBID}
+        echo "prolog script cancelled job ${SLURM_JOBID}" >> /fsx/shared/debug.log
     fi
 fi
 
-# place this snippet at the end of prolog.sh in /opt/slurm/sbin
+# place this snippet at the end of prolog.sh in /opt/slurm/sbinexit

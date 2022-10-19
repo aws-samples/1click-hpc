@@ -32,11 +32,16 @@ EOF
     rm -f /root/my.cnf
 }
 
+testCurrentNode(){
+    #since node is (re)booted let test the GPUs again and mark the status in the tracking DB
+}
+
 # main
 # ----------------------------------------------------------------------------
 main() {
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 90.install.service.automation.gpu.sh: START" >&2
     configMySQLcredentials
+    testCurrentNode
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 90.install.service.automation.gpu.sh: STOP" >&2
 }
 
