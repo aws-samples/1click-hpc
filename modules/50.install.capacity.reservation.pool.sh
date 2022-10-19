@@ -14,19 +14,8 @@ installODCR() {
                     "CapacityReservationResourceGroupArn": "arn:aws:resource-groups:${AWS_REGION_NAME}:${AWS_ACCOUNT}:group/${CLUSTER_NAME}-ODCR-Group"
                 }
             }
-        }
-    },
-    "gpu-mig": {
-        "p4d-24xlarge": {
-            "CapacityReservationSpecification": {
-                "CapacityReservationTarget": {
-                    "CapacityReservationResourceGroupArn": "arn:aws:resource-groups:${AWS_REGION_NAME}:${AWS_ACCOUNT}:group/${CLUSTER_NAME}-ODCR-Group"
-                }
-            }
-        }
-    },
-    "jupyter": {
-        "p4d-24xlarge": {
+        },
+        "p4de-24xlarge": {
             "CapacityReservationSpecification": {
                 "CapacityReservationTarget": {
                     "CapacityReservationResourceGroupArn": "arn:aws:resource-groups:${AWS_REGION_NAME}:${AWS_ACCOUNT}:group/${CLUSTER_NAME}-ODCR-Group"
