@@ -7,6 +7,6 @@
 #SBATCH --output=/fsx/shared/%x_%j.out
 #SBATCH --comment=defect
 
-srun --comment defective /opt/slurm/sbin/report.sh
+/opt/slurm/bin/srun --comment defective /opt/slurm/sbin/report.sh
 
 # place this file in /opt/slurm/sbin

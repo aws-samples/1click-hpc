@@ -17,7 +17,7 @@ caseid=$(aws support create-case \
     --service-code "amazon-elastic-compute-cloud-linux" \
     --severity-code "high" \
     --subject "Node detected with underperforming GPU" | jq -r '.caseID')
-echo "Support case open under id $case" >> /fsx/shared/debug.log
+echo "Support case open under id $caseid" >> /fsx/shared/debug.log
 # capture the node
 sleep 3000000
 
