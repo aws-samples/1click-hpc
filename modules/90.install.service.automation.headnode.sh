@@ -11,12 +11,14 @@ installItems(){
     aws s3 cp --quiet "${post_install_base}/service/debug.sbatch" /opt/slurm/sbin/ --region "${cfn_region}" || exit 1
     aws s3 cp --quiet "${post_install_base}/service/get_excluded.py" /opt/slurm/sbin/ --region "${cfn_region}" || exit 1
     aws s3 cp --quiet "${post_install_base}/service/sbatch.sh" /tmp/ --region "${cfn_region}" || exit 1
-    aws s3 cp --quiet "${post_install_base}/service/prolog_snippet.sh" /tmp/ --region "${cfn_region}" || exit 1
+    aws s3 cp --quiet "${post_install_base}/service/prolog.sh" /tmp/ --region "${cfn_region}" || exit 1
 
-    cp /opt/slurm/bin/sbatch /opt/slurm/bin/sbatch.bak
-    mv -f /tmp/sbatch.sh /opt/slurm/bin/sbatch
+    mv /opt/slurm/bin/sbatch /opt/slurm/bin/sbatch.bak
+    mv /tmp/sbatch.sh /opt/slurm/bin/sbatch
+    mv -f /tmp/prolog.sh /opt/slurm/sbin/prolog.sh
     chmod +x /opt/slurm/bin/sbatch
-    cat /tmp/prolog_snippet.sh >> /opt/slurm/sbin/prolog.sh
+    chmod +x /opt/slurm/sbin/report.sh
+    chmod +x /opt/slurm/sbin/prolog.sh 
 }
 
 # main
