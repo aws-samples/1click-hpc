@@ -20,7 +20,7 @@ HeadNode:
         - 50.install.capacity.reservation.pool.sh
         - 70.install.enroot.pyxis.sh
         - 88.install.preemption.headnode.sh
-        - 00.install.knot.resolver.cpu.sh
+        - 90.install.service.automation.headnode.sh
       Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
   Iam:
     AdditionalIamPolicies:
@@ -100,7 +100,7 @@ Scheduling:
             - 70.install.enroot.pyxis.sh
             - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
-            - 00.install.knot.resolver.cpu.sh
+            - 90.install.service.automation.gpu.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
