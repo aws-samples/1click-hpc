@@ -3,6 +3,11 @@ Image:
   Os: alinux2
 HeadNode:
   InstanceType: c5.2xlarge
+  CustomActions:
+    OnNodeConfigured:
+      Args:
+        - 00.install.neuron.headnode.sh
+      Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
   Networking:
     SubnetId: ${HN_SUBNET_ID}
   Ssh:
@@ -26,17 +31,17 @@ Scheduling:
             Enabled: true
           InstanceType: trn1.32xlarge
           MaxCount: 8
-          MinCount: 0
+          MinCount: 8
           Name: trn1-32xlarge
+      CustomActions:
+        OnNodeConfigured:
+          Args:
+            - 00.install.neuron.trainium.sh
+          Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Networking:
         SubnetIds:
           - ${SUBNET_ID}
         PlacementGroup:
           Enabled: true
 SharedStorage:
-- EfsSettings:
-    ProvisionedThroughput: 1024
-    ThroughputMode: provisioned
-  MountDir: /efs
-  Name: neuron
-  StorageType: Efs
+${FSX}
