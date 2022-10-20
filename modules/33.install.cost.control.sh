@@ -106,6 +106,7 @@ if [ ${update} -eq 1 ]; then
 MyInstID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
 tag_userid=$(cat /tmp/jobs/tag_userid)
 tag_jobid=$(cat /tmp/jobs/tag_jobid)
+sleep $((RANDOM % 20))
 tag_project=$(cat /tmp/jobs/tag_project)
 aws ec2 create-tags --resources ${MyInstID} --tags Key=aws-parallelcluster-username,Value="${tag_userid}"
 aws ec2 create-tags --resources ${MyInstID} --tags Key=aws-parallelcluster-jobid,Value="${tag_jobid}"
