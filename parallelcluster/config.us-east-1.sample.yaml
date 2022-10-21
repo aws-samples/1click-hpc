@@ -20,6 +20,7 @@ HeadNode:
     OnNodeConfigured:
       Args:
         - 00.install.neuron.headnode.sh
+        - 02.activate.passwordless.AD.headnode.sh
       Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
   Iam:
     AdditionalIamPolicies:
@@ -60,6 +61,7 @@ Scheduling:
         OnNodeConfigured:
           Args:
             - 00.install.neuron.trainium.sh
+            - 02.activate.passwordless.sudo.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
