@@ -63,7 +63,6 @@ FSX=$(cat <<EOF
     FsxLustreSettings:
       StorageCapacity: 1200
       DeploymentType: SCRATCH_2
-      ImportedFileChunkSize: 1024
       DataCompressionType: LZ4
 EOF
 )
