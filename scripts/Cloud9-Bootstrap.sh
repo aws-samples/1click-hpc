@@ -57,17 +57,14 @@ node --version
 
 if [[ $FSX_ID == "AUTO" ]];then
 FSX=$(cat <<EOF
-  - Name: FsxLustre0
-    MountDir: /fsx
-    Name: existing
+  - MountDir: /fsx
+    Name: new
     StorageType: FsxLustre
     FsxLustreSettings:
-      FileSystemId: fs-00bb39380c5b90f76
-  - Name: FsxLustre1
-    StorageType: FsxLustre
-    MountDir: /opt/df
-    FsxLustreSettings:
-      FileSystemId: fs-0d774d6a99935d41f
+      StorageCapacity: 1200
+      DeploymentType: SCRATCH_2
+      ImportedFileChunkSize: 1024
+      DataCompressionType: LZ4
 EOF
 )
 else
