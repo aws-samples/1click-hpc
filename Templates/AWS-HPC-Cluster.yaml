@@ -118,7 +118,7 @@ Parameters:
     LdapsEndpoint:
       Description: 'Please, enter your custom LDAPS endpoint, or just leave "AUTO" to create a new one.'
       Type: String
-      AllowedPattern: ^(AUTO|[0-9a-zA-Z\-]+\.elb\.us-east-1\.amazonaws\.com)$
+      AllowedPattern: ^(AUTO|[0-9a-zA-Z\-]+\.elb\..*\.amazonaws\.com)$
       Default : AUTO
 
 Mappings: 

@@ -24,11 +24,6 @@ installCudaModules(){
     aws s3 sync --quiet "${post_install_base}/cuda-modules/" /usr/share/Modules/modulefiles/ --region "${cfn_region}" || exit 1
 }
 
-installNcclModules(){
-    aws s3 sync --quiet "${post_install_base}/nccl-modules/" /usr/share/Modules/modulefiles/ --region "${cfn_region}" || exit 1
-}
-
-
 # main
 # ----------------------------------------------------------------------------
 main() {
@@ -37,7 +32,6 @@ main() {
     installDCGM
     bumpUp
     installCudaModules
-    #installNcclModules
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 90.allow.nvidia.debug.gpu.sh: STOP" >&2
 }
 
