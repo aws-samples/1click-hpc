@@ -12,7 +12,7 @@ activateSSH() {
     systemctl restart sssd
     echo "AuthorizedKeysCommand /usr/bin/sss_ssh_authorizedkeys" >> /etc/ssh/sshd_config
     echo "AuthorizedKeysCommandUser root" >> /etc/ssh/sshd_config
-    sed -E -i 's|^#?(PasswordAuthentication)\s.*|\1 no|' /etc/ssh/sshd_config
+    #sed -E -i 's|^#?(PasswordAuthentication)\s.*|\1 no|' /etc/ssh/sshd_config
     systemctl restart sshd
 }
 
