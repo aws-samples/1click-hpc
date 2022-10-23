@@ -145,7 +145,7 @@ if [ $SLURM_JOB_GPUS == '0,1,2,3,4,5,6,7' ] && [ $Project != 'defective' ]; then
     done
 
     if [ "$result" != '0,0,0,0,0,0,0,0' ]; then
-        /opt/slurm/bin/sbatch --nodelist $SLURMD_NODENAME --comment defective /opt/slurm/sbin/debug.sbatch
+        #/opt/slurm/bin/sbatch --nodelist $SLURMD_NODENAME --comment defective /opt/slurm/sbin/debug.sbatch
         /opt/slurm/bin/scancel ${SLURM_JOBID}
         echo "prolog script cancelled job ${SLURM_JOBID}" >> /fsx/shared/debug.log
     fi
