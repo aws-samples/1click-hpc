@@ -74,29 +74,12 @@ if [ $SLURM_JOB_GPUS == '0,1,2,3,4,5,6,7' ] && [ $Project != 'defective' ]; then
     source /etc/profile.d/modules.sh
     module load cuda/11.6
 
-    function die() {
-        echo "$*" >> /fsx/shared/debug.log
-        echo "nccl tests died" >> /fsx/shared/debug.log
-        #exit 1
-        # failed node, arrest it with service job, cancel initial job
-        return results
-    }
-    function log() {
-        echo "$*" >> /fsx/shared/debug.log
-        echo "nccl tests logged" >> /fsx/shared/debug.log
-    }
-    function dbg() {
-        echo "$*" >> /fsx/shared/debug.log
-        echo "nccl tests debugged" >> /fsx/shared/debug.log
-        #todo: add here new results based on defect types
-    }
-
     function collect_nccl_allreduce_ib_loopback_data() {
         nccl_allreduce_ib_loopback_out=$(/opt/amazon/openmpi/bin/mpirun --oversubscribe $MPI_ARGS $ENVIRON_VARS all_reduce_perf $NCCL_ARGS)
         nccl_allreduce_ib_loopback_out_rc=$?
         if [[ $nccl_allreduce_ib_loopback_out_rc != 0 ]]; then
-            log "nccl_allreduce_ib_loopback_freq_out"
-            die 1 "$FUNCNAME: nccl_allreduce (IB loopback) returned error code $nccl_allreduce_ib_loopback_out_rc"
+            echo "nccl_allreduce_ib_loopback_freq_out" >> /fsx/shared/debug.log
+            echo"$FUNCNAME: nccl_allreduce (IB loopback) returned error code $nccl_allreduce_ib_loopback_out_rc" >> /fsx/shared/debug.log
             results='1,1,1,1,1,1,1,1'
         fi
         IFS=$'\n'
@@ -114,16 +97,16 @@ if [ $SLURM_JOB_GPUS == '0,1,2,3,4,5,6,7' ] && [ $Project != 'defective' ]; then
                 IFS=$' \t\n'
                 nccl_allreduce_ib_loopback_out_line=( ${nccl_allreduce_ib_loopback_out_lines[$i]} )
                 avg_bus_bw=${nccl_allreduce_ib_loopback_out_line[5]}
-                dbg "Measured Avg NCCL allreduce ib loopback bus BW $avg_bus_bw GB/s"
+                echo "Measured Avg NCCL allreduce ib loopback bus BW $avg_bus_bw GB/s" >> /fsx/shared/debug.log
                 break
             fi
         done
-        dbg "Measured Avg NCCL allreduce IB loopback bus BW=$avg_bus_bw, Expected NCCL allreduce IB loopback BW=$EXP_NCCL_ALLREDUCE_IB_LOOPBACK_BW"
+        echo "Measured Avg NCCL allreduce IB loopback bus BW=$avg_bus_bw, Expected NCCL allreduce IB loopback BW=$EXP_NCCL_ALLREDUCE_IB_LOOPBACK_BW" >> /fsx/shared/debug.log
         if [[ $avg_bus_bw < $EXP_NCCL_ALLREDUCE_IB_LOOPBACK_BW ]]
         then
-            log "$nccl_allreduce_ib_loopback_out"
-            die 1 "$FUNCNAME: NCCL allreduce IB loopback, BUS BW (expected > $EXP_NCCL_ALLREDUCE_IB_LOOPBACK_BW GB/s, but measured $avg_bus_bw GB/s"
-            return 1
+            echo "$nccl_allreduce_ib_loopback_out" >> /fsx/shared/debug.log
+            echo "$FUNCNAME: NCCL allreduce IB loopback, BUS BW (expected > $EXP_NCCL_ALLREDUCE_IB_LOOPBACK_BW GB/s, but measured $avg_bus_bw GB/s" >> /fsx/shared/debug.log
+            results='2,2,2,2,2,2,2,2'
         fi
     }
     check_nccl_allreduce_ib_loopback
@@ -144,7 +127,7 @@ if [ $SLURM_JOB_GPUS == '0,1,2,3,4,5,6,7' ] && [ $Project != 'defective' ]; then
         awk_ndx=`expr $awk_ndx + 1`
     done
 
-    if [ "$result" != '0,0,0,0,0,0,0,0' ]; then
+    if [ "$results" != '0,0,0,0,0,0,0,0' ]; then
         #/opt/slurm/bin/sbatch --nodelist $SLURMD_NODENAME --comment defective /opt/slurm/sbin/debug.sbatch
         /opt/slurm/bin/scancel ${SLURM_JOBID}
         echo "prolog script cancelled job ${SLURM_JOBID}" >> /fsx/shared/debug.log
