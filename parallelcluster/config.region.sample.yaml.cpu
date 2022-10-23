@@ -108,7 +108,6 @@ Scheduling:
             - 00.install.knot.resolver.cpu.sh
             - 04.configure.disable.anacron.compute.sh
             - 33.install.cost.control.sh
-            - 40.install.monitoring.compute.sh
             - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
@@ -165,7 +164,6 @@ Scheduling:
             - 00.install.knot.resolver.cpu.sh
             - 04.configure.disable.anacron.compute.sh
             - 33.install.cost.control.sh
-            - 40.install.monitoring.compute.sh
             - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
@@ -227,7 +225,6 @@ Scheduling:
             - 00.install.knot.resolver.cpu.sh
             - 04.configure.disable.anacron.compute.sh
             - 33.install.cost.control.sh
-            - 40.install.monitoring.compute.sh
             - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
@@ -284,7 +281,6 @@ Scheduling:
             - 00.install.knot.resolver.cpu.sh
             - 04.configure.disable.anacron.compute.sh
             - 33.install.cost.control.sh
-            - 40.install.monitoring.compute.sh
             - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
@@ -331,7 +327,6 @@ Scheduling:
             - 00.install.knot.resolver.cpu.sh
             - 04.configure.disable.anacron.compute.sh
             - 33.install.cost.control.sh
-            - 40.install.monitoring.compute.sh
             - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
@@ -388,7 +383,6 @@ Scheduling:
             - 00.install.knot.resolver.cpu.sh
             - 04.configure.disable.anacron.compute.sh
             - 33.install.cost.control.sh
-            - 40.install.monitoring.compute.sh
             - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh

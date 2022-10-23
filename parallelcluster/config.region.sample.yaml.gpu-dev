@@ -96,7 +96,6 @@ Scheduling:
             - 33.install.cost.control.sh
             - 35.boost.gpu.clock.gpu.sh
             - 40.install.monitoring.gpu.sh
-            - 40.install.monitoring.compute.sh
             - 45.install.nccl.compute.sh
             - 70.install.enroot.pyxis.sh
             - 70.install.singularity.compute.sh

@@ -87,10 +87,8 @@ Scheduling:
             - 04.configure.disable.anacron.compute.sh
             - 33.install.cost.control.sh
             - 35.boost.gpu.clock.gpu.sh
-            - 40.install.monitoring.gpu.sh
-            - 40.install.monitoring.compute.sh
+            - 40.install.monitoring.gpu.s     
             - 45.install.nccl.compute.sh
-            #- 60.install.gpumon.cloudwatch.metrics.sh
             - 70.install.enroot.pyxis.sh
             - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
@@ -141,8 +139,7 @@ Scheduling:
             - 04.configure.disable.anacron.compute.sh
             - 33.install.cost.control.sh
             - 35.boost.gpu.clock.gpu.sh
-            - 40.install.monitoring.gpu.sh
-            - 40.install.monitoring.compute.sh
+            - 40.install.monitoring.gpu.sh           
             - 45.install.nccl.compute.sh
             - 60.install.gpumon.cloudwatch.metrics.sh
             - 80.fast.aws.cli.compute.sh
@@ -194,8 +191,7 @@ Scheduling:
             - 04.configure.disable.anacron.compute.sh
             - 33.install.cost.control.sh
             - 35.boost.gpu.clock.gpu.sh
-            - 40.install.monitoring.gpu.sh
-            - 40.install.monitoring.compute.sh
+            - 40.install.monitoring.gpu.sh            
             - 45.install.nccl.compute.sh
             - 60.install.gpumon.cloudwatch.metrics.sh
             - 70.install.enroot.pyxis.sh
@@ -268,8 +264,7 @@ Scheduling:
             - 02.activate.passwordless.sudo.compute.sh
             - 00.install.knot.resolver.cpu.sh
             - 04.configure.disable.anacron.compute.sh
-            - 33.install.cost.control.sh
-            - 40.install.monitoring.compute.sh
+            - 33.install.cost.control.sh            
             - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
@@ -308,8 +303,7 @@ Scheduling:
             - 02.activate.passwordless.AD.headnode.sh
             - 00.install.knot.resolver.cpu.sh
             - 04.configure.disable.anacron.compute.sh
-            - 33.install.cost.control.sh
-            - 40.install.monitoring.compute.sh
+            - 33.install.cost.control.sh            
             - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
@@ -348,8 +342,7 @@ Scheduling:
             - 02.activate.passwordless.AD.headnode.sh
             - 00.install.knot.resolver.cpu.sh
             - 04.configure.disable.anacron.compute.sh
-            - 33.install.cost.control.sh
-            - 40.install.monitoring.compute.sh
+            - 33.install.cost.control.sh            
             - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
@@ -410,8 +403,7 @@ Scheduling:
             - 00.install.custom.packages.compute.sh
             - 02.activate.passwordless.sudo.compute.sh
             - 04.configure.disable.anacron.compute.sh
-            - 33.install.cost.control.sh
-            - 40.install.monitoring.compute.sh
+            - 33.install.cost.control.sh            
             - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh

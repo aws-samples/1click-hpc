@@ -16,7 +16,6 @@ installEFAmon() {
     echo -e "/usr/bin/python3 /opt/aws/cloudwatch/efa/efa-to-cw.py /opt/aws/cloudwatch/efa/efa-exporter >> /dev/null 2>&1 &\n" | tee -a /opt/aws/cloudwatch/aws-cloudwatch-wrapper.sh
     chmod +x /opt/aws/cloudwatch/aws-cloudwatch-wrapper.sh
     cp /opt/aws/cloudwatch/nvidia/cwa-config.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/
-    #/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json -s
     systemctl enable aws-hw-monitor.service
     systemctl start aws-hw-monitor.service
     systemctl restart amazon-cloudwatch-agent.service

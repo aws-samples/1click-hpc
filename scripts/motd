@@ -16,14 +16,7 @@ cat << EOF
                  ╚██████╔╝██║ ╚████║    ██║  ██║╚███╔███╔╝███████║                     
                   ╚═════╝ ╚═╝  ╚═══╝    ╚═╝  ╚═╝ ╚══╝╚══╝ ╚══════╝                     
                                                                                       
-
- You can connect to your HPC cluster using the EnginFrame web portal:
- https://${ALB_PUBLIC_DNS_NAME}/enginframe
- 
- Or, access a Grafana based Monitoring Dashboard:
- https://${ALB_PUBLIC_DNS_NAME}/grafana
- 
- Or, You can ssh into the Head-node:
+ You can ssh into the Head-node:
  $ ssh ${HEADNODE_PRIVATE_IP}
 
 EOF
