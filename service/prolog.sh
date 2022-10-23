@@ -63,7 +63,7 @@ if [ $SLURM_JOB_GPUS == '0,1,2,3,4,5,6,7' ] && [ $Project != 'defective' ]; then
     export FI_EFA_ENABLE_SHM_TRANSFER=0
     export FI_PROVIDER=efa
     export FI_EFA_TX_MIN_CREDITS=64
-    export EXP_NCCL_ALLREDUCE_IB_LOOPBACK_BW=5
+    export EXP_NCCL_ALLREDUCE_IB_LOOPBACK_BW=0
     export SLURM_TASKS_PER_NODE=1
     export SLURM_NODELIST=$SLURMD_NODENAME
 
