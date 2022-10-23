@@ -18,6 +18,7 @@ Metadata:
           - ADDNS0
           - ADDNS1
           - ADPassword
+          - ROUPassword
           - LdapsEndpoint
     ParameterLabels:
       MapMigrated:
@@ -41,6 +42,8 @@ Metadata:
       ADDNS1:
         default: ''
       ADPassword:
+        default: ''
+      ROUPassword:
         default: ''
       LdapsEndpoint:
         default: 'LDAPS endpoint'
@@ -109,6 +112,14 @@ Parameters:
 
     ADPassword:
       Description: 'Please enter Admin user password of the custom AD domain'
+      Type: String
+      MinLength: '8'
+      MaxLength: '255'
+      AllowedPattern: (?=^.{8,255}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*
+      NoEcho: 'true'
+
+    ROUPassword:
+      Description: 'Please enter ReadOnlyUser password of the custom AD domain'
       Type: String
       MinLength: '8'
       MaxLength: '255'
@@ -512,6 +523,13 @@ Resources:
       Name: !Sub 'hpc-1click-${AWS::StackName}-AD'
       Description: This the password used for Admin of the custom AD directory
       SecretString: !If [CreateAD, !Ref AdminPassword, !Ref ADPassword]
+
+  CustomROUPassword:
+    Type: 'AWS::SecretsManager::Secret'
+    Properties:
+      Name: !Sub 'hpc-1click-${AWS::StackName}-ROU'
+      Description: This the password used for ReadOnlyUser of the custom AD directory
+      SecretString: !If [CreateAD, !Ref AdminPassword, !Ref ROUPassword]
 
   Cloud9SSMDocument: 
     Type: AWS::SSM::Document

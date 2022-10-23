@@ -25,6 +25,7 @@ export DC2=$(echo "${ADName}" | awk -F'.' '{print $3}')
 export OU=${DC0^^}
 
 ADMIN_PW=$(aws secretsmanager get-secret-value --secret-id "hpc-1click-${CLUSTER_NAME}-AD" --query SecretString --output text --region "${AWS_REGION_NAME}")
+ROU_PW=$(aws secretsmanager get-secret-value --secret-id "hpc-1click-${CLUSTER_NAME}-ROU" --query SecretString --output text --region "${AWS_REGION_NAME}")
 export SECRET_ARN=$(aws secretsmanager describe-secret --secret-id "hpc-1click-${CLUSTER_NAME}-AD" --query ARN --output text --region "${AWS_REGION_NAME}")
 
 sudo cp /etc/resolv.conf /etc/resolv.conf.OK
@@ -40,8 +41,8 @@ echo "${ADMIN_PW}" | sudo realm join -U Admin ${ADName}
 if [[ $CUSTOMAD == "false" ]];then
   echo "${ADMIN_PW}" | adcli create-user -x -U Admin --domain=${ADName} --display-name=ReadOnlyUser ReadOnlyUser
   echo "${ADMIN_PW}" | adcli create-user -x -U Admin --domain=${ADName} --display-name=user000 user000
-  aws ds reset-user-password --directory-id "${AD_ID}" --user-name "ReadOnlyUser" --new-password "${ADMIN_PW}" --region "${AWS_REGION_NAME}"
-  aws ds reset-user-password --directory-id "${AD_ID}" --user-name "user000" --new-password "${ADMIN_PW}" --region "${AWS_REGION_NAME}"
+  aws ds reset-user-password --directory-id "${AD_ID}" --user-name "ReadOnlyUser" --new-password "${ROU_PW}" --region "${AWS_REGION_NAME}"
+  aws ds reset-user-password --directory-id "${AD_ID}" --user-name "user000" --new-password "${ROU_PW}" --region "${AWS_REGION_NAME}"
 fi
 
 sudo cp /etc/resolv.conf.OK /etc/resolv.conf
