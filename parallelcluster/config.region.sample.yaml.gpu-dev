@@ -20,7 +20,7 @@ HeadNode:
         - 50.install.capacity.reservation.pool.sh
         - 70.install.enroot.pyxis.sh
         - 88.install.preemption.headnode.sh
-        - 00.install.knot.resolver.cpu.sh
+        - 90.install.service.automation.headnode.sh
       Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
   Iam:
     AdditionalIamPolicies:
@@ -84,23 +84,23 @@ Scheduling:
           Efa:
             Enabled: true
           InstanceType: p4d.24xlarge
-          MaxCount: 8
-          MinCount: 8
+          MaxCount: 10
+          MinCount: 10
       CustomActions:
         OnNodeConfigured:
           Args:
             - 00.install.custom.packages.compute.sh
-            - 00.install.knot.resolver.cpu.sh
             - 02.activate.passwordless.sudo.compute.sh
             - 04.configure.disable.anacron.compute.sh
             - 33.install.cost.control.sh
             - 35.boost.gpu.clock.gpu.sh
             - 40.install.monitoring.gpu.sh
+            - 43.allow.nvidia.debug.gpu.sh
             - 45.install.nccl.compute.sh
             - 70.install.enroot.pyxis.sh
             - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
-            - 90.allow.nvidia.debug.gpu.sh
+            - 90.install.service.automation.gpu.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
@@ -110,6 +110,8 @@ Scheduling:
           - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
           - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
           - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+          - Policy: arn:aws:iam::aws:policy/AWSSupportAccess
+          - Policy: arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
           - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/pclusterTagsAndBudget #make sure this policy is created https://pcluster.cloud/02-tutorials/04-cost-tracking.html
         S3Access:
           - BucketName: '*'
