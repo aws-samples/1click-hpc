@@ -6,6 +6,8 @@
 
 systemctl disable slurmctld
 systemctl disable slurmdbd
+systemctl stop supervisord
+systemctl disable supervisord
 
 rm -rf /opt/slurm
 rm -rf /home/*
