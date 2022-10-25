@@ -115,15 +115,14 @@ if [ $SLURM_JOB_GPUS == '0,1,2,3,4,5,6,7' ] && [ $Project != 'defective' ]; then
     # only check if any of the nodes were not checked in the last 24h
     lastechecked=100
     lastchecked=$(/usr/bin/mysql --host=$dbhost --user=admin --password=$password --database=$database --batch -se "SELECT MAX((CURRENT_TIMESTAMP-lastlogged)/3600000) as age from health where hostname = '$SLURMD_NODENAME' and cluster = '$SLURM_CLUSTER_NAME'")
-    #echo $lastchecked  >> /fsx/shared/debug.log
     
     if [ '$lastchecked' -gt '24' ]; then
-        check_nccl_allreduce_ib_loopback
+        check_nccl_allreduce_ib_loopback || results='3,3,3,3,3,3,3,3'
     fi
 
     serials=$(nvidia-smi --query-gpu="serial" --format=csv,noheader | tr '\n' ',' | sed 's/.$//')
 
-    # results="r0,r1,r2,r3,r4,r5,r6,r7" in the format 0 if healthy, 1 if slow nccl, 2 ecc defect, 3 unresponsive
+    # results="r0,r1,r2,r3,r4,r5,r6,r7" in the format 0 if healthy, 1 if nccl error, 2 slow EFA, 3 hard error
 
     awk_ndx=1
     while [ 1 -eq 1 ]; do
