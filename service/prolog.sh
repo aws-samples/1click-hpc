@@ -52,6 +52,9 @@ if [ $SLURM_JOB_GPUS == '0,1,2,3,4,5,6,7' ] && [ $Project != 'defective' ]; then
     results='0,0,0,0,0,0,0,0'
     instanceid=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
     ipaddr=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
+    dbhost=$(awk -F "=" '/host/ {print $2}' /root/.my.cnf | /usr/bin/xargs)
+    password=$(awk -F "=" '/password/ {print $2}' /root/.my.cnf | /usr/bin/xargs)
+    database=$(awk -F "=" '/database/ {print $2}' /root/.my.cnf | /usr/bin/xargs)
 
     export LD_LIBRARY_PATH=/opt/amazon/openmpi/lib64:/opt/amazon/efa/lib64
     export PATH=/opt/amazon/efa/bin:$PATH
@@ -109,15 +112,19 @@ if [ $SLURM_JOB_GPUS == '0,1,2,3,4,5,6,7' ] && [ $Project != 'defective' ]; then
             results='2,2,2,2,2,2,2,2'
         fi
     }
-    # suspend speed checks until we fix the scalability
-    #check_nccl_allreduce_ib_loopback
+    # only check if any of the nodes were not checked in the last 24h
+    lastechecked=100
+    lastchecked=$(/usr/bin/mysql --host=$dbhost --user=admin --password=$password --database=$database --batch -se "SELECT MAX((CURRENT_TIMESTAMP-lastlogged)/3600000) as age from health where hostname = '$SLURMD_NODENAME' and cluster = '$SLURM_CLUSTER_NAME'")
+    #echo $lastchecked  >> /fsx/shared/debug.log
+    
+    if [ '$lastchecked' -gt '24' ]; then
+        check_nccl_allreduce_ib_loopback
+    fi
 
     serials=$(nvidia-smi --query-gpu="serial" --format=csv,noheader | tr '\n' ',' | sed 's/.$//')
 
     # results="r0,r1,r2,r3,r4,r5,r6,r7" in the format 0 if healthy, 1 if slow nccl, 2 ecc defect, 3 unresponsive
-    dbhost=$(awk -F "=" '/host/ {print $2}' /root/.my.cnf | /usr/bin/xargs)
-    password=$(awk -F "=" '/password/ {print $2}' /root/.my.cnf | /usr/bin/xargs)
-    database=$(awk -F "=" '/database/ {print $2}' /root/.my.cnf | /usr/bin/xargs)
+
     awk_ndx=1
     while [ 1 -eq 1 ]; do
         result=$(echo $results | awk '{ print $n }' n=$awk_ndx FS=",")
