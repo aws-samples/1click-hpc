@@ -840,7 +840,7 @@ Resources:
               time.sleep(10)
               return response['ServerCertificateMetadata']['Arn']
           def delete_certificate(event):
-              time.sleep(10)
+              time.sleep(30)
               DNSName = event['ResourceProperties']['DNSName']
               iam = boto3.client('iam')
               response = iam.delete_server_certificate(ServerCertificateName=DNSName)
