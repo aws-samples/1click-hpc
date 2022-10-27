@@ -82,7 +82,7 @@ if [ $SLURM_JOB_GPUS == '0,1,2,3,4,5,6,7' ] && [ $Project != 'defective' ]; then
         nccl_allreduce_ib_loopback_out_rc=$?
         if [[ $nccl_allreduce_ib_loopback_out_rc != 0 ]]; then
             echo "nccl_allreduce_ib_loopback_freq_out" >> /fsx/shared/debug.log
-            echo"$FUNCNAME: nccl_allreduce (IB loopback) returned error code $nccl_allreduce_ib_loopback_out_rc" >> /fsx/shared/debug.log
+            echo "$FUNCNAME: nccl_allreduce (IB loopback) returned error code $nccl_allreduce_ib_loopback_out_rc" >> /fsx/shared/debug.log
             results='1,1,1,1,1,1,1,1'
         fi
         IFS=$'\n'
@@ -113,26 +113,24 @@ if [ $SLURM_JOB_GPUS == '0,1,2,3,4,5,6,7' ] && [ $Project != 'defective' ]; then
         fi
     }
     # only check if any of the nodes were not checked in the last 24h
-    lastechecked=100
-    lastchecked=$(/usr/bin/mysql --host=$dbhost --user=admin --password=$password --database=$database --batch -se "SELECT MAX((CURRENT_TIMESTAMP-lastlogged)/3600000) as age from health where hostname = '$SLURMD_NODENAME' and cluster = '$SLURM_CLUSTER_NAME'")
+    lastchecked=$(/usr/bin/mysql --host=$dbhost --user=admin --password=$password --database=$database --batch -se "SELECT IFNULL(MAX((CURRENT_TIMESTAMP-lastlogged)/3600),'1000') as age from health where hostname = '$SLURMD_NODENAME' and cluster = '$SLURM_CLUSTER_NAME'")
     
-    if [ '$lastchecked' -gt '24' ]; then
+    if [ "$lastchecked" -gt "24" ]; then
         check_nccl_allreduce_ib_loopback || results='3,3,3,3,3,3,3,3'
+        
+        serials=$(nvidia-smi --query-gpu="serial" --format=csv,noheader | tr '\n' ',' | sed 's/.$//')
+
+        # results="r0,r1,r2,r3,r4,r5,r6,r7" in the format 0 if healthy, 1 if nccl error, 2 slow EFA, 3 hard error
+        awk_ndx=1
+        while [ 1 -eq 1 ]; do
+            result=$(echo $results | awk '{ print $n }' n=$awk_ndx FS=",")
+            gpusn=$(echo $serials | awk '{ print $n }' n=$awk_ndx FS=",")
+            gpuid=$(echo $SLURM_JOB_GPUS | awk '{ print $n }' n=$awk_ndx FS=",")
+            [ "$result" = "" ] && break
+            /usr/bin/mysql --host=$dbhost --user=admin --password=$password --database=$database --batch -e "call RecordGPUhealth('$gpusn','$SLURM_CLUSTER_NAME','$SLURMD_NODENAME',$gpuid,'$instanceid','$ipaddr',$result)"
+            awk_ndx=`expr $awk_ndx + 1`
+        done
     fi
-
-    serials=$(nvidia-smi --query-gpu="serial" --format=csv,noheader | tr '\n' ',' | sed 's/.$//')
-
-    # results="r0,r1,r2,r3,r4,r5,r6,r7" in the format 0 if healthy, 1 if nccl error, 2 slow EFA, 3 hard error
-
-    awk_ndx=1
-    while [ 1 -eq 1 ]; do
-        result=$(echo $results | awk '{ print $n }' n=$awk_ndx FS=",")
-        gpusn=$(echo $serials | awk '{ print $n }' n=$awk_ndx FS=",")
-        gpuid=$(echo $SLURM_JOB_GPUS | awk '{ print $n }' n=$awk_ndx FS=",")
-        [ "$result" = "" ] && break
-        /usr/bin/mysql --host=$dbhost --user=admin --password=$password --database=$database --batch -e "call RecordGPUhealth('$gpusn','$SLURM_CLUSTER_NAME','$SLURMD_NODENAME',$gpuid,'$instanceid','$ipaddr',$result)"
-        awk_ndx=`expr $awk_ndx + 1`
-    done
 
     if [ "$results" != '0,0,0,0,0,0,0,0' ]; then
         #/opt/slurm/bin/sbatch --nodelist $SLURMD_NODENAME --comment defective /opt/slurm/sbin/debug.sbatch
