@@ -4,7 +4,7 @@
 #SBATCH --nodes=2
 #SBATCH --ntasks-per-node=8
 #SBATCH --exclusive
-#SBATCH --comment "TestProject"
+#SBATCH --comment "stability"
 #SBATCH --output=%x_%j.out
 module load openmpi
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/nccl/build/lib:/opt/aws-ofi-nccl/lib:/opt/amazon/openmpi/lib
@@ -23,5 +23,5 @@ export OMPI_MCA_btl="^openib"
 export OMPI_DIR=/opt/amazon/openmpi
 export PMIX_MCA_gds=hash
 
-srun --comment TestProject --container-image=public.ecr.aws\#w6p6i9i7/aws-efa-nccl-rdma:base-cudnn8-cuda11.3-ubuntu20.04 \
+srun --comment stability --container-image=public.ecr.aws\#w6p6i9i7/aws-efa-nccl-rdma:base-cudnn8-cuda11.3-ubuntu20.04 \
     --container-mounts=/opt/slurm:/opt/slurm/ /opt/nccl-tests/build/all_reduce_perf -b 128M -e 8G -f 2 -g 1 -c 1 -n 20
