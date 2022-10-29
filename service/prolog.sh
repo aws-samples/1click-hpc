@@ -66,11 +66,11 @@ if [ $SLURM_JOB_GPUS == '0,1,2,3,4,5,6,7' ] && [ $Project != 'defective' ]; then
     export FI_EFA_ENABLE_SHM_TRANSFER=0
     export FI_PROVIDER=efa
     export FI_EFA_TX_MIN_CREDITS=64
-    export EXP_NCCL_ALLREDUCE_IB_LOOPBACK_BW=0
+    export EXP_NCCL_ALLREDUCE_IB_LOOPBACK_BW=4
     export SLURM_TASKS_PER_NODE=1
     export SLURM_NODELIST=$SLURMD_NODENAME
 
-    MPI_ARGS="-np 8 --map-by ppr:8:node -bind-to numa --allow-run-as-root"
+    MPI_ARGS="-np 8 --oversubscribe --map-by ppr:8:node -bind-to numa --allow-run-as-root"
     ENVIRON_VARS="-x LD_LIBRARY_PATH -x NCCL_SHM_DISABLE=1 -x NCCL_P2P_DISABLE=1 -x NCCL_NET_GDR_LEVEL=SYS"
     NCCL_ARGS="-b 500M -f 2 -g 1 -e 1G -n 50 -w 10"
 
@@ -78,7 +78,7 @@ if [ $SLURM_JOB_GPUS == '0,1,2,3,4,5,6,7' ] && [ $Project != 'defective' ]; then
     module load cuda/11.6
 
     function collect_nccl_allreduce_ib_loopback_data() {
-        nccl_allreduce_ib_loopback_out=$(/opt/amazon/openmpi/bin/mpirun --oversubscribe $MPI_ARGS $ENVIRON_VARS all_reduce_perf $NCCL_ARGS)
+        nccl_allreduce_ib_loopback_out=$(/opt/amazon/openmpi/bin/mpirun $MPI_ARGS $ENVIRON_VARS all_reduce_perf $NCCL_ARGS)
         nccl_allreduce_ib_loopback_out_rc=$?
         if [[ $nccl_allreduce_ib_loopback_out_rc != 0 ]]; then
             echo "nccl_allreduce_ib_loopback_freq_out" >> /fsx/shared/debug.log
@@ -133,7 +133,7 @@ if [ $SLURM_JOB_GPUS == '0,1,2,3,4,5,6,7' ] && [ $Project != 'defective' ]; then
     fi
 
     if [ "$results" != '0,0,0,0,0,0,0,0' ]; then
-        #/opt/slurm/bin/sbatch --nodelist $SLURMD_NODENAME --comment defective /opt/slurm/sbin/debug.sbatch
+        /opt/slurm/bin/sbatch --nodelist $SLURMD_NODENAME --comment defective /opt/slurm/sbin/debug.sbatch
         /opt/slurm/bin/scancel ${SLURM_JOBID}
         echo "prolog script cancelled job ${SLURM_JOBID}" >> /fsx/shared/debug.log
     fi
