@@ -42,7 +42,7 @@ installNCCL() {
     export PATH=$PATH:/opt/amazon/efa/bin:/opt/amazon/openmpi/bin
     sudo ./autogen.sh
     sudo mkdir -p /opt/aws-ofi-nccl-cuda11.4
-    sudo ./configure --prefix=/opt/aws-ofi-nccl --with-mpi=/opt/amazon/openmpi --with-libfabric=/opt/amazon/efa --with-nccl=/opt/nccl-cuda11.4/build --with-cuda=/usr/local/cuda-11.4
+    sudo ./configure --prefix=/opt/aws-ofi-nccl-cuda11.4 --with-mpi=/opt/amazon/openmpi --with-libfabric=/opt/amazon/efa --with-nccl=/opt/nccl-cuda11.4/build --with-cuda=/usr/local/cuda-11.4
     sudo make -j40 && sudo make -j40 install
     #echo -e '#!/bin/sh\nexport LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/aws-ofi-nccl/lib' | sudo tee /etc/profile.d/aws-ofi-nccl.sh
 
