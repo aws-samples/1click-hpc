@@ -50,11 +50,14 @@ sudo cp /etc/resolv.conf.OK /etc/resolv.conf
 #install Lustre client
 sudo amazon-linux-extras install -y lustre2.10 > /dev/null 2>&1
 python3 -m pip install "aws-parallelcluster" --user --upgrade --quiet
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
-chmod ug+x ~/.nvm/nvm.sh
-source ~/.nvm/nvm.sh > /dev/null 2>&1
-nvm install --lts > /dev/null 2>&1
-node --version
+
+
+#curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+#chmod ug+x ~/.nvm/nvm.sh
+#source ~/.nvm/nvm.sh > /dev/null 2>&1
+#nvm install --lts > /dev/null 2>&1
+#node --version
+
 
 if [[ $FSX_ID == "AUTO" ]];then
 FSX=$(cat <<EOF
