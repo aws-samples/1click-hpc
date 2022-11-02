@@ -13,6 +13,7 @@ Metadata:
           - PublicSubnetAId
           - PublicSubnetBId
           - PrivateSubnetAId
+          - ODCRGroup
           - FSx
           - AD
           - ADDNS0
@@ -33,6 +34,8 @@ Metadata:
         default: 'Public Subnet 2:'
       PrivateSubnetAId: 
         default: 'Private Subnet:'
+      ODCRGroup: 
+        default: 'ODCR Group Name:'
       FSx: 
         default: 'FSx:'
       AD: 
@@ -84,6 +87,12 @@ Parameters:
       Description: 'Please, enter the ID of the Private Subnet you wish to use, or put NONE if you want to use only Public Subnets, or just leave "AUTO" if you want to re-use an existing one.'
       Type: String
       AllowedPattern: ^(AUTO|NONE|subnet-[0-9a-z]+)$
+      Default : AUTO
+
+    ODCRGroup:
+      Description: 'Please, enter the ODCR Group name, or just leave "AUTO" if you want to create a new one.'
+      Type: String
+      AllowedPattern: ^(AUTO|NONE|[0-9a-z]+-ODCR-Group)$
       Default : AUTO
       
     FSx: 
@@ -192,6 +201,7 @@ Conditions:
   CreatePrivateSubnet: !And [!Condition CreateVpc, !Equals [!Ref PrivateSubnetAId, AUTO]]
   CreateAD: !Equals [!Ref AD, AUTO]
   CreateLDAPSELB: !Equals [!Ref LdapsEndpoint, AUTO]
+  CreateODCRGroup: !Equals [!Ref ODCRGroup, AUTO]
 
 Resources:
 
@@ -280,6 +290,7 @@ Resources:
   # test making a dynamic group, how to transport the name into the post install script?
   ODCRGroup:
     Type: "AWS::ResourceGroups::Group"
+    Condition: CreateODCRGroup
     Properties:
       Name: !Sub '${AWS::StackName}-ODCR-Group'
       Description: "A resource group for targeted EC2 capacity reservations"
@@ -573,6 +584,9 @@ Resources:
               - FinalPrivateSubnetAId: !If [CreatePrivateSubnet, !Ref PrivateSubnetA, !Ref PrivateSubnetAId]            
             - !Sub echo "export CLUSTER_NAME=${AWS::StackName}" >> cluster_env
             - !Sub echo "export ADDITIONAL_SG=${PCAdditionalSecurityGroup}" >> cluster_env
+            - !Sub 
+              - echo "export ODCRGROUP=${ODCRGROUPNAME}" >> cluster_env
+              - ODCRGROUPNAME: !If [CreateODCRGroup, '${AWS::StackName}-ODCR-Group', !Ref ODCRGroup]
             - !Sub echo "export WAIT_HANDLE='${WaitHandle}'" >> cluster_env
             - !Sub 
               - echo "export ALB_PUBLIC_DNS_NAME='${ALB}'" >> cluster_env

@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: ODCRGroup
+
+Metadata: 
+  AWS::CloudFormation::Interface:
+    ParameterGroups: 
+      - 
+        Label: 
+          default: ""
+
+Resources:
+
+  # test making a dynamic group, how to transport the name into the post install script?
+  ODCRGroup:
+    Type: "AWS::ResourceGroups::Group"
+    Properties:
+      Name: !Sub '${AWS::StackName}-ODCR-Group'
+      Description: "A resource group for targeted EC2 capacity reservations"
+      Configuration:
+      - Type: "AWS::EC2::CapacityReservationPool"
+        Parameters: []
+      - Type: "AWS::ResourceGroups::Generic"
+        Parameters:
+        - Name: "allowed-resource-types"
+          Values:
+            - "AWS::EC2::CapacityReservation"
+
+

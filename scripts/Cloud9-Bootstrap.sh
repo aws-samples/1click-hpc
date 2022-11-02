@@ -101,6 +101,9 @@ fi
 /usr/bin/envsubst < "stability-hpc/parallelcluster/config.${AWS_REGION_NAME}.sample.yaml" > config.${AWS_REGION_NAME}.yaml
 /usr/bin/envsubst < "stability-hpc/modules/50.install.capacity.reservation.pool.sh" > 50.install.capacity.reservation.pool.sh
 
+#in case we use custom ODCR group
+sed -i -e "s/${CLUSTER_NAME}-ODCR-Group/$ODCRGROUP/g" 50.install.capacity.reservation.pool.sh
+
 aws s3 cp --quiet 50.install.capacity.reservation.pool.sh "s3://${S3_BUCKET}/1click-hpc/modules/50.install.capacity.reservation.pool.sh" --region "${AWS_REGION_NAME}"
 
 #Create the key pair (remove the existing one if it has the same name)
