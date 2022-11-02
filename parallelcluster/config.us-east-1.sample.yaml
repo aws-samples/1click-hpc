@@ -36,7 +36,7 @@ HeadNode:
     S3Access:
       - BucketName: '*'
         EnableWriteAccess: true
-  InstanceType: c5n.4xlarge
+  InstanceType: c5n.9xlarge
   Networking:
     AdditionalSecurityGroups:
       - ${ADDITIONAL_SG}
@@ -79,13 +79,13 @@ Scheduling:
             VolumeType: gp3
             Iops: 5000
       ComputeResources:
-        - Name: p4d-24xlarge
+        - Name: p4de-24xlarge
           DisableSimultaneousMultithreading: true
           Efa:
             Enabled: true
-          InstanceType: p4d.24xlarge
-          MaxCount: 10
-          MinCount: 10
+          InstanceType: p4de.24xlarge
+          MaxCount: 13
+          MinCount: 13
       CustomActions:
         OnNodeConfigured:
           Args:
