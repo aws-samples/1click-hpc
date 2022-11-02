@@ -13,7 +13,7 @@ Metadata:
           - PublicSubnetAId
           - PublicSubnetBId
           - PrivateSubnetAId
-          - ODCRGroup
+          - ODCRGroupName
           - FSx
           - AD
           - ADDNS0
@@ -34,7 +34,7 @@ Metadata:
         default: 'Public Subnet 2:'
       PrivateSubnetAId: 
         default: 'Private Subnet:'
-      ODCRGroup: 
+      ODCRGroupName: 
         default: 'ODCR Group Name:'
       FSx: 
         default: 'FSx:'
@@ -89,7 +89,7 @@ Parameters:
       AllowedPattern: ^(AUTO|NONE|subnet-[0-9a-z]+)$
       Default : AUTO
 
-    ODCRGroup:
+    ODCRGroupName:
       Description: 'Please, enter the ODCR Group name, or just leave "AUTO" if you want to create a new one.'
       Type: String
       AllowedPattern: ^(AUTO|NONE|[0-9a-z]+-ODCR-Group)$
@@ -201,7 +201,7 @@ Conditions:
   CreatePrivateSubnet: !And [!Condition CreateVpc, !Equals [!Ref PrivateSubnetAId, AUTO]]
   CreateAD: !Equals [!Ref AD, AUTO]
   CreateLDAPSELB: !Equals [!Ref LdapsEndpoint, AUTO]
-  CreateODCRGroup: !Equals [!Ref ODCRGroup, AUTO]
+  CreateODCRGroup: !Equals [!Ref ODCRGroupName, AUTO]
 
 Resources:
 
@@ -586,7 +586,7 @@ Resources:
             - !Sub echo "export ADDITIONAL_SG=${PCAdditionalSecurityGroup}" >> cluster_env
             - !Sub 
               - echo "export ODCRGROUP=${ODCRGROUPNAME}" >> cluster_env
-              - ODCRGROUPNAME: !If [CreateODCRGroup, '${AWS::StackName}-ODCR-Group', !Ref ODCRGroup]
+              - ODCRGROUPNAME: !If [CreateODCRGroup, '${AWS::StackName}-ODCR-Group', !Ref ODCRGroupName]
             - !Sub echo "export WAIT_HANDLE='${WaitHandle}'" >> cluster_env
             - !Sub 
               - echo "export ALB_PUBLIC_DNS_NAME='${ALB}'" >> cluster_env
