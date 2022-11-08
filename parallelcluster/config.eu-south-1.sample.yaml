@@ -9,7 +9,6 @@ HeadNode:
   CustomActions:
     OnNodeConfigured:
       Args:
-        - 03.configure.slurm.acct.headnode.sh
         - 04.configure.slurm.AllOrNothing.headnode.sh
         - 07.configure.slurm.tagging.headnode.sh
         - 10.install.enginframe.headnode.sh
@@ -30,8 +29,9 @@ HeadNode:
   Networking:
     AdditionalSecurityGroups:
       - ${ADDITIONAL_SG}
+      - ${DB_SG}
     ElasticIp: true
-    SubnetId: ${SUBNET_ID}
+    SubnetId: ${PRIVATE_SUBNET_A_ID}
   Ssh:
     KeyName: ${KEY_PAIR}
   Imds:
@@ -49,6 +49,11 @@ Scheduling:
   Scheduler: slurm
   SlurmSettings:
     ScaledownIdletime: 10
+    EnableMemoryBasedScheduling: true
+    Database:
+      Uri: ${SLURM_DB_ENDPOINT}
+      UserName: 'admin'
+      PasswordSecretArn: ${SECRET_ARN}
   SlurmQueues:
     - Name: compute-od-1
       CapacityType: ONDEMAND
@@ -72,6 +77,7 @@ Scheduling:
           - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
           - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
           - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+          - Policy: arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetTaggingRole
         S3Access:
           - BucketName: '*'
             EnableWriteAccess: true
@@ -81,8 +87,8 @@ Scheduling:
         PlacementGroup:
           Enabled: true
         SubnetIds:
-          - ${SUBNET_ID}
-        AssignPublicIp: ${USE_PUBLIC_IPS}
+          - ${PRIVATE_SUBNET_A_ID}
+        AssignPublicIp: false
     - Name: compute-od-2
       CapacityType: ONDEMAND
       ComputeResources:
@@ -113,6 +119,7 @@ Scheduling:
           - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
           - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
           - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+          - Policy: arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetTaggingRole
         S3Access:
           - BucketName: '*'
             EnableWriteAccess: true
@@ -122,8 +129,8 @@ Scheduling:
         PlacementGroup:
           Enabled: true
         SubnetIds:
-          - ${SUBNET_ID}
-        AssignPublicIp: ${USE_PUBLIC_IPS}
+          - ${PRIVATE_SUBNET_A_ID}
+        AssignPublicIp: false
     - Name: compute-od-3
       CapacityType: ONDEMAND
       ComputeResources:
@@ -154,6 +161,7 @@ Scheduling:
           - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
           - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
           - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+          - Policy: arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetTaggingRole
         S3Access:
           - BucketName: '*'
             EnableWriteAccess: true
@@ -163,8 +171,8 @@ Scheduling:
         PlacementGroup:
           Enabled: true
         SubnetIds:
-          - ${SUBNET_ID}
-        AssignPublicIp: ${USE_PUBLIC_IPS}
+          - ${PRIVATE_SUBNET_A_ID}
+        AssignPublicIp: false
     - Name: compute-spot-1
       CapacityType: SPOT
       ComputeResources:
@@ -202,6 +210,7 @@ Scheduling:
           - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
           - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
           - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+          - Policy: arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetTaggingRole
         S3Access:
           - BucketName: '*'
             EnableWriteAccess: true
@@ -211,8 +220,8 @@ Scheduling:
         PlacementGroup:
           Enabled: true
         SubnetIds:
-          - ${SUBNET_ID}
-        AssignPublicIp: ${USE_PUBLIC_IPS}
+          - ${PRIVATE_SUBNET_A_ID}
+        AssignPublicIp: false
     - Name: dcv-gpu
       CapacityType: ONDEMAND
       ComputeResources:
@@ -255,6 +264,7 @@ Scheduling:
           - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
           - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
           - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+          - Policy: arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetTaggingRole
         S3Access:
           - BucketName: '*'
             EnableWriteAccess: true
@@ -264,8 +274,8 @@ Scheduling:
         PlacementGroup:
           Enabled: true
         SubnetIds:
-          - ${SUBNET_ID}
-        AssignPublicIp: ${USE_PUBLIC_IPS}
+          - ${PRIVATE_SUBNET_A_ID}
+        AssignPublicIp: false
     - Name: dcv
       CapacityType: ONDEMAND
       ComputeResources:
@@ -308,6 +318,7 @@ Scheduling:
           - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
           - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
           - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+          - Policy: arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetTaggingRole
         S3Access:
           - BucketName: '*'
             EnableWriteAccess: true
@@ -317,8 +328,8 @@ Scheduling:
         PlacementGroup:
           Enabled: true
         SubnetIds:
-          - ${SUBNET_ID}
-        AssignPublicIp: ${USE_PUBLIC_IPS}
+          - ${PRIVATE_SUBNET_A_ID}
+        AssignPublicIp: false
 SharedStorage:
 ${FSX}
 Tags:

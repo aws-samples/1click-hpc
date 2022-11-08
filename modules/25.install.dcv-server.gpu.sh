@@ -70,7 +70,9 @@ restartDCV() {
 main() {
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] install.dcv-server.gpu.sh: START" >&2
 
-    wget -nv https://d1uj6qtbmh3dt5.cloudfront.net/nice-dcv-el7-x86_64.tgz
+    aws s3 cp --quiet "${post_install_base}/packages/nice-dcv-el7-x86_64.tgz" .
+    #wget -nv https://d1uj6qtbmh3dt5.cloudfront.net/nice-dcv-el7-x86_64.tgz
+    
     tar zxvf nice-dcv-el7-x86_64.tgz
     installDCVGLonG4
     installSimpleExternalAuth

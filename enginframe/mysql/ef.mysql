@@ -1,3 +1,0 @@
-CREATE DATABASE EnginFrameDB DEFAULT CHARACTER SET latin1;
-GRANT ALL ON `%`.* TO admin@`%`;
-flush privileges;
