@@ -9,13 +9,11 @@ HeadNode:
   CustomActions:
     OnNodeConfigured:
       Args:
-        - 03.configure.slurm.acct.headnode.sh
         - 04.configure.slurm.AllOrNothing.headnode.sh
         - 07.configure.slurm.tagging.headnode.sh
         - 10.install.enginframe.headnode.sh
         - 12.configure.enginframe.alb.headnode.sh
         - 20.install.dcv.slurm.headnode.sh
-        - 40.install.monitoring.headnode.sh
       Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
   Iam:
     AdditionalIamPolicies:
@@ -32,6 +30,7 @@ HeadNode:
   Networking:
     AdditionalSecurityGroups:
       - ${ADDITIONAL_SG}
+      - ${DB_SG}
     ElasticIp: true
     SubnetId: ${SUBNET_ID}
   Ssh:
@@ -51,6 +50,11 @@ Scheduling:
   Scheduler: slurm
   SlurmSettings:
     ScaledownIdletime: 10
+    EnableMemoryBasedScheduling: true
+    Database:
+      Uri: ${SLURM_DB_ENDPOINT}
+      UserName: 'admin'
+      PasswordSecretArn: ${SECRET_ARN}
   SlurmQueues:
     - Name: compute-od-1
       CapacityType: ONDEMAND
@@ -66,7 +70,6 @@ Scheduling:
         OnNodeConfigured:
           Args:
             - 04.configure.disable.anacron.compute.sh
-            - 40.install.monitoring.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
@@ -110,7 +113,6 @@ Scheduling:
         OnNodeConfigured:
           Args:
             - 04.configure.disable.anacron.compute.sh
-            - 40.install.monitoring.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
@@ -154,7 +156,6 @@ Scheduling:
         OnNodeConfigured:
           Args:
             - 04.configure.disable.anacron.compute.sh
-            - 40.install.monitoring.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
@@ -205,7 +206,6 @@ Scheduling:
         OnNodeConfigured:
           Args:
             - 04.configure.disable.anacron.compute.sh
-            - 40.install.monitoring.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
@@ -261,7 +261,6 @@ Scheduling:
             - 04.configure.disable.anacron.compute.sh
             - 25.install.dcv-server.gpu.sh
             - 26.configure.dcv.alb.compute.sh
-            - 40.install.monitoring.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
@@ -317,7 +316,6 @@ Scheduling:
             - 04.configure.disable.anacron.compute.sh
             - 25.install.dcv-server.compute.sh
             - 26.configure.dcv.alb.compute.sh
-            - 40.install.monitoring.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:

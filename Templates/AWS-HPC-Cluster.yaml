@@ -17,7 +17,6 @@ Metadata:
           - AD
           - ADDNS0
           - ADDNS1
-          - ADPassword
     ParameterLabels: 
       AdminPassword: 
         default: 'Password:'
@@ -37,12 +36,10 @@ Metadata:
         default: 'Primary DNS IP:'
       ADDNS1:
         default: 'Secondary DNS IP:'
-      ADPassword:
-        default: 'Custom AD Password:'
         
 Parameters:
     AdminPassword:
-      Description: 'Please, enter the password for the user "ec2-user". Min 8 chars, three of: lowercase, uppercase, number and symbols'
+      Description: 'Please, enter the Admin password for your Active Direcotry.This will also be the "ec2-user" password. (Min 8 chars, three of: lowercase, uppercase, number and symbols)'
       Type: String
       MinLength: '8'
       MaxLength: '255'
@@ -96,14 +93,6 @@ Parameters:
       Type: String
       AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
       Default: '0.0.0.0'
-
-    ADPassword:
-      Description: 'Please enter Admin user password of the custom AD domain'
-      Type: String
-      MinLength: '8'
-      MaxLength: '255'
-      AllowedPattern: (?=^.{8,255}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*
-      NoEcho: 'true'
 
 Mappings: 
   RegionMap: 
@@ -412,42 +401,115 @@ Resources:
         ToPort: 389
         SourceSecurityGroupId: !Ref ALBSecurityGroup
 
+  ServerlessDatabaseClusterParameterGroup:
+    Type: 'AWS::RDS::DBClusterParameterGroup'
+    Properties:
+      Description: Cluster parameter group for aurora-mysql5.7
+      Family: aurora-mysql5.7
+      Parameters:
+        require_secure_transport: 'ON'
+        innodb_lock_wait_timeout: '900'
+      Tags:
+        - Key: 'parallel-cluster:accounting'
+          Value: rds-parameter-group
+        - Key: 'parallel-cluster:accounting:scheduler'
+          Value: slurm
+        - Key: 'parallel-cluster:accounting:version'
+          Value: '1.0'
+          
+  SlurmDBSubnetGroup: 
+    Type: 'AWS::RDS::DBSubnetGroup'
+    Properties:
+      DBSubnetGroupDescription: SubnetGroup
+      SubnetIds: 
+        - !If [CreateVpc, !Ref PublicSubnetA, !Ref PublicSubnetAId]
+        - !If [CreateVpc, !Ref PublicSubnetB, !Ref PublicSubnetBId]
   SlurmDBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: 'Allow 3306 from the PC Additional SG'
+      GroupDescription: 'Serverless DB SG'
       VpcId: !If [CreateVpc, !Ref VPC, !Ref VpcId]
-      SecurityGroupIngress:
-      - IpProtocol: tcp
-        FromPort: 3306
-        ToPort: 3306
-        SourceSecurityGroupId: !Ref PCAdditionalSecurityGroup
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: '-1'
 
-  SlurmDB:
-    Type: 'AWS::RDS::DBInstance'
+  ServerlessDatabaseClusterSecurityGroupInboundRule:
+    Type: 'AWS::EC2::SecurityGroupIngress'
     Properties:
-      DBInstanceIdentifier: !Sub '${AWS::StackName}-SlurmDB'
-      DBName: 'SlurmDB'
-      DBInstanceClass: !FindInMap [RegionMap, !Ref "AWS::Region", DbInstanceType]
-      MultiAZ: false
-      AllocatedStorage: '20'
-      StorageType: gp2
-      MaxAllocatedStorage: 2000
-      Engine: MySQL
-      EngineVersion: 8.0.28
+      IpProtocol: tcp
+      Description: Allow incoming connections from client security group
+      FromPort: !GetAtt
+        - SlurmDB
+        - Endpoint.Port
+      GroupId: !GetAtt
+        - SlurmDBSecurityGroup
+        - GroupId
+      SourceSecurityGroupId: !GetAtt
+        - ServerlessClusterDatabaseClientSecurityGroup
+        - GroupId
+      ToPort: !GetAtt
+        - SlurmDB
+        - Endpoint.Port
+  SlurmDB:
+    Type: 'AWS::RDS::DBCluster'
+    Properties:
+      Engine: aurora-mysql
+      CopyTagsToSnapshot: true
+      DBClusterParameterGroupName: !Ref ServerlessDatabaseClusterParameterGroup
+      DBSubnetGroupName: !Ref SlurmDBSubnetGroup
+      EnableHttpEndpoint: false
+      EngineMode: serverless
       MasterUsername: 'admin'
-      MasterUserPassword: !Ref 'AdminPassword'
-      DBSubnetGroupName: !Ref 'SlurmDBSubnetGroup'
-      VPCSecurityGroups: 
-        - !Ref 'SlurmDBSecurityGroup'
+      DatabaseName: 'EnginFrameDB'
+      MasterUserPassword: !Sub '{{resolve:secretsmanager:${Password}:SecretString:::}}'
+      ScalingConfiguration:
+        AutoPause: true
+        MaxCapacity: 8
+        MinCapacity: 1
+        SecondsUntilAutoPause: 600
+      StorageEncrypted: true
+      Tags:
+        - Key: 'parallel-cluster:accounting'
+          Value: database
+        - Key: 'parallel-cluster:accounting:scheduler'
+          Value: slurm
+        - Key: 'parallel-cluster:accounting:version'
+          Value: '1.0'
+      VpcSecurityGroupIds:
+        - !GetAtt
+          - SlurmDBSecurityGroup
+          - GroupId
 
-  SlurmDBSubnetGroup: 
-      Type: 'AWS::RDS::DBSubnetGroup'
-      Properties:
-        DBSubnetGroupDescription: SubnetGroup
-        SubnetIds: 
-          - !If [CreateVpc, !Ref PublicSubnetA, !Ref PublicSubnetAId]
-          - !If [CreateVpc, !Ref PublicSubnetB, !Ref PublicSubnetBId]
+  ServerlessClusterDatabaseClientSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Security Group to allow connection to Serverless DB Cluster
+      Tags:
+        - Key: 'parallel-cluster:accounting'
+          Value: client-security-group
+        - Key: 'parallel-cluster:accounting:scheduler'
+          Value: slurm
+        - Key: 'parallel-cluster:accounting:version'
+          Value: '1.0'
+      VpcId: !If [CreateVpc, !Ref VPC, !Ref VpcId]
+  ServerlessClusterDatabaseClientSecurityGroupOutboundRule:
+    Type: 'AWS::EC2::SecurityGroupEgress'
+    Properties:
+      GroupId: !GetAtt
+        - ServerlessClusterDatabaseClientSecurityGroup
+        - GroupId
+      IpProtocol: tcp
+      Description: Allow incoming connections from PCluster
+      DestinationSecurityGroupId: !GetAtt
+        - SlurmDBSecurityGroup
+        - GroupId
+      FromPort: !GetAtt
+        - SlurmDB
+        - Endpoint.Port
+      ToPort: !GetAtt
+        - SlurmDB
+        - Endpoint.Port
 
   Cloud9:
     Type: 'AWS::Cloud9::EnvironmentEC2'
@@ -474,13 +536,6 @@ Resources:
       Name: !Sub 'hpc-1click-${AWS::StackName}'
       Description: This the password used for RDS and ec2-user
       SecretString: !Ref AdminPassword
-
-  CustomADPassword:
-    Type: 'AWS::SecretsManager::Secret'
-    Properties:
-      Name: !Sub 'hpc-1click-${AWS::StackName}-AD'
-      Description: This the password used for Admin of the custom AD directory
-      SecretString: !If [CreateAD, !Ref AdminPassword, !Ref ADPassword]
 
   Cloud9SSMDocument: # Clones 1click repo, adds environment variables, and uploads to s3 bucket. Then runs "scripts/Cloud9-Bootstrap.sh" to setup this cloud9 node
     Type: AWS::SSM::Document
@@ -520,6 +575,7 @@ Resources:
               - FinalPrivateSubnetAId: !If [CreatePrivateSubnet, !Ref PrivateSubnetA, !Ref PrivateSubnetAId]            
             - !Sub echo "export CLUSTER_NAME=${AWS::StackName}" >> cluster_env
             - !Sub echo "export ADDITIONAL_SG=${PCAdditionalSecurityGroup}" >> cluster_env
+            - !Sub echo "export DB_SG=${ServerlessClusterDatabaseClientSecurityGroup}" >> cluster_env
             - !Sub echo "export WAIT_HANDLE='${WaitHandle}'" >> cluster_env
             - !Sub
               - echo "export SLURM_DB_ENDPOINT='${DB_ENDPOINT}'" >> cluster_env
@@ -568,7 +624,7 @@ Resources:
     Properties:
       Handler: index.lambda_handler
       Role: !GetAtt LambdaExecutionRole.Arn
-      Runtime: python3.8
+      Runtime: python3.9
       MemorySize: 256
       Timeout: 600
       Code:
@@ -840,7 +896,7 @@ Resources:
               time.sleep(10)
               return response['ServerCertificateMetadata']['Arn']
           def delete_certificate(event):
-              time.sleep(30)
+              time.sleep(60)
               DNSName = event['ResourceProperties']['DNSName']
               iam = boto3.client('iam')
               response = iam.delete_server_certificate(ServerCertificateName=DNSName)
@@ -1110,7 +1166,7 @@ Resources:
     Properties: 
       Edition: Standard
       Name: corp.pcluster.com
-      Password: !Ref AdminPassword
+      Password: !Sub '{{resolve:secretsmanager:${Password}:SecretString:::}}'
       ShortName: corp
       VpcSettings: 
         SubnetIds: 
