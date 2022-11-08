@@ -32,7 +32,7 @@ systemctl start munge
 
 # note: not all volumes mount at boot. A mount -a command post reboot solves the problem.
 # add on crontab as temporary fix this line:
-line="@reboot sleep 30 && mount -a && systemctl restart slurmd"
+line="@reboot sleep 30 && mount -a"
 (crontab -u $(whoami) -l; echo "$line" ) | crontab -u $(whoami) -
 
 cat <<EOF > /etc/profile.d/login-node.sh

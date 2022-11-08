@@ -21,6 +21,8 @@ HeadNode:
       Args:
         - 00.install.neuron.headnode.sh
         - 02.activate.passwordless.AD.headnode.sh
+        - 03.configure.slurm.acct.headnode.sh
+        - 33.install.cost.control.sh
       Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
   Iam:
     AdditionalIamPolicies:

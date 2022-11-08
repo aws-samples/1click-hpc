@@ -79,13 +79,13 @@ Scheduling:
             VolumeType: gp3
             Iops: 5000
       ComputeResources:
-        - Name: p4de-24xlarge
+        - Name: p4d-24xlarge
           DisableSimultaneousMultithreading: true
           Efa:
             Enabled: true
-          InstanceType: p4de.24xlarge
-          MaxCount: 13
-          MinCount: 13
+          InstanceType: p4d.24xlarge
+          MaxCount: 10
+          MinCount: 10
       CustomActions:
         OnNodeConfigured:
           Args:
