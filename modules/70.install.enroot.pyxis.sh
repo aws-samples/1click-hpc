@@ -18,6 +18,8 @@ installENROOT() {
   echo "PATH=/opt/slurm/sbin:/opt/slurm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin" >> /etc/sysconfig/slurmd
 
   mkdir -p /scratch && chmod -R 777 /scratch
+
+  # slurm 22.05 requires pyxis to be recompiled against slurm.h so the below need to be changed
   git clone https://github.com/NVIDIA/pyxis.git /tmp/pyxis
   cd /tmp/pyxis && make rpm && rpm -ihv *.rpm
 
@@ -109,8 +111,7 @@ EOF
 
 activateNkernels () {
   type=$(curl http://169.254.169.254/latest/meta-data/instance-type)
-  target="p4d.24xlarge"
-    if [ "$target" = "$type" ]; then
+    if [ "p4d.24xlarge" = "$type" ] || [ "p4de.24xlarge" = "$type" ]; then
       # fix cuda in containers
       /sbin/modprobe nvidia
 

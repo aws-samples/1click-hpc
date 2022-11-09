@@ -27,12 +27,12 @@ installCudaModules(){
 # main
 # ----------------------------------------------------------------------------
 main() {
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 90.allow.nvidia.debug.gpu.sh: START" >&2
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 43.allow.nvidia.debug.gpu.sh: START" >&2
     allowDebugGPU
     installDCGM
     bumpUp
     installCudaModules
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 90.allow.nvidia.debug.gpu.sh: STOP" >&2
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 43.allow.nvidia.debug.gpu.sh: STOP" >&2
 }
 
 main "$@"
