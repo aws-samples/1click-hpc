@@ -21,7 +21,7 @@ installENROOT() {
 
   # slurm 22.05 requires pyxis to be recompiled against slurm.h so the below includes now the spank.h location
   git clone https://github.com/NVIDIA/pyxis.git /tmp/pyxis
-  cd /tmp/pyxis && CFLAGS="-I /opt/slurm/include/slurm" make rpm && rpm -ihv *.rpm
+  cd /tmp/pyxis && CFLAGS="-I /opt/slurm/include/slurm" make install
 
   if [ "${cfn_node_type}" == "HeadNode" ];then
     echo "include /opt/slurm/etc/plugstack.conf.d/*" > /opt/slurm/etc/plugstack.conf
