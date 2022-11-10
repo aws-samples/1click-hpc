@@ -30,7 +30,8 @@ configurePrologs() {
     echo "" >> "${SLURM_ETC}/slurm.conf"
     echo "#CUSTOM" >> "${SLURM_ETC}/slurm.conf"
     echo "TreeWidth=65533" >> "${SLURM_ETC}/slurm.conf"
-
+    # make pmix_v3 the default mpi
+    sed -i 's/MpiDefault=.*/MpiDefault=pmix_v3/' /opt/slurm/etc/slurm.conf
 }
 
 restartSlurmDaemons() {

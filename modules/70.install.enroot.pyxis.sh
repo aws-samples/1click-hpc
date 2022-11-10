@@ -19,16 +19,14 @@ installENROOT() {
 
   mkdir -p /scratch && chmod -R 777 /scratch
 
-  # slurm 22.05 requires pyxis to be recompiled against slurm.h so the below need to be changed
+  # slurm 22.05 requires pyxis to be recompiled against slurm.h so the below includes now the spank.h location
   git clone https://github.com/NVIDIA/pyxis.git /tmp/pyxis
-  cd /tmp/pyxis && make rpm && rpm -ihv *.rpm
+  cd /tmp/pyxis && CFLAGS="-I /opt/slurm/include/slurm" make rpm && rpm -ihv *.rpm
 
   if [ "${cfn_node_type}" == "HeadNode" ];then
     echo "include /opt/slurm/etc/plugstack.conf.d/*" > /opt/slurm/etc/plugstack.conf
     mkdir -p /opt/slurm/etc/plugstack.conf.d
     ln -sf /usr/share/pyxis/pyxis.conf /opt/slurm/etc/plugstack.conf.d/pyxis.conf
-    # make pmix_v3 the default mpi
-    sed -i 's/MpiDefault=.*/MpiDefault=pmix_v3/' /opt/slurm/etc/slurm.conf
   fi
 
   rm /etc/enroot/enroot.conf
