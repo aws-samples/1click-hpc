@@ -26,7 +26,7 @@ installENROOT() {
   if [ "${cfn_node_type}" == "HeadNode" ];then
     echo "include /opt/slurm/etc/plugstack.conf.d/*" > /opt/slurm/etc/plugstack.conf
     mkdir -p /opt/slurm/etc/plugstack.conf.d
-    ln -sf /usr/share/pyxis/pyxis.conf /opt/slurm/etc/plugstack.conf.d/pyxis.conf
+    ln -sf /usr/local/share/pyxis/pyxis.conf /opt/slurm/etc/plugstack.conf.d/pyxis.conf
   fi
 
   rm /etc/enroot/enroot.conf
