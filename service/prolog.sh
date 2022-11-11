@@ -50,8 +50,9 @@ done
 if [ $SLURM_JOB_GPUS == '0,1,2,3,4,5,6,7' ] && [ $Project != 'defective' ]; then
     echo "Test nccl and EFA" >> /fsx/shared/debug.log
     results='0,0,0,0,0,0,0,0'
-    instanceid=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
-    ipaddr=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
+    TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
+    instanceid=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/instance-id)
+    ipaddr=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/local-ipv4)
     dbhost=$(awk -F "=" '/host/ {print $2}' /root/.my.cnf | /usr/bin/xargs)
     password=$(awk -F "=" '/password/ {print $2}' /root/.my.cnf | /usr/bin/xargs)
     database=$(awk -F "=" '/database/ {print $2}' /root/.my.cnf | /usr/bin/xargs)

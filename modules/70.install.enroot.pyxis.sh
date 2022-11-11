@@ -108,7 +108,8 @@ EOF
 }
 
 activateNkernels () {
-  type=$(curl http://169.254.169.254/latest/meta-data/instance-type)
+  TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
+  type=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v http://169.254.169.254/latest/meta-data/instance-type)
     if [ "p4d.24xlarge" = "$type" ] || [ "p4de.24xlarge" = "$type" ]; then
       # fix cuda in containers
       /sbin/modprobe nvidia

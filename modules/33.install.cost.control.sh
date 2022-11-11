@@ -37,8 +37,8 @@ configureCostControl(){
 #!/bin/bash
 
 source /etc/profile
-
-region=$(curl -s http://169.254.169.254/latest/meta-data/placement/region)
+TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
+region=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/placement/region)
 aws configure set region $region
 
 update=0
@@ -103,7 +103,7 @@ fi
 if [ ${update} -eq 1 ]; then
 
 # Instance ID
-MyInstID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+MyInstID=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/instance-id)
 tag_userid=$(cat /tmp/jobs/tag_userid)
 tag_jobid=$(cat /tmp/jobs/tag_jobid)
 sleep $((RANDOM % 20))

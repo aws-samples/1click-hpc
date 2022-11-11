@@ -1,6 +1,7 @@
 #!/bin/bash
 sudo nvidia-bug-reporting.sh
-instance=$(curl http://169.254.169.254/latest/meta-data/instance-id)
+TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
+instance=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v http://169.254.169.254/latest/meta-data/instance-id)
 echo $instance > instance.txt
 echo "$(date --utc +%F\ %T\ %Z)" >> instance.txt
 tar -czf $instance.tar.gz instance.txt nvidia-bug-report.log.gz

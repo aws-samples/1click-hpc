@@ -23,7 +23,7 @@ import time
 # get slurm job ID
 jobId = os.popen('sbatch $1 $2 jupyter.sbatch').read()
 print(jobId)
-host = os.popen('curl http://169.254.169.254/latest/meta-data/public-ipv4').read()
+host = os.popen('TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"` && curl -H "X-aws-ec2-metadata-token: $TOKEN" -v http://169.254.169.254/latest/meta-data/public-ipv4').read()
 jobId = [int(s) for s in jobId.split() if s.isdigit()][0]
 
 # wait for the output file to appear
