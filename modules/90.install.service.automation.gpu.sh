@@ -9,7 +9,18 @@ set -e
 configMySQLcredentials(){
 
     # install some python libs
-    yum -y install mysql
+    # yum -y install mysql # dependencies errors in AL2 repo 2022-11-11
+    cat <<'EOF' > /etc/yum.repos.d/MariaDB.repo
+# MariaDB 10.6 CentOS repository list - created 2021-10-31 17:42 UTC
+# https://mariadb.org/download/
+[mariadb]
+name = MariaDB
+baseurl = http://nyc2.mirrors.digitalocean.com/mariadb/yum/10.6/centos7-amd64
+gpgkey=http://nyc2.mirrors.digitalocean.com/mariadb/yum/RPM-GPG-KEY-MariaDB
+gpgcheck=1
+EOF
+    yum-config-manager MariaDB
+    yum -y install MariaDB-client
     python3.8 -m pip install mysql-connector-python botocore aws-secretsmanager-caching
 
     creds=$(aws secretsmanager get-secret-value --secret-id serviceDBcred --region us-east-1 | jq -r '.SecretString')

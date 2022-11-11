@@ -17,9 +17,9 @@ HeadNode:
         - 08.install.duc.headnode.sh
         - 33.install.cost.control.sh
         - 40.install.monitoring.headnode.sh
-        #- 70.install.enroot.pyxis.sh
+        - 70.install.enroot.pyxis.sh
         - 88.install.preemption.headnode.sh
-        #- 90.install.service.automation.headnode.sh
+        - 90.install.service.automation.headnode.sh
       Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
   Iam:
     AdditionalIamPolicies:
@@ -96,10 +96,10 @@ Scheduling:
             - 40.install.monitoring.gpu.sh
             - 43.allow.nvidia.debug.gpu.sh
             - 45.install.nccl.compute.sh
-            #- 70.install.enroot.pyxis.sh
+            - 70.install.enroot.pyxis.sh
             - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
-            #- 90.install.service.automation.gpu.sh
+            - 90.install.service.automation.gpu.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
