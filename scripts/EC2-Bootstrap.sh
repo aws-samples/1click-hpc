@@ -64,12 +64,15 @@ aws s3 cp --quiet nice-dcv-el7-x86_64.tgz s3://${S3_BUCKET}/packages/
 export SECRET_ARN=$(aws secretsmanager describe-secret --secret-id "hpc-1click-${CLUSTER_NAME}" --query ARN --output text --region "${AWS_REGION_NAME}")
 
 /usr/bin/envsubst < "1click-hpc/parallelcluster/config.${AWS_REGION_NAME}.sample.yaml" > config.${AWS_REGION_NAME}.yaml
+/usr/bin/envsubst '${SLURM_DB_ENDPOINT}' < "1click-hpc/enginframe/mysql/efdb.config" > efdb.config
 /usr/bin/envsubst '${SLURM_DB_ENDPOINT}' < "1click-hpc/enginframe/efinstall.config" > efinstall.config
 /usr/bin/envsubst '${S3_BUCKET}' < "1click-hpc/enginframe/fm.browse.ui" > fm.browse.ui
 
 aws s3 cp --quiet efinstall.config "s3://${S3_BUCKET}/1click-hpc/enginframe/efinstall.config" --region "${AWS_REGION_NAME}"
 aws s3 cp --quiet fm.browse.ui "s3://${S3_BUCKET}/1click-hpc/enginframe/fm.browse.ui" --region "${AWS_REGION_NAME}"
-rm -f fm.browse.ui efinstall.config
+aws s3 cp --quiet efdb.config "s3://${S3_BUCKET}/1click-hpc/enginframe/mysql/efdb.config" --region "${AWS_REGION_NAME}"
+aws s3 cp --quiet /usr/bin/mysql "s3://${S3_BUCKET}/1click-hpc/enginframe/mysql/mysql" --region "${AWS_REGION_NAME}"
+rm -f fm.browse.ui efinstall.config efdb.config
 
 #Create the key pair (remove the existing one if it has the same name)
 aws ec2 create-key-pair --key-name ${KEY_PAIR} --query KeyMaterial --output text > /home/ec2-user/.ssh/id_rsa

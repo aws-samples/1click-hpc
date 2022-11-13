@@ -245,7 +245,7 @@ Resources:
         ToPort: 389
         SourceSecurityGroupId: !Ref ALBSecurityGroup
 
-  ServerlessDatabaseClusterParameterGroup:
+  DatabaseParameterGroup:
     Type: 'AWS::RDS::DBClusterParameterGroup'
     Properties:
       Description: Cluster parameter group for aurora-mysql5.7
@@ -271,14 +271,14 @@ Resources:
   SlurmDBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: 'Serverless DB SG'
+      GroupDescription: 'Database SG'
       VpcId: !If [CreateVpc, !Ref VPC, !Ref VpcId]
       SecurityGroupEgress:
         - CidrIp: 0.0.0.0/0
           Description: Allow all outbound traffic by default
           IpProtocol: '-1'
 
-  ServerlessDatabaseClusterSecurityGroupInboundRule:
+  DatabaseSecurityGroupInboundRule:
     Type: 'AWS::EC2::SecurityGroupIngress'
     Properties:
       IpProtocol: tcp
@@ -290,45 +290,32 @@ Resources:
         - SlurmDBSecurityGroup
         - GroupId
       SourceSecurityGroupId: !GetAtt
-        - ServerlessClusterDatabaseClientSecurityGroup
+        - DatabaseClientSecurityGroup
         - GroupId
       ToPort: !GetAtt
         - SlurmDB
         - Endpoint.Port
   SlurmDB:
-    Type: 'AWS::RDS::DBCluster'
+    Type: 'AWS::RDS::DBInstance'
     Properties:
-      Engine: aurora-mysql
-      CopyTagsToSnapshot: true
-      DBClusterParameterGroupName: !Ref ServerlessDatabaseClusterParameterGroup
-      DBSubnetGroupName: !Ref SlurmDBSubnetGroup
-      EnableHttpEndpoint: false
-      EngineMode: serverless
+      DBInstanceIdentifier: !Sub '${AWS::StackName}-SlurmDB'
+      DBInstanceClass: !FindInMap [RegionMap, !Ref "AWS::Region", DbInstanceType]
+      MultiAZ: false
+      AllocatedStorage: '20'
+      StorageType: gp3
+      MaxAllocatedStorage: 2000
+      Engine: MySQL
+      EngineVersion: 8.0.28
       MasterUsername: 'admin'
-      DatabaseName: 'EnginFrameDB'
       MasterUserPassword: !Sub '{{resolve:secretsmanager:${Password}:SecretString:::}}'
-      ScalingConfiguration:
-        AutoPause: true
-        MaxCapacity: 8
-        MinCapacity: 1
-        SecondsUntilAutoPause: 600
-      StorageEncrypted: true
-      Tags:
-        - Key: 'parallel-cluster:accounting'
-          Value: database
-        - Key: 'parallel-cluster:accounting:scheduler'
-          Value: slurm
-        - Key: 'parallel-cluster:accounting:version'
-          Value: '1.0'
-      VpcSecurityGroupIds:
-        - !GetAtt
-          - SlurmDBSecurityGroup
-          - GroupId
+      DBSubnetGroupName: !Ref SlurmDBSubnetGroup
+      VPCSecurityGroups: 
+        - !Ref 'SlurmDBSecurityGroup'
 
-  ServerlessClusterDatabaseClientSecurityGroup:
+  DatabaseClientSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
-      GroupDescription: Security Group to allow connection to Serverless DB Cluster
+      GroupDescription: Security Group to allow connection to DB
       Tags:
         - Key: 'parallel-cluster:accounting'
           Value: client-security-group
@@ -337,11 +324,11 @@ Resources:
         - Key: 'parallel-cluster:accounting:version'
           Value: '1.0'
       VpcId: !If [CreateVpc, !Ref VPC, !Ref VpcId]
-  ServerlessClusterDatabaseClientSecurityGroupOutboundRule:
+  DatabaseClientSecurityGroupOutboundRule:
     Type: 'AWS::EC2::SecurityGroupEgress'
     Properties:
       GroupId: !GetAtt
-        - ServerlessClusterDatabaseClientSecurityGroup
+        - DatabaseClientSecurityGroup
         - GroupId
       IpProtocol: tcp
       Description: Allow incoming connections from PCluster
@@ -387,7 +374,7 @@ Resources:
             echo "export PRIVATE_SUBNET_B_ID=${PrivateSubnetBId}" >> cluster_env
             echo "export CLUSTER_NAME=${AWS::StackName}" >> cluster_env
             echo "export ADDITIONAL_SG=${PCAdditionalSecurityGroup}" >> cluster_env
-            echo "export DB_SG=${ServerlessClusterDatabaseClientSecurityGroup}" >> cluster_env
+            echo "export DB_SG=${DatabaseClientSecurityGroup}" >> cluster_env
             echo "export WAIT_HANDLE='${WaitHandle}'" >> cluster_env
             echo "export NLB_PUBLIC_DNS_NAME='${NetworkLoadBalancer.DNSName}'" >> cluster_env
             echo "export AD_ID=${ActiveDirectory}" >> cluster_env

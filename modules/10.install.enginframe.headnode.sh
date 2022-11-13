@@ -74,7 +74,19 @@ configureEnginFrameDB(){
     aws s3 cp --quiet "${post_install_base}/packages/mysql-connector-java-8.0.28.jar" "${EF_ROOT}/WEBAPP/WEB-INF/lib/"
     
     chown ec2-user:efnobody "${EF_ROOT}/WEBAPP/WEB-INF/lib/mysql-connector-java-8.0.28.jar"
-
+    
+    aws s3 cp --quiet "${post_install_base}/enginframe/mysql/efdb.config" /tmp/ --region "${cfn_region}" || exit 1
+    aws s3 cp --quiet "${post_install_base}/enginframe/mysql/ef.mysql" /tmp/ --region "${cfn_region}" || exit 1
+    aws s3 cp --quiet "${post_install_base}/enginframe/mysql/mysql" /tmp/ --region "${cfn_region}" || exit 1
+    
+    chown ec2-user:efnobody "/tmp/mysql"
+    chmod +x "/tmp/mysql"
+    
+    export EF_DB_PASS="${ec2user_pass}"
+    /usr/bin/envsubst < efdb.config > efdb.pass.config
+    
+    /tmp/mysql --defaults-extra-file="efdb.pass.config" < "ef.mysql"
+    rm efdb.pass.config efdb.config ef.mysql mysql
 }
 
 customizeEnginFrame() {
