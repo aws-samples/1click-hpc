@@ -1,0 +1,73 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: HPC-FSx-Lustre
+
+Metadata: 
+  AWS::CloudFormation::Interface:
+    ParameterGroups: 
+      - 
+        Label: 
+          default: ""
+        Parameters: 
+          - AdminPassword
+          - VpcId
+          - SubnetIdA
+          - SubnetIdB
+    ParameterLabels: 
+      AdminPassword: 
+        default: 'Password:'
+      VpcId: 
+        default: 'VPC:'
+      SubnetIdA: 
+        default: 'Public Subnet 1:'
+      SubnetIdB: 
+        default: 'Public Subnet 2:'
+        
+Parameters:
+    AdminPassword:
+      Description: 'Please, enter the Admin password for your Active Direcotry. (Min 8 chars, three of: lowercase, uppercase, number and symbols)'
+      Type: String
+      MinLength: '8'
+      MaxLength: '255'
+      AllowedPattern: (?=^.{8,255}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*
+      NoEcho: 'true'
+
+    VpcId:
+      Description: 'Please, enter your VPC ID, or just leave "AUTO" if you want to re-use an existing one.'
+      Type: String
+      AllowedPattern: ^(AUTO|vpc-[0-9a-z]+)$
+      Default: vpc-
+
+    SubnetIdA: 
+      Description: 'Please, enter the ID of the Public Subnet you wish to use, or just leave "AUTO" if you want to re-use an existing one.'
+      Type: String
+      AllowedPattern: ^(AUTO|subnet-[0-9a-z]+)$
+      Default : subnet-
+
+    SubnetIdB: 
+      Description: 'Please, enter another ID of the Public Subnet you wish to use, or just leave "AUTO" if you want to re-use an existing one.'
+      Type: String
+      AllowedPattern: ^(AUTO|subnet-[0-9a-z]+)$
+      Default : subnet-
+
+Resources:
+
+  ADPassword:
+    Type: 'AWS::SecretsManager::Secret'
+    Properties:
+      Name: !Sub 'AD-${AWS::StackName}'
+      Description: This the password used for Active Directory
+      SecretString: !Ref AdminPassword
+
+  ActiveDirectory:  # Create Managed Active Directory (standard) to handle cluster users
+    Type: AWS::DirectoryService::MicrosoftAD
+    Condition: CreateAD
+    Properties: 
+      Edition: Standard
+      Name: corp.pcluster.com
+      Password: !Sub '{{resolve:secretsmanager:${ADPassword}:SecretString:::}}'
+      ShortName: corp
+      VpcSettings: 
+        SubnetIds: 
+          - !Ref SubnetIdA
+          - !Ref SubnetIdB
+        VpcId: !Ref VpcId
