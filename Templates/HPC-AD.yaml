@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: HPC-FSx-Lustre
+Description: HPC-ActiveDirectory
 
 Metadata: 
   AWS::CloudFormation::Interface:
@@ -34,33 +34,29 @@ Parameters:
     VpcId:
       Description: 'Please, enter your VPC ID, or just leave "AUTO" if you want to re-use an existing one.'
       Type: String
-      AllowedPattern: ^(AUTO|vpc-[0-9a-z]+)$
-      Default: vpc-
+      AllowedPattern: ^(vpc-[0-9a-z]+)$
 
     SubnetIdA: 
       Description: 'Please, enter the ID of the Public Subnet you wish to use, or just leave "AUTO" if you want to re-use an existing one.'
       Type: String
-      AllowedPattern: ^(AUTO|subnet-[0-9a-z]+)$
-      Default : subnet-
+      AllowedPattern: ^(subnet-[0-9a-z]+)$
 
     SubnetIdB: 
       Description: 'Please, enter another ID of the Public Subnet you wish to use, or just leave "AUTO" if you want to re-use an existing one.'
       Type: String
-      AllowedPattern: ^(AUTO|subnet-[0-9a-z]+)$
-      Default : subnet-
+      AllowedPattern: ^(subnet-[0-9a-z]+)$
 
 Resources:
 
   ADPassword:
     Type: 'AWS::SecretsManager::Secret'
     Properties:
-      Name: !Sub 'AD-${AWS::StackName}'
+      Name: !Sub '${AWS::StackName}-AD'
       Description: This the password used for Active Directory
       SecretString: !Ref AdminPassword
 
   ActiveDirectory:  # Create Managed Active Directory (standard) to handle cluster users
     Type: AWS::DirectoryService::MicrosoftAD
-    Condition: CreateAD
     Properties: 
       Edition: Standard
       Name: corp.pcluster.com
@@ -71,3 +67,180 @@ Resources:
           - !Ref SubnetIdA
           - !Ref SubnetIdB
         VpcId: !Ref VpcId
+        
+  NetworkLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Scheme: internal
+      Subnets: 
+          - !Ref SubnetIdA
+          - !Ref SubnetIdB
+      Type: network
+
+  LdapTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub '${AWS::StackName}-LDAP'
+      Port: 389
+      Protocol: TCP
+      VpcId: !Ref VpcId
+      HealthCheckEnabled: True
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPort: 389
+      HealthCheckProtocol: TCP
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 3
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: 60
+      Targets:
+        - Id: !Select [0, !GetAtt ActiveDirectory.DnsIpAddresses]
+          Port: 389
+        - Id: !Select [1, !GetAtt ActiveDirectory.DnsIpAddresses]
+          Port: 389
+      TargetType: ip
+
+  LdapListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref LdapTargetGroup
+      LoadBalancerArn: !Ref NetworkLoadBalancer
+      Port: 636
+      Protocol: TLS
+      SslPolicy: ELBSecurityPolicy-TLS13-1-2-2021-06
+      Certificates:
+        - CertificateArn: !GetAtt LBInit.IamCertificateArn
+
+  LBInit:  # Sets up Application Load Balancer, adding certificates etc.
+    Type: Custom::LBInit
+    DependsOn: 
+      - LogGroupLBInitLambda
+    Properties:
+      ServiceToken: !GetAtt LBInitLambda.Arn
+      DNSName: !GetAtt NetworkLoadBalancer.DNSName
+
+  LogGroupLBInitLambda:
+    Type: AWS::Logs::LogGroup
+    DependsOn: LBInitLambda
+    DeletionPolicy: Delete
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${LBInitLambda}
+      RetentionInDays: 7
+
+  LBInitLambda:  # Create NLB certificate
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Create NLB Certificate
+      Timeout: 300
+      Runtime: python3.7
+      Handler: index.handler
+      Role: !GetAtt 'LBInitRole.Arn'
+      Code:
+        ZipFile: |
+          import boto3
+          import os
+          import subprocess
+          import time
+          import cfnresponse
+          from botocore.exceptions import ClientError
+          def handler(event, context):
+              print(event)
+              data = {}
+              try:
+                  if event['RequestType'] == 'Create':
+                      IamCertificateArn = create_certificate(event)
+                      data['IamCertificateArn'] = IamCertificateArn
+                  elif event['RequestType'] == 'Delete':
+                      delete_certificate(event)
+                  cfnresponse.send(event, context, cfnresponse.SUCCESS, data)
+              except ClientError as e:
+                  data['ClientErrorCode'] = e.response['Error']['Code']
+                  data['ClientErrorMessage'] = e.response['Error']['Message']
+                  cfnresponse.send(event, context, cfnresponse.FAILED, data)
+              except Exception as e:
+                  data['Exception'] = str(e)
+                  cfnresponse.send(event, context, cfnresponse.FAILED, data)
+          def create_certificate(event):
+              DNSName = event['ResourceProperties']['DNSName']
+              os.chdir('/tmp')
+              config = open('/tmp/openssl.cnf', 'w+')
+              config.write('[req]\nprompt=no\ndistinguished_name=enginframe\nx509_extensions=v3_req\n')
+              config.write('[enginframe]\nC=US\nST=WA\nL=Seattle\nO=AWS WWSO\nOU=HPC\nCN=EnginFrame\n')
+              config.write('[v3_req]\nkeyUsage=keyEncipherment,dataEncipherment,digitalSignature\nextendedKeyUsage=serverAuth\nsubjectAltName=@alt_names\n')
+              config.write('[alt_names]\nDNS.1={}\n'.format(DNSName))
+              config.close()
+              os.environ['RANDFILE']='/tmp/.rnd'
+              subprocess.run([
+                  'openssl', 'req', '-new', '-x509', '-nodes',
+                  '-newkey', 'rsa:2048', '-days', '3650',
+                  '-keyout', '/tmp/key.pem', '-out', '/tmp/crt.pem',
+                  '-config', '/tmp/openssl.cnf'
+              ])
+              os.remove('/tmp/openssl.cnf')
+              keyfile = open('/tmp/key.pem', 'r')
+              key = keyfile.read()
+              keyfile.close()
+              os.remove('/tmp/key.pem')
+              crtfile = open('/tmp/crt.pem', 'r')
+              crt = crtfile.read()
+              crtfile.close()
+              os.remove('/tmp/crt.pem')
+              iam = boto3.client('iam')
+              response = iam.upload_server_certificate(
+                  ServerCertificateName=DNSName,
+                  CertificateBody=crt,
+                  PrivateKey=key
+              )
+              time.sleep(10)
+              return response['ServerCertificateMetadata']['Arn']
+          def delete_certificate(event):
+              time.sleep(60)
+              DNSName = event['ResourceProperties']['DNSName']
+              iam = boto3.client('iam')
+              response = iam.delete_server_certificate(ServerCertificateName=DNSName)
+
+  LBInitRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - !Sub 'lambda.${AWS::URLSuffix}'
+      ManagedPolicyArns:
+        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+      Policies:
+        - PolicyName: LoadBalancer
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: iam
+                Effect: Allow
+                Action:
+                  - iam:UploadServerCertificate
+                  - iam:DeleteServerCertificate
+                Resource: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:server-certificate/${NetworkLoadBalancer.DNSName}'
+
+Outputs:
+
+  ADURL:
+    Description: "ActiveDirectory:"
+    Value: !Sub 
+      - 'ldaps://${NLB}/'
+      - NLB: !GetAtt NetworkLoadBalancer.DNSName
+  ADID:
+    Description: "ActiveDirectory ID:"
+    Value: !Ref ActiveDirectory
+  DNS1:
+    Description: "ActiveDirectory DNS1:"
+    Value: !Select [0, !GetAtt ActiveDirectory.DnsIpAddresses]
+  DNS2:
+    Description: "ActiveDirectory DNS2:"
+    Value: !Select [1, !GetAtt ActiveDirectory.DnsIpAddresses]
