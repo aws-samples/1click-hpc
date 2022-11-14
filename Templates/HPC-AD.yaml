@@ -231,16 +231,16 @@ Resources:
 Outputs:
 
   ADURL:
-    Description: "ActiveDirectory:"
+    Description: "ActiveDirectory"
     Value: !Sub 
       - 'ldaps://${NLB}/'
       - NLB: !GetAtt NetworkLoadBalancer.DNSName
   ADID:
-    Description: "ActiveDirectory ID:"
+    Description: "ActiveDirectory ID"
     Value: !Ref ActiveDirectory
   DNS1:
-    Description: "ActiveDirectory DNS1:"
+    Description: "ActiveDirectory DNS1"
     Value: !Select [0, !GetAtt ActiveDirectory.DnsIpAddresses]
   DNS2:
-    Description: "ActiveDirectory DNS2:"
+    Description: "ActiveDirectory DNS2"
     Value: !Select [1, !GetAtt ActiveDirectory.DnsIpAddresses]
