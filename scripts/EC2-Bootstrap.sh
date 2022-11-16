@@ -18,6 +18,8 @@ cd /home/ec2-user
 #install Lustre client
 sudo amazon-linux-extras install -y lustre2.10 > /dev/null 2>&1
 
+sudo yum -y install mysql
+
 python3 -m pip install "aws-parallelcluster" --upgrade --user --quiet
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
 chmod ug+x ~/.nvm/nvm.sh
