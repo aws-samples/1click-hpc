@@ -27,14 +27,12 @@ export OU=${DC0^^}
 
 ADMIN_PW=$(aws secretsmanager get-secret-value --secret-id "hpc-1click-${CLUSTER_NAME}" --query SecretString --output text --region "${AWS_REGION_NAME}")
 export SECRET_ARN=$(aws secretsmanager describe-secret --secret-id "hpc-1click-${CLUSTER_NAME}" --query ARN --output text --region "${AWS_REGION_NAME}")
-echo ";search ${ADName}" | sudo tee -a /etc/resolv.conf
+awk -v "domain=$ADName" '/search/ {$0=$0 " " domain;} 1' /etc/resolv.conf | sudo tee /etc/resolv.conf                
 for IP in ${IPS}
 do
 	echo "${IP} ${ADName}" | sudo tee -a /etc/hosts
-	echo "nameserver ${IP}" | sudo tee -a /etc/resolv.conf
+	awk -v "dns1=$IP" '/nameserver/ && !x {print "nameserver " dns1; x=1} 1' /etc/resolv.conf | sudo tee /etc/resolv.conf       
 done
-
-sudo systemctl restart sssd
 
 echo "${ADMIN_PW}" | sudo realm join -U Admin ${ADName}
 
