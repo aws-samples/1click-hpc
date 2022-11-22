@@ -6,8 +6,8 @@ echo $instance > instance.txt
 echo "$(date --utc +%F\ %T\ %Z)" >> instance.txt
 tar -czf $instance.tar.gz instance.txt nvidia-bug-report.log.gz
 aws s3 cp $instance.tar.gz s3://stability-aws/
-# presign url for case
-url=$(aws s3 presign s3://stability-aws/$instance.tar.gz)
+# presign url for case, one week validity
+url=$(aws s3 presign s3://stability-aws/$instance.tar.gz --expires-in 604800) >> /fsx/shared/debug.log
 # open support case
 caseid=$(aws support create-case \
     --category-code "instance-issue" \

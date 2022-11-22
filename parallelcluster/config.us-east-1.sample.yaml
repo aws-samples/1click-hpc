@@ -115,6 +115,8 @@ Scheduling:
         S3Access:
           - BucketName: '*'
             EnableWriteAccess: true
+      Image:
+        CustomAmi: ami-05d7df7a41b4d8a10
       CapacityReservationTarget:
         CapacityReservationResourceGroupArn: arn:aws:resource-groups:us-east-1:842865360552:group/p4de1c-ODCR-Group
       Networking:
