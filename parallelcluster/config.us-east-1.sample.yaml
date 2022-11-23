@@ -31,7 +31,7 @@ HeadNode:
   Imds:
     Secured: false
 Image:
-  CustomAmi: ami-0743003d7b95f48a3
+  CustomAmi: ami-05d7df7a41b4d8a10
   Os: ubuntu2004
 DirectoryService:
   DomainName: dc=${DC0},dc=${DC1},dc=${DC2}
