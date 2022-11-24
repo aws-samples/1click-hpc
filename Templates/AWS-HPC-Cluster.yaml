@@ -65,9 +65,9 @@ Parameters:
       Default : AUTO
     
     PrivateSubnetAId:
-      Description: 'Please, enter the ID of the Private Subnet you wish to use, or put NONE if you want to use only Public Subnets, or just leave "AUTO" if you want to re-use an existing one.'
+      Description: 'Please, enter the ID of the Private Subnet you wish to use, or just leave "AUTO" if you want to re-use an existing one.'
       Type: String
-      AllowedPattern: ^(AUTO|NONE|subnet-[0-9a-z]+)$
+      AllowedPattern: ^(AUTO|subnet-[0-9a-z]+)$
       Default : AUTO
       
     FSx: 
@@ -138,7 +138,6 @@ Mappings:
 
 Conditions:
   CreateVpc: !Equals [!Ref VpcId, AUTO]
-  CreatePrivateSubnet: !And [!Condition CreateVpc, !Equals [!Ref PrivateSubnetAId, AUTO]]
   CreateAD: !Equals [!Ref AD, AUTO]
 
 Resources:
@@ -302,7 +301,7 @@ Resources:
 
   PrivateSubnetA:
     Type: AWS::EC2::Subnet
-    Condition: CreatePrivateSubnet
+    Condition: CreateVpc
     Properties:
       VpcId: !Ref VPC
       AvailabilityZone: !GetAtt AvailabiltyZone1.ZoneName
@@ -314,21 +313,21 @@ Resources:
 
   NatGatewayAEIP:
     Type: AWS::EC2::EIP
-    Condition: CreatePrivateSubnet
+    Condition: CreateVpc
     DependsOn: AttachGatewayA
     Properties:
       Domain: vpc
 
   NatGatewayA:
     Type: AWS::EC2::NatGateway
-    Condition: CreatePrivateSubnet
+    Condition: CreateVpc
     Properties:
       AllocationId: !GetAtt NatGatewayAEIP.AllocationId
       SubnetId: !Ref PublicSubnetA
 
   PrivateRouteTableA:
     Type: AWS::EC2::RouteTable
-    Condition: CreatePrivateSubnet
+    Condition: CreateVpc
     Properties:
       VpcId: !Ref VPC
       Tags:
@@ -337,7 +336,7 @@ Resources:
 
   DefaultPrivateRouteA:
     Type: AWS::EC2::Route
-    Condition: CreatePrivateSubnet
+    Condition: CreateVpc
     Properties:
       RouteTableId: !Ref PrivateRouteTableA
       DestinationCidrBlock: 0.0.0.0/0
@@ -345,7 +344,7 @@ Resources:
 
   PrivateSubnetARouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
-    Condition: CreatePrivateSubnet
+    Condition: CreateVpc
     Properties:
       RouteTableId: !Ref PrivateRouteTableA
       SubnetId: !Ref PrivateSubnetA
@@ -547,7 +546,7 @@ Resources:
               - FinalPublicSubnetAId: !If [CreateVpc, !Ref PublicSubnetA, !Ref PublicSubnetAId]
             - !Sub
               - echo "export PRIVATE_SUBNET_ID=${FinalPrivateSubnetAId}" >> cluster_env
-              - FinalPrivateSubnetAId: !If [CreatePrivateSubnet, !Ref PrivateSubnetA, !Ref PrivateSubnetAId]            
+              - FinalPrivateSubnetAId: !If [CreateVpc, !Ref PrivateSubnetA, !Ref PrivateSubnetAId]            
             - !Sub echo "export CLUSTER_NAME=${AWS::StackName}" >> cluster_env
             - !Sub echo "export ADDITIONAL_SG=${PCAdditionalSecurityGroup}" >> cluster_env
             - !Sub echo "export DB_SG=${DatabaseClientSecurityGroup}" >> cluster_env
@@ -783,7 +782,7 @@ Resources:
             Resource: '*'
       RouteTableIds:
         - !Ref PublicRouteTable
-        - !If [CreatePrivateSubnet, !Ref PrivateRouteTableA, !Ref 'AWS::NoValue']
+        - !Ref PrivateRouteTableA
       ServiceName: !Sub 'com.amazonaws.${AWS::Region}.s3'
       VpcEndpointType: Gateway
       VpcId: !Ref VPC
