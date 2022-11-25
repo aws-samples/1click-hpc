@@ -13,30 +13,27 @@ sudo chown -R ec2-user:ec2-user /home/ec2-user/
 cd /home/ec2-user/environment
 . cluster_env
 
-#needed to join the domain
-
-sudo cp /etc/resolv.conf /etc/resolv.conf.ORIG
-IPS=$(aws ds describe-directories --directory-id "${AD_ID}" --query 'DirectoryDescriptions[*].DnsIpAddrs' --output text)
-ADName=$(aws ds describe-directories --directory-id "${AD_ID}" --query 'DirectoryDescriptions[*].Name' --output text)
-export IP_AD1=$(echo "${IPS}" | awk '{print $1}')
-export IP_AD2=$(echo "${IPS}" | awk '{print $2}')
-export DC0=$(echo "${ADName}" | awk -F'.' '{print $1}')
-export DC1=$(echo "${ADName}" | awk -F'.' '{print $2}')
-export DC2=$(echo "${ADName}" | awk -F'.' '{print $3}')
-export OU=${DC0^^}
-
-ADMIN_PW=$(aws secretsmanager get-secret-value --secret-id "hpc-1click-${CLUSTER_NAME}" --query SecretString --output text --region "${AWS_REGION_NAME}")
 export SECRET_ARN=$(aws secretsmanager describe-secret --secret-id "hpc-1click-${CLUSTER_NAME}" --query ARN --output text --region "${AWS_REGION_NAME}")
-awk -v "domain=$ADName" '/search/ {$0=$0 " " domain;} 1' /etc/resolv.conf | sudo tee /etc/resolv.conf                
-for IP in ${IPS}
-do
-	echo "${IP} ${ADName}" | sudo tee -a /etc/hosts
-	awk -v "dns1=$IP" '/nameserver/ && !x {print "nameserver " dns1; x=1} 1' /etc/resolv.conf | sudo tee /etc/resolv.conf       
-done
 
-echo "${ADMIN_PW}" | sudo realm join -U Admin ${ADName}
+if [[ $AD_ID != "custom" ]];then
+  
+  #needed to join the domain
+  sudo cp /etc/resolv.conf /etc/resolv.conf.ORIG
+  IPS=$(aws ds describe-directories --directory-id "${AD_ID}" --query 'DirectoryDescriptions[*].DnsIpAddrs' --output text)
+  ADName=$(aws ds describe-directories --directory-id "${AD_ID}" --query 'DirectoryDescriptions[*].Name' --output text)
+  export IP_AD1=$(echo "${IPS}" | awk '{print $1}')
+  export IP_AD2=$(echo "${IPS}" | awk '{print $2}')
 
-if [[ $CUSTOMAD == "false" ]];then
+  ADMIN_PW=$(aws secretsmanager get-secret-value --secret-id "hpc-1click-${CLUSTER_NAME}" --query SecretString --output text --region "${AWS_REGION_NAME}")
+  
+  awk -v "domain=$ADName" '/search/ {$0=$0 " " domain;} 1' /etc/resolv.conf | sudo tee /etc/resolv.conf                
+  for IP in ${IPS}
+  do
+	  echo "${IP} ${ADName}" | sudo tee -a /etc/hosts
+	  awk -v "dns1=$IP" '/nameserver/ && !x {print "nameserver " dns1; x=1} 1' /etc/resolv.conf | sudo tee /etc/resolv.conf       
+  done
+
+  echo "${ADMIN_PW}" | sudo realm join -U Admin ${ADName}
   echo "${ADMIN_PW}" | adcli create-user -x -U Admin --domain=${ADName} --display-name=ReadOnlyUser ReadOnlyUser
   echo "${ADMIN_PW}" | adcli create-user -x -U Admin --domain=${ADName} --display-name=user000 user000
   aws ds reset-user-password --directory-id "${AD_ID}" --user-name "ReadOnlyUser" --new-password "${ADMIN_PW}" --region "${AWS_REGION_NAME}"

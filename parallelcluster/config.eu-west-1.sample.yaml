@@ -41,9 +41,9 @@ Image:
   Os: alinux2
 DirectoryService:
   DomainName: dc=${DC0},dc=${DC1},dc=${DC2}
-  DomainAddr: ldaps://${NLB_PUBLIC_DNS_NAME}
+  DomainAddr: ${NLB_PUBLIC_DNS_NAME}
   PasswordSecretArn: ${SECRET_ARN}
-  DomainReadOnlyUser: cn=ReadOnlyUser,ou=Users,ou=${OU},dc=${DC0},dc=${DC1},dc=${DC2}
+  DomainReadOnlyUser: cn=ReadOnlyUser,ou=Users,ou=CORP,dc=corp,dc=pcluster,dc=com
   LdapTlsReqCert: never
 Region: ${AWS_REGION_NAME}
 Scheduling:

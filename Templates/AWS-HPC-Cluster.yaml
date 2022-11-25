@@ -15,8 +15,6 @@ Metadata:
           - PrivateSubnetAId
           - FSx
           - AD
-          - ADDNS0
-          - ADDNS1
     ParameterLabels: 
       AdminPassword: 
         default: 'Password:'
@@ -32,11 +30,7 @@ Metadata:
         default: 'FSx:'
       AD: 
         default: 'Active Directory:'
-      ADDNS0:
-        default: 'Primary DNS IP:'
-      ADDNS1:
-        default: 'Secondary DNS IP:'
-        
+
 Parameters:
     AdminPassword:
       Description: 'Please, enter the Admin password for your Active Direcotry.This will also be the "ec2-user" password. (Min 8 chars, three of: lowercase, uppercase, number and symbols)'
@@ -77,22 +71,10 @@ Parameters:
       Default : AUTO
 
     AD:
-      Description: 'Please, enter your Active Directory ID, or just leave "AUTO" if you want to create a new one.'
+      Description: 'Please, enter your ldaps://url of your Active Directory, or just leave "AUTO" if you want to create a new Active Directory. Note: ReadOnlyUser is mandatory'
       Type: String
-      AllowedPattern: ^(AUTO|d-[0-9a-z]+)$
+      AllowedPattern: ^(AUTO|ldaps?://.+)$
       Default : AUTO
-
-    ADDNS0:
-      Description: 'Please enter IP of the first DNS server of the custom AD domain'
-      Type: String
-      AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
-      Default: '0.0.0.0'
-
-    ADDNS1:
-      Description: 'Please enter IP of the first DNS server of the custom AD domain'
-      Type: String
-      AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})
-      Default: '0.0.0.0'
 
 Mappings: 
   RegionMap: 
@@ -537,10 +519,7 @@ Resources:
             - !Sub echo "export FSX_ID=${FSx}" >> cluster_env
             - !Sub
               - echo "export AD_ID=${ADId}" >> cluster_env
-              - ADId: !If [CreateAD, !Ref ActiveDirectory, !Ref AD]
-            - !Sub 
-              - echo "export CUSTOMAD=${CUSTOMAD}" >> cluster_env
-              - CUSTOMAD: !If [CreateAD, 'false', 'true']
+              - ADId: !If [CreateAD, !Ref ActiveDirectory, 'custom']
             - !Sub
               - echo "export PUBLIC_SUBNET_ID=${FinalPublicSubnetAId}" >> cluster_env
               - FinalPublicSubnetAId: !If [CreateVpc, !Ref PublicSubnetA, !Ref PublicSubnetAId]
@@ -557,9 +536,9 @@ Resources:
             - !Sub 
               - echo "export ALB_PUBLIC_DNS_NAME='${ALB}'" >> cluster_env
               - ALB: !GetAtt ApplicationLoadBalancer.DNSName
-            - !Sub 
-              - echo "export NLB_PUBLIC_DNS_NAME='${NLB}'" >> cluster_env
-              - NLB: !GetAtt NetworkLoadBalancer.DNSName
+            - !Sub
+              - echo "export NLB_PUBLIC_DNS_NAME='${LDAP}'" >> cluster_env
+              - LDAP: !If [CreateAD, !Sub "ldaps://${NetworkLoadBalancer.DNSName}", !Ref AD]
             - !Sub
               - echo "export KEY_PAIR=\"${AWS::StackName}-${RANDOM}\"" >> cluster_env
               - RANDOM: !Select [0, !Split ['-', !Select [2, !Split ['/', !Ref 'AWS::StackId' ]]]]
@@ -568,12 +547,18 @@ Resources:
             - chmod -x /home/ec2-user/environment/1click-hpc/scripts/Cloud9-Bootstrap.sh
             - sudo -H -u ec2-user bash -c "bash /home/ec2-user/environment/1click-hpc/scripts/Cloud9-Bootstrap.sh"
 
+  #dummy, just wait if exist otherwise let Cloud9BootstrapInstanceLambda go
+  NLBReady:
+    Type: AWS::CloudFormation::WaitConditionHandle
+    Metadata:
+      IsThereNLB: !If [CreateAD, !Ref NetworkLoadBalancer, NONE]
+
   Cloud9BootstrapInstanceLambda:
     Type: Custom::Cloud9BootstrapInstanceLambda
     DependsOn:
     - LambdaExecutionRole
     - ApplicationLoadBalancer
-    - NetworkLoadBalancer
+    - NLBReady
     - LogGroupCloud9BootstrapInstanceLambdaFunction
     Properties:
       ServiceToken:
@@ -917,15 +902,17 @@ Resources:
 
   NetworkLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Condition: CreateAD
     Properties:
       Scheme: internal
-      Subnets: 
+      Subnets:
         - !If [CreateVpc, !Ref PublicSubnetA, !Ref PublicSubnetAId]
         - !If [CreateVpc, !Ref PublicSubnetB, !Ref PublicSubnetBId]
       Type: network
 
   LdapTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Condition: CreateAD
     Properties:
       Name: !Sub '${AWS::StackName}-Ldap'
       Port: 389
@@ -941,14 +928,15 @@ Resources:
         - Key: deregistration_delay.timeout_seconds
           Value: 60
       Targets:
-        - Id: !If [CreateAD, !Select [0, !GetAtt ActiveDirectory.DnsIpAddresses], !Ref ADDNS0]
+        - Id: !Select [0, !GetAtt ActiveDirectory.DnsIpAddresses]
           Port: 389
-        - Id: !If [CreateAD, !Select [1, !GetAtt ActiveDirectory.DnsIpAddresses], !Ref ADDNS1]
+        - Id: !Select [1, !GetAtt ActiveDirectory.DnsIpAddresses]
           Port: 389
       TargetType: ip
 
   LdapListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
+    Condition: CreateAD
     Properties:
       DefaultActions:
         - Type: forward
@@ -974,32 +962,6 @@ Resources:
           Order: 1
           TargetGroupArn: !Ref TargetGroupEF
           Type: "forward"
-
-  GrafanaListenerRule:
-    Type: AWS::ElasticLoadBalancingV2::ListenerRule
-    Properties:
-      Actions:
-      - Type: forward
-        TargetGroupArn: !Ref TargetGroupMonitoring
-      Conditions:
-      - Field: path-pattern
-        Values:
-        - "/grafana*"
-      ListenerArn: !Ref HTTPSListener
-      Priority: 1
-      
-  PrometheusListenerRule:
-    Type: AWS::ElasticLoadBalancingV2::ListenerRule
-    Properties:
-      Actions:
-      - Type: forward
-        TargetGroupArn: !Ref TargetGroupMonitoring
-      Conditions:
-      - Field: path-pattern
-        Values:
-        - "/prometheus*"
-      ListenerArn: !Ref HTTPSListener
-      Priority: 2
 
   HTTPListener:
     Type: "AWS::ElasticLoadBalancingV2::Listener"
@@ -1031,22 +993,6 @@ Resources:
       Targets:
         - Id: !Sub '${HeadNodeIP.HeadNodePrivateIP}'
       TargetType: ip
-  
-  TargetGroupMonitoring:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    DependsOn: 
-      - HeadNodeIP
-    Properties:
-      Name: !Sub '${AWS::StackName}-Monitoring'
-      VpcId: !If [CreateVpc, !Ref VPC, !Ref VpcId]
-      Port: 80
-      Protocol: HTTP
-      Targets:
-        - Id: !Sub '${HeadNodeIP.HeadNodePrivateIP}'
-      TargetType: ip
-      HealthCheckPath: '/grafana'
-      Matcher: 
-        HttpCode: '200,301,302'
 
   AvailabiltyZone1:
     Type: Custom::AvailabiltyZone
@@ -1154,7 +1100,7 @@ Outputs:
     Description: Cloud9 Environment
     Value: !Sub 'https://${AWS::Region}.console.aws.amazon.com/cloud9/ide/${Cloud9}'
   WebURL:
-    Description: "EnginFrame HPC Portal and Grafana Monitoring Dashboard."
+    Description: "EnginFrame HPC Portal"
     Value: !Sub 
       - 'https://${ALB}/'
       - ALB: !GetAtt ApplicationLoadBalancer.DNSName
