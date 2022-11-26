@@ -44,6 +44,8 @@ fi
 
 # make account = project
 account=$(echo $project | awk '{print tolower($0)}')
+clustername=$(/opt/slurm/bin/scontrol show config --local | awk -F "= " '/ClusterName/ {print $2}')
+qos=$(/opt/slurm/bin/sacctmgr show assoc format=qos where account=${account}, user=$USER, cluster=${clustername} -n -P)
 
 #cat /opt/slurm/etc/projects_list.conf | grep $USER | grep ${project} > /dev/null
 
@@ -64,9 +66,9 @@ if [ $? -eq 0 ] || [ $EUID -eq 0 ];then
        BudgetLimit=$(echo ${budget} | awk '{print $2}')
        if (( $(echo "${ActualSpend} < ${BudgetLimit}" | bc -l) ));then
          if [ $excluded != '-[]' ]; then
-            /opt/slurm/sbin/${slurm_command} --account=${account} --exclude=${excluded} $@
+            /opt/slurm/sbin/${slurm_command} --account=${account} --qos=${qos} --exclude=${excluded} $@
          else
-            /opt/slurm/sbin/${slurm_command} --account=${account} $@
+            /opt/slurm/sbin/${slurm_command} --account=${account} --qos=${qos} $@
          fi
          exit 0
        else
@@ -76,9 +78,9 @@ if [ $? -eq 0 ] || [ $EUID -eq 0 ];then
      fi
   else
     if [ $excluded != '-[]' ]; then
-      /opt/slurm/sbin/${slurm_command} --account=${account} --exclude=${excluded} $@
+      /opt/slurm/sbin/${slurm_command} --account=${account} --qos=${qos} --exclude=${excluded} $@
     else
-      /opt/slurm/sbin/${slurm_command} --account=${account} $@
+      /opt/slurm/sbin/${slurm_command} --account=${account} --qos=${qos} $@
     fi
   fi
 else

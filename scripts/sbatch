@@ -44,6 +44,8 @@ fi
 
 # make account = project
 account=$(echo $project | awk '{print tolower($0)}')
+clustername=$(/opt/slurm/bin/scontrol show config --local | awk -F "= " '/ClusterName/ {print $2}')
+qos=$(/opt/slurm/bin/sacctmgr show assoc format=qos where account=${account}, user=$USER, cluster=${clustername} -n -P)
 
 #cat /opt/slurm/etc/projects_list.conf | grep $USER | grep ${project} > /dev/null
 # instead of above, maintain groups for projects in AD and make users members of these groups
@@ -61,7 +63,7 @@ if [ $? -eq 0 ] || [ $EUID -eq 0 ];then
        ActualSpend=$(echo ${budget} | awk '{print $1}')
        BudgetLimit=$(echo ${budget} | awk '{print $2}')
        if (( $(echo "${ActualSpend} < ${BudgetLimit}" | bc -l) ));then
-         /opt/slurm/sbin/${slurm_command} --account=${account} $@
+         /opt/slurm/sbin/${slurm_command} --account=${account} --qos=${qos} $@
          exit 0
        else
          echo "The Project ${project} does not have more budget allocated for this month. We will queue your job in preemptible mode."
@@ -70,7 +72,7 @@ if [ $? -eq 0 ] || [ $EUID -eq 0 ];then
        fi
      fi
   else
-    /opt/slurm/sbin/${slurm_command} --account=${account} $@
+    /opt/slurm/sbin/${slurm_command} --account=${account} --qos=${qos} $@
   fi
 else
  echo "You are not allowed to use the project ${project}"
