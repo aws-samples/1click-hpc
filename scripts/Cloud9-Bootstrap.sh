@@ -7,38 +7,13 @@ fi
 set -x
 exec >/home/ec2-user/environment/bootstrap.log; exec 2>&1
 
-sudo yum -y -q install jq sssd realmd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools krb5-workstation openldap-clients policycoreutils-python
+sudo yum -y -q install jq
 sudo chown -R ec2-user:ec2-user /home/ec2-user/
 #source cluster profile and move to the home dir
 cd /home/ec2-user/environment
 . cluster_env
 
 export SECRET_ARN=$(aws secretsmanager describe-secret --secret-id "hpc-1click-${CLUSTER_NAME}" --query ARN --output text --region "${AWS_REGION_NAME}")
-
-if [[ $AD_ID != "custom" ]];then
-  
-  #needed to join the domain
-  sudo cp /etc/resolv.conf /etc/resolv.conf.ORIG
-  IPS=$(aws ds describe-directories --directory-id "${AD_ID}" --query 'DirectoryDescriptions[*].DnsIpAddrs' --output text)
-  ADName=$(aws ds describe-directories --directory-id "${AD_ID}" --query 'DirectoryDescriptions[*].Name' --output text)
-  export IP_AD1=$(echo "${IPS}" | awk '{print $1}')
-  export IP_AD2=$(echo "${IPS}" | awk '{print $2}')
-
-  ADMIN_PW=$(aws secretsmanager get-secret-value --secret-id "hpc-1click-${CLUSTER_NAME}" --query SecretString --output text --region "${AWS_REGION_NAME}")
-  
-  awk -v "domain=$ADName" '/search/ {$0=$0 " " domain;} 1' /etc/resolv.conf | sudo tee /etc/resolv.conf                
-  for IP in ${IPS}
-  do
-	  echo "${IP} ${ADName}" | sudo tee -a /etc/hosts
-	  awk -v "dns1=$IP" '/nameserver/ && !x {print "nameserver " dns1; x=1} 1' /etc/resolv.conf | sudo tee /etc/resolv.conf       
-  done
-
-  echo "${ADMIN_PW}" | sudo realm join -U Admin ${ADName}
-  echo "${ADMIN_PW}" | adcli create-user -x -U Admin --domain=${ADName} --display-name=ReadOnlyUser ReadOnlyUser
-  echo "${ADMIN_PW}" | adcli create-user -x -U Admin --domain=${ADName} --display-name=user000 user000
-  aws ds reset-user-password --directory-id "${AD_ID}" --user-name "ReadOnlyUser" --new-password "${ADMIN_PW}" --region "${AWS_REGION_NAME}"
-  aws ds reset-user-password --directory-id "${AD_ID}" --user-name "user000" --new-password "${ADMIN_PW}" --region "${AWS_REGION_NAME}"
-fi
 
 #install Lustre client
 sudo amazon-linux-extras install -y lustre2.10 > /dev/null 2>&1
