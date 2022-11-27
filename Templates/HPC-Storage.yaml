@@ -2,9 +2,14 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: HPC-FSx-Lustre
 
 Parameters:
-  NetworkStackName:
-    Description: Name of Network Stack
+  PrivateSubnet:
+    Description: The ID of your private subnet.
     Type: String
+    AllowedPattern: ^(subnet-[0-9a-z]+)$
+  SecurityGroup:
+    Description: The ID of the SecurityGroup you want to attach.
+    Type: String
+    AllowedPattern: ^(sg-[0-9a-z]+)$
 
 Resources:
 
@@ -16,16 +21,12 @@ Resources:
       StorageCapacity: 1200
       StorageType: SSD
       SubnetIds:
-        - Fn::ImportValue:
-            !Sub "${NetworkStackName}-PrivateSubnetA"
+        - !Ref PrivateSubnet
       SecurityGroupIds:
-        - Fn::ImportValue:
-            !Sub "${NetworkStackName}-localSG"
+        - !Ref SecurityGroup
       LustreConfiguration:
-        WeeklyMaintenanceStartTime: "7:04:00"
+        WeeklyMaintenanceStartTime: "4:00:00"
         DeploymentType: PERSISTENT_2
         PerUnitStorageThroughput: 1000
-        DailyAutomaticBackupStartTime: "05:30"
-        AutomaticBackupRetentionDays: 7
         DataCompressionType: LZ4
       FileSystemTypeVersion: "2.12"
