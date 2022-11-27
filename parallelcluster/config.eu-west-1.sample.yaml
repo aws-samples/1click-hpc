@@ -40,7 +40,7 @@ HeadNode:
 Image:
   Os: alinux2
 DirectoryService:
-  DomainName: dc=${DC0},dc=${DC1},dc=${DC2}
+  DomainName: dc=corp,dc=pcluster,dc=com
   DomainAddr: ${NLB_PUBLIC_DNS_NAME}
   PasswordSecretArn: ${SECRET_ARN}
   DomainReadOnlyUser: cn=ReadOnlyUser,ou=Users,ou=CORP,dc=corp,dc=pcluster,dc=com
