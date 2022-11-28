@@ -13,8 +13,6 @@ sudo chown -R ec2-user:ec2-user /home/ec2-user/
 cd /home/ec2-user/environment
 . cluster_env
 
-export SECRET_ARN=$(aws secretsmanager describe-secret --secret-id "hpc-1click-${CLUSTER_NAME}" --query ARN --output text --region "${AWS_REGION_NAME}")
-
 #install Lustre client
 sudo amazon-linux-extras install -y lustre2.10 > /dev/null 2>&1
 
@@ -52,18 +50,6 @@ EOF
 fi
 export FSX
 
-if [[ $PRIVATE_SUBNET_ID == "NONE" ]];then
-  export SUBNET_ID="${PUBLIC_SUBNET_ID}"
-  export USE_PUBLIC_IPS='true'
-  echo "export SUBNET_ID=\"${PUBLIC_SUBNET_ID}\"" >> cluster_env
-  echo "export USE_PUBLIC_IPS='true'" >> cluster_env
-else
-  export SUBNET_ID="${PRIVATE_SUBNET_ID}"
-  export USE_PUBLIC_IPS='false'
-  echo "export SUBNET_ID=\"${PRIVATE_SUBNET_ID}\"" >> cluster_env
-  echo "export USE_PUBLIC_IPS='false'" >> cluster_env
-fi
-
 /usr/bin/envsubst < "1click-hpc/parallelcluster/config.${AWS_REGION_NAME}.sample.yaml" > config.${AWS_REGION_NAME}.yaml
 /usr/bin/envsubst '${SLURM_DB_ENDPOINT}' < "1click-hpc/enginframe/mysql/efdb.config" > efdb.config
 /usr/bin/envsubst '${SLURM_DB_ENDPOINT}' < "1click-hpc/enginframe/efinstall.config" > efinstall.config
@@ -76,6 +62,7 @@ aws s3 cp --quiet /usr/bin/mysql "s3://${S3_BUCKET}/1click-hpc/enginframe/mysql/
 rm -f fm.browse.ui efinstall.config
 
 #Create the key pair (remove the existing one if it has the same name)
+# FIX this: create the key on the CF and store on SecretManager
 aws ec2 create-key-pair --key-name ${KEY_PAIR} --query KeyMaterial --output text > /home/ec2-user/.ssh/id_rsa
 if [ $? -ne 0 ]; then
     aws ec2 delete-key-pair --key-name ${KEY_PAIR}

@@ -370,14 +370,12 @@ Resources:
             - !Sub echo "export S3_BUCKET=${Cloud9OutputBucket}" >> cluster_env
             - !Sub echo "export FSX_ID=${FSx}" >> cluster_env
             - !Sub
-              - echo "export PUBLIC_SUBNET_ID=${FinalPublicSubnetAId}" >> cluster_env
-              - FinalPublicSubnetAId: !If [CreateVpc, !GetAtt HPCNetworkStack.Outputs.PublicSubnetA, !Ref PublicSubnetAId]
-            - !Sub
               - echo "export PRIVATE_SUBNET_ID=${FinalPrivateSubnetAId}" >> cluster_env
               - FinalPrivateSubnetAId: !If [CreateVpc, !GetAtt HPCNetworkStack.Outputs.PrivateSubnetA, !Ref PrivateSubnetAId]            
             - !Sub echo "export CLUSTER_NAME=${AWS::StackName}" >> cluster_env
             - !Sub echo "export ADDITIONAL_SG=${PCAdditionalSecurityGroup}" >> cluster_env
             - !Sub echo "export DB_SG=${DatabaseClientSecurityGroup}" >> cluster_env
+            - !Sub echo "export SECRET_ARN=${Password}" >> cluster_env
             - !Sub echo "export WAIT_HANDLE='${WaitHandle}'" >> cluster_env
             - !Sub
               - echo "export SLURM_DB_ENDPOINT='${DB_ENDPOINT}'" >> cluster_env
