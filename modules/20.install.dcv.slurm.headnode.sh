@@ -22,6 +22,8 @@
 set -x
 set -e
 
+DCV_KEY_WORD="dcv"
+
 #ADD DCV as a features to Slurm Partitions
 addDCVtoSlurmPartitions() {
     for conf_file in $(ls ${SLURM_CONF_FILE} | grep "${DCV_KEY_WORD}"); do

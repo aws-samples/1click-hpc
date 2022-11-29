@@ -50,7 +50,7 @@ ef.sessions.dir = ${NICE_ROOT}/enginframe/sessions/
 ef.data.root.dir = ${NICE_ROOT}/enginframe/data/
 ef.logs.root.dir = ${NICE_ROOT}/enginframe/logs/
 ef.temp.root.dir = ${NICE_ROOT}/enginframe/tmp/
-kernel.server.tomcat.https.ef.hostname = ${host_name}
+kernel.server.tomcat.https.ef.hostname = ${head_node_hostname}
 kernel.ef.db.admin.password = ${ec2user_pass}
 EOF
 
@@ -111,6 +111,7 @@ startEnginFrame() {
 # ----------------------------------------------------------------------------
 main() {
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 10.install.enginframe.headnode.sh: START" >&2
+    export ec2user_pass="$(aws secretsmanager get-secret-value --secret-id "${stack_name}" --query SecretString --output text --region "${cfn_region}")"
     installEnginFrame
     EF_TOP="${NICE_ROOT}/enginframe"
     unset EF_VERSION

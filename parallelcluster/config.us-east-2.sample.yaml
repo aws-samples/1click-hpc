@@ -19,10 +19,6 @@ HeadNode:
     AdditionalIamPolicies:
       - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
       - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
-      - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
-      - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
-      - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
-      - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
     S3Access:
       - BucketName: '*'
         EnableWriteAccess: true
@@ -101,12 +97,6 @@ Scheduling:
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
-          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
-          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
-          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
-          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
           - Policy: arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetTaggingRole
         S3Access:
           - BucketName: '*'
@@ -157,12 +147,6 @@ Scheduling:
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
-          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
-          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
-          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
-          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
           - Policy: arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetTaggingRole
         S3Access:
           - BucketName: '*'
@@ -199,12 +183,6 @@ Scheduling:
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
-          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
-          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
-          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
-          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
           - Policy: arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetTaggingRole
         S3Access:
           - BucketName: '*'
@@ -242,12 +220,6 @@ Scheduling:
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
-          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
-          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
-          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
-          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
           - Policy: arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetTaggingRole
         S3Access:
           - BucketName: '*'
@@ -285,12 +257,6 @@ Scheduling:
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
-          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
-          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
-          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
-          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
           - Policy: arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetTaggingRole
         S3Access:
           - BucketName: '*'
@@ -341,12 +307,6 @@ Scheduling:
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
-          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
-          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
-          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
-          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
           - Policy: arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetTaggingRole
         S3Access:
           - BucketName: '*'
@@ -396,12 +356,6 @@ Scheduling:
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
-          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
-          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
-          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
-          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
           - Policy: arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetTaggingRole
         S3Access:
           - BucketName: '*'
@@ -451,12 +405,6 @@ Scheduling:
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
-          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
-          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
-          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
-          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
           - Policy: arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetTaggingRole
         S3Access:
           - BucketName: '*'
@@ -508,12 +456,6 @@ Scheduling:
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
-          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
-          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
-          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
-          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
           - Policy: arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetTaggingRole
         S3Access:
           - BucketName: '*'
