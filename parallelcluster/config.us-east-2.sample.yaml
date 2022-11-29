@@ -62,6 +62,13 @@ Scheduling:
           InstanceType: hpc6a.48xlarge
           MaxCount: 300
           MinCount: 0
+        - Name: hpc6id-32xlarge
+          DisableSimultaneousMultithreading: true
+          Efa:
+            Enabled: true
+          InstanceType: hpc6id.32xlarge
+          MaxCount: 300
+          MinCount: 0
         - Name: c6i-32xlarge
           DisableSimultaneousMultithreading: true
           Efa:
@@ -82,13 +89,6 @@ Scheduling:
             Enabled: true
           InstanceType: r6i.32xlarge
           MaxCount: 300
-          MinCount: 0
-        - Name: m5zn-12xlarge
-          DisableSimultaneousMultithreading: true
-          Efa:
-            Enabled: true
-          InstanceType: m5zn.12xlarge
-          MaxCount: 100
           MinCount: 0
       CustomActions:
         OnNodeConfigured:
@@ -118,6 +118,13 @@ Scheduling:
             Enabled: true
           InstanceType: c5n.18xlarge
           MaxCount: 300
+          MinCount: 0
+        - Name: m5zn-12xlarge
+          DisableSimultaneousMultithreading: true
+          Efa:
+            Enabled: true
+          InstanceType: m5zn.12xlarge
+          MaxCount: 100
           MinCount: 0
         - Name: m5n-24xlarge
           DisableSimultaneousMultithreading: true
