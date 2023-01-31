@@ -1,0 +1,40 @@
+#%Module1.0#####################################################################
+##
+## Common stuff for CUDA
+##
+## Written by Quentin Anthony
+##
+proc ModulesHelp { } {
+        global version
+
+        puts stderr "cuda/${version} - Sets the environment for CUDA ${version}"
+}
+
+module-whatis   "Sets the environment for using CUDA ${version} (including NCCL builds)"
+
+# for Tcl script use only
+set     version         ${version}
+set     prefix          /usr/share/Modules
+set     exec_prefix     /usr/share/Modules
+set     datarootdir     ${prefix}/share
+
+# CUDA and NCCL paths
+prepend-path    PATH                /usr/local/cuda-${version}/bin
+prepend-path    CPATH               /usr/local/cuda-${version}/include
+prepend-path    MANPATH             /usr/local/cuda-${version}/share/man
+prepend-path    LD_LIBRARY_PATH     /usr/local/cuda-${version}/lib:/usr/local/cuda-${version}/lib64
+prepend-path    LIBRARY_PATH        /usr/local/cuda-${version}/lib64
+prepend-path    CUDA_HOME           /usr/local/cuda-${version}
+
+# AWS-OFI-NCCL paths
+prepend-path    LD_LIBRARY_PATH     /usr/local/cuda-${version}/efa/lib
+prepend-path    LIBRARY_PATH        /usr/local/cuda-${version}/efa/lib
+prepend-path    AWS_OFI_NCCL_HOME   /usr/local/cuda-${version}/efa
+
+# nccl-tests paths
+prepend-path    PATH               /usr/local/cuda-${version}/efa/test-cuda-${version}
+
+#module         use
+
+# don't load multiple versions of CUDA
+conflict cuda

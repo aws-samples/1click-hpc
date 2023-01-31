@@ -1,0 +1,25 @@
+## All options defined here are available to all instances.
+#
+init_config:
+     skip_proxy: false
+#
+instances:
+
+  -
+    ## @param openmetrics_endpoint - string - optional
+    ## The URL exposing metrics in the OpenMetrics format.
+    #
+    openmetrics_endpoint: http://localhost:9400/metrics
+
+    ## @param namespace - string - optional
+    ## The namespace to be prepended to all metrics.
+    #
+    namespace: dcgm
+
+    metrics:
+    - DCGM_FI_DEV_POWER_USAGE: power_usage
+    - DCGM_FI_DEV_NVLINK_BANDWIDTH_TOTAL: nvlink_bandwidth
+    - DCGM_FI_DEV_MEM_COPY_UTIL: mem_copy
+    - DCGM_FI_DEV_GPU_UTIL: utilization
+
+    tag_by_endpoint: false

@@ -1,0 +1,22 @@
+#########################
+## Basic Configuration ##
+#########################
+
+## @param api_key - string - required
+## @env DD_API_KEY - string - required
+## The Datadog API key to associate your Agent's data with your organization.
+## Create a new API key here: https://app.datadoghq.com/account/settings
+#
+api_key: <yourapikey>
+
+## @param site - string - optional - default: datadoghq.com
+## @env DD_SITE - string - optional - default: datadoghq.com
+## The site of the Datadog intake to send Agent data to.
+#
+site: datadoghq.com
+
+#---enterprise feature---
+#process_config:
+#  process_collection:
+#    enabled: true
+log_level: ERROR
