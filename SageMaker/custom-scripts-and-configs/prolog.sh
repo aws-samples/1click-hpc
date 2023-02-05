@@ -57,7 +57,7 @@ timestamp=$(date +%s)
 curl -X POST "https://api.datadoghq.com/api/v1/events" \
 -H "Accept: application/json" \
 -H "Content-Type: application/json" \
--H "DD-API-KEY: ea35c122554ceef82fec730015d2e886" \
+-H "DD-API-KEY: yourapikey" \
 -d @- << EOF
 {
   "title": "Slurm Job Starting",
