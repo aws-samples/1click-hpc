@@ -4,23 +4,23 @@ HeadNode:
       Size: 256
       Encrypted: false
       VolumeType: gp3
-      Iops: 10000
+      Iops: 4000
       Throughput: 1000
   CustomActions:
     OnNodeConfigured:
       Args:
         - 00.install.custom.packages.headnode.sh
         - 02.activate.passwordless.AD.headnode.sh
-        - 03.configure.slurm.acct.headnode.sh
+        #- 03.configure.slurm.acct.headnode.sh
         - 04.configure.slurm.AllOrNothing.headnode.sh
         - 07.configure.slurm.prologs.headnode.sh
         - 08.install.duc.headnode.sh
-        - 33.install.cost.control.sh
-        - 40.install.monitoring.headnode.sh
-        - 50.install.capacity.reservation.pool.sh
-        - 70.install.enroot.pyxis.sh
-        - 88.install.preemption.headnode.sh
-        - 90.install.service.automation.headnode.sh
+        #- 33.install.cost.control.sh
+        #- 40.install.monitoring.headnode.sh
+        #- 50.install.capacity.reservation.pool.sh
+        #- 70.install.enroot.pyxis.sh
+        #- 88.install.preemption.headnode.sh
+        #- 90.install.service.automation.headnode.sh
       Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
   Iam:
     AdditionalIamPolicies:
@@ -29,14 +29,14 @@ HeadNode:
       - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
       - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
       - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
-      - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/${CLUSTER_NAME}-ODCR-Policy
-      - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/pclusterTagsAndBudget # make sure this policy is created https://pcluster.cloud/02-tutorials/04-cost-tracking.html
+      #- Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/${CLUSTER_NAME}-ODCR-Policy
+      #- Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/pclusterTagsAndBudget # make sure this policy is created https://pcluster.cloud/02-tutorials/04-cost-tracking.html
       - Policy: arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
       - Policy: arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
     S3Access:
       - BucketName: '*'
         EnableWriteAccess: true
-  InstanceType: c5n.4xlarge
+  InstanceType: c5n.xlarge
   Networking:
     AdditionalSecurityGroups:
       - ${ADDITIONAL_SG}
@@ -69,22 +69,22 @@ Scheduling:
     ScaledownIdletime: 10
     EnableMemoryBasedScheduling: true
   SlurmQueues:
-    - Name: gpu
+    - Name: spark
       CapacityType: ONDEMAND
       ComputeSettings:
         LocalStorage:
           RootVolume:
-            Size: 1024
+            Size: 256
             Encrypted: false
             VolumeType: gp3
             Iops: 5000
       ComputeResources:
-        - Name: p4d-24xlarge
+        - Name: hpc6id-32xlarge
           DisableSimultaneousMultithreading: true
           Efa:
             Enabled: true
-          InstanceType: p4d.24xlarge
-          MaxCount: 4
+          InstanceType: hpc6id.32xlarge
+          MaxCount: 20
           MinCount: 0
       CustomActions:
         OnNodeConfigured:
@@ -92,15 +92,15 @@ Scheduling:
             - 00.install.custom.packages.compute.sh
             - 02.activate.passwordless.sudo.compute.sh
             - 04.configure.disable.anacron.compute.sh
-            - 33.install.cost.control.sh
-            - 35.boost.gpu.clock.gpu.sh
-            - 40.install.monitoring.gpu.sh
-            - 43.allow.nvidia.debug.gpu.sh
-            - 45.install.nccl.compute.sh
-            - 70.install.enroot.pyxis.sh
-            - 70.install.singularity.compute.sh
+            #- 33.install.cost.control.sh
+            #- 35.boost.gpu.clock.gpu.sh
+            #- 40.install.monitoring.gpu.sh
+            #- 43.allow.nvidia.debug.gpu.sh
+            #- 45.install.nccl.compute.sh
+            #- 70.install.enroot.pyxis.sh
+            #- 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
-            - 90.install.service.automation.gpu.sh
+            #- 90.install.service.automation.gpu.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
@@ -110,9 +110,9 @@ Scheduling:
           - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
           - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
           - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
-          - Policy: arn:aws:iam::aws:policy/AWSSupportAccess
+          #- Policy: arn:aws:iam::aws:policy/AWSSupportAccess
           - Policy: arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
-          - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/pclusterTagsAndBudget #make sure this policy is created https://pcluster.cloud/02-tutorials/04-cost-tracking.html
+          #- Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/pclusterTagsAndBudget #make sure this policy is created https://pcluster.cloud/02-tutorials/04-cost-tracking.html
         S3Access:
           - BucketName: '*'
             EnableWriteAccess: true
