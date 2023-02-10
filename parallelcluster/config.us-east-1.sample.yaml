@@ -79,12 +79,12 @@ Scheduling:
             VolumeType: gp3
             Iops: 5000
       ComputeResources:
-        - Name: hpc6id-32xlarge
+        - Name: c6id-32xlarge
           DisableSimultaneousMultithreading: true
           Efa:
             Enabled: true
-          InstanceType: hpc6id.32xlarge
-          MaxCount: 20
+          InstanceType: c6id.32xlarge
+          MaxCount: 30
           MinCount: 0
       CustomActions:
         OnNodeConfigured:
