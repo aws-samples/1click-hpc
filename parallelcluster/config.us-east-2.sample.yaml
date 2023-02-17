@@ -20,7 +20,6 @@ HeadNode:
       - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
       - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
       - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
-      - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
       - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
       - Policy: arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
       - Policy: arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
@@ -71,7 +70,7 @@ Scheduling:
             Iops: 5000
       ComputeResources:
         - Name: hpc6id-32xlarge
-          DisableSimultaneousMultithreading: true
+          DisableSimultaneousMultithreading: false
           Efa:
             Enabled: true
           InstanceType: hpc6id.32xlarge
@@ -82,9 +81,7 @@ Scheduling:
           Args:
             - 00.install.custom.packages.compute.sh
             - 02.activate.passwordless.sudo.compute.sh
-            - 00.install.knot.resolver.cpu.sh
             - 04.configure.disable.anacron.compute.sh
-            - 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
@@ -92,7 +89,6 @@ Scheduling:
           - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
           - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
           - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
-          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
           - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
           - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
           - Policy: arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
