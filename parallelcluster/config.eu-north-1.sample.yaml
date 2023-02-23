@@ -62,6 +62,13 @@ Scheduling:
           InstanceType: hpc6a.48xlarge
           MaxCount: 400
           MinCount: 0
+        - Name: hpc6id-32xlarge
+          DisableSimultaneousMultithreading: true
+          Efa:
+            Enabled: true
+          InstanceType: hpc6id.32xlarge
+          MaxCount: 300
+          MinCount: 0
         - Name: c5n-18xlarge
           DisableSimultaneousMultithreading: true
           Efa:
