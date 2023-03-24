@@ -23,7 +23,7 @@ configureCostControl(){
 
         # Create the folder used to save jobs information
 
-        mkdir -p /tmp/jobs
+        mkdir -p /root/jobs
 
         # Configure the script to run every minute
         echo "
@@ -42,75 +42,37 @@ region=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254
 aws configure set region $region
 
 update=0
-tag_userid=""
-tag_jobid=""
-tag_project=""
+sleep $[ ( $RANDOM % 30 ) + 1 ]s
 
-if [ ! -f /tmp/jobs/jobs_users ] || [ ! -f /tmp/jobs/jobs_ids ]; then
-exit 0
-fi
-
-active_users=$(cat /tmp/jobs/jobs_users | sort | uniq )
-active_jobs=$(cat /tmp/jobs/jobs_ids | sort )
-echo $active_users > /tmp/jobs/tmp_jobs_users
-echo $active_jobs > /tmp/jobs/tmp_jobs_ids
-if [ -f /tmp/jobs/jobs_projects ]; then
-active_projects=$(cat /tmp/jobs/jobs_projects | sort | uniq )
-echo $active_projects > /tmp/jobs/tmp_jobs_projects
-fi
-
-
-if [ ! -f /tmp/jobs/tag_userid ] || [ ! -f /tmp/jobs/tag_jobid ]; then
-
-echo $active_users > /tmp/jobs/tag_userid
-echo $active_jobs > /tmp/jobs/tag_jobid
-echo $active_projects > /tmp/jobs/tag_project
-update=1
-
+# get current jobs on this node
+host=$(hostname)
+current=$(squeue -w "$host" -h -o%i,%a,%u,%t | awk '$4 == "R" split($1,a,",") split(a[1],b,"_"); {print b[1] "|" a[2] "|" a[3]}' | sort | uniq)
+saved=""
+if [ -f /root/jobs/combined ]; then
+    saved=$(cat /root/jobs/combined)
 else
-
-active_users=$(cat /tmp/jobs/tmp_jobs_users)
-active_jobs=$(cat /tmp/jobs/tmp_jobs_ids)
-if [ -f /tmp/jobs/tmp_jobs_projects ]; then
-    active_projects=$(cat /tmp/jobs/tmp_jobs_projects)
-fi 
-tag_userid=$(cat /tmp/jobs/tag_userid)
-tag_jobid=$(cat /tmp/jobs/tag_jobid)
-if [ -f /tmp/jobs/tag_project ]; then
-    tag_project=$(cat /tmp/jobs/tag_project)
+    > /root/jobs/combined
 fi
 
-if [ "${active_users}" != "${tag_userid}" ]; then
-    tag_userid="${active_users}"
-    echo ${tag_userid} > /tmp/jobs/tag_userid
+if [ "$saved" != "$current" ]; then
+    # need to tag the node
+    active_users=$(echo "$current" | cut -d"|" -f3 | sort | uniq | head -c -1 | tr "\n" "_")
+    active_jobs=$(echo "$current" | cut -d"|" -f1 | sort | uniq | head -c -1 | tr "\n" "_")
+    active_projects=$(echo "$current" | cut -d"|" -f2 | sort | uniq | head -c -1 | tr "\n" "_")
+
+    # save the current tagging
+    echo "$current" > /root/jobs/combined
     update=1
-fi
-
-if [ "${active_jobs}" != "${tag_jobid}" ]; then
-    tag_jobid="${active_jobs}"
-    echo ${tag_jobid} > /tmp/jobs/tag_jobid
-    update=1
-fi
-
-if [ "${active_projects}" != "${tag_project}" ]; then
-    tag_project="${active_projects}"
-    echo ${tag_project} > /tmp/jobs/tag_project
-    update=1
-fi
-
 fi
 
 if [ ${update} -eq 1 ]; then
 
 # Instance ID
 MyInstID=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/instance-id)
-tag_userid=$(cat /tmp/jobs/tag_userid)
-tag_jobid=$(cat /tmp/jobs/tag_jobid)
-sleep $((RANDOM % 20))
 tag_project=$(cat /tmp/jobs/tag_project)
-aws ec2 create-tags --resources ${MyInstID} --tags Key=aws-parallelcluster-username,Value="${tag_userid}"
-aws ec2 create-tags --resources ${MyInstID} --tags Key=aws-parallelcluster-jobid,Value="${tag_jobid}"
-aws ec2 create-tags --resources ${MyInstID} --tags Key=aws-parallelcluster-project,Value="${tag_project}"
+aws ec2 create-tags --resources ${MyInstID} --tags Key=aws-parallelcluster-username,Value="${active_users}"
+aws ec2 create-tags --resources ${MyInstID} --tags Key=aws-parallelcluster-jobid,Value="${active_jobs}"
+aws ec2 create-tags --resources ${MyInstID} --tags Key=aws-parallelcluster-project,Value="${active_projects}"
 
 fi
 EOF
@@ -121,18 +83,6 @@ EOF
         # This will overwrite 07.configure.slurm.prologs.headnode.sh for prolog and epilog
         cat <<'EOF' > /opt/slurm/sbin/prolog.sh
 #!/bin/bash
-
-#slurm directory
-export SLURM_ROOT=/opt/slurm
-echo "${SLURM_JOB_USER}" >> /tmp/jobs/jobs_users
-echo "${SLURM_JOBID}" >> /tmp/jobs/jobs_ids
-
-#load the comment of the job.
-Project=$($SLURM_ROOT/bin/scontrol show job ${SLURM_JOB_ID} | grep Comment | awk -F'=' '{print $2}')
-Project_Tag=""
-if [ ! -z "${Project}" ];then
-echo "${Project}" >> /tmp/jobs/jobs_projects
-fi
 
 #make enroot folders to accomodate multiple users on same compute host
 
@@ -152,12 +102,11 @@ chown "$SLURM_JOB_UID:$(id -g "$SLURM_JOB_UID")" "$data_path"
 chmod 0700 "$data_path"
 
 #kill all stray processes on the allocated GPUS
-
 awk_ndx=1
 procs=$(nvidia-smi)
 while [ 1 -eq 1 ]; do
   gpu=`echo $SLURM_JOB_GPUS | awk '{ print $n }' n=$awk_ndx FS=","`
-  [ "$gpu" = "" ] && break
+  [ "$gpu" == "" ] && break
   echo "killing stray processes found on gpu $gpu"
   kill $(echo "$procs" | awk '$2=="Processes:" {p=1} p && $2 == "'"$gpu"'" && $5 > 0 {print $5}') 2>/dev/null
   awk_ndx=`expr $awk_ndx + 1`
@@ -169,16 +118,6 @@ EOF
 #!/bin/bash
 #slurm directory
 export SLURM_ROOT=/opt/slurm
-sed -i "0,/${SLURM_JOB_USER}/d" /tmp/jobs/jobs_users
-sed -i "0,/${SLURM_JOBID}/d" /tmp/jobs/jobs_ids
-
-#load the comment of the job.
-Project=$($SLURM_ROOT/bin/scontrol show job ${SLURM_JOB_ID} | grep Comment | awk -F'=' '{print $2}')
-Project_Tag="NA"
-if [ ! -z "${Project}" ];then
-sed -i "0,/${Project}/d" /tmp/jobs/jobs_projects
-fi
-
 EOF
         chmod +x /opt/slurm/sbin/prolog.sh
         chmod +x /opt/slurm/sbin/epilog.sh
@@ -187,15 +126,6 @@ EOF
         echo "PrologFlags=Alloc" >> /opt/slurm/etc/slurm.conf
         echo "Prolog=/opt/slurm/sbin/prolog.sh" >> /opt/slurm/etc/slurm.conf
         echo "Epilog=/opt/slurm/sbin/epilog.sh" >> /opt/slurm/etc/slurm.conf
-
-        # Configure sbatch wrapper
-        mv /opt/slurm/bin/sbatch /opt/slurm/sbin/sbatch
-
-        wget -O /opt/slurm/bin/sbatch https://raw.githubusercontent.com/rvencu/1click-hpc/main/scripts/sbatch
-        chmod +x /opt/slurm/bin/sbatch
-
-        mv /opt/slurm/bin/srun /opt/slurm/sbin/srun
-        ln -sf /opt/slurm/bin/sbatch /opt/slurm/bin/srun
 
         systemctl restart slurmctld
 

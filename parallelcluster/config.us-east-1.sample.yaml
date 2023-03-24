@@ -15,7 +15,7 @@ HeadNode:
         - 04.configure.slurm.AllOrNothing.headnode.sh
         - 07.configure.slurm.prologs.headnode.sh
         - 08.install.duc.headnode.sh
-        #- 33.install.cost.control.sh
+        - 33.install.cost.control.sh
         #- 40.install.monitoring.headnode.sh
         #- 50.install.capacity.reservation.pool.sh
         #- 70.install.enroot.pyxis.sh
@@ -92,7 +92,7 @@ Scheduling:
             - 00.install.custom.packages.compute.sh
             - 02.activate.passwordless.sudo.compute.sh
             - 04.configure.disable.anacron.compute.sh
-            #- 33.install.cost.control.sh
+            - 33.install.cost.control.sh
             #- 35.boost.gpu.clock.gpu.sh
             #- 40.install.monitoring.gpu.sh
             #- 43.allow.nvidia.debug.gpu.sh
