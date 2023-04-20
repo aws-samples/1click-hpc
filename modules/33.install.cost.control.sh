@@ -101,17 +101,6 @@ mkdir -p "$data_path"
 chown "$SLURM_JOB_UID:$(id -g "$SLURM_JOB_UID")" "$data_path"
 chmod 0700 "$data_path"
 
-#kill all stray processes on the allocated GPUS
-awk_ndx=1
-procs=$(nvidia-smi)
-while [ 1 -eq 1 ]; do
-  gpu=`echo $SLURM_JOB_GPUS | awk '{ print $n }' n=$awk_ndx FS=","`
-  [ "$gpu" == "" ] && break
-  echo "killing stray processes found on gpu $gpu"
-  kill $(echo "$procs" | awk '$2=="Processes:" {p=1} p && $2 == "'"$gpu"'" && $5 > 0 {print $5}') 2>/dev/null
-  awk_ndx=`expr $awk_ndx + 1`
-done
-
 EOF
 
         cat <<'EOF' > /opt/slurm/sbin/epilog.sh

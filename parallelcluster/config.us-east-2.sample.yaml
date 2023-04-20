@@ -14,6 +14,7 @@ HeadNode:
         - 04.configure.slurm.AllOrNothing.headnode.sh
         - 07.configure.slurm.prologs.headnode.sh
         - 08.install.duc.headnode.sh
+        - 33.install.cost.control.sh
       Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
   Iam:
     AdditionalIamPolicies:
@@ -74,7 +75,7 @@ Scheduling:
           Efa:
             Enabled: true
           InstanceType: hpc6id.32xlarge
-          MaxCount: 30
+          MaxCount: 100
           MinCount: 0
       CustomActions:
         OnNodeConfigured:
@@ -82,6 +83,7 @@ Scheduling:
             - 00.install.custom.packages.compute.sh
             - 02.activate.passwordless.sudo.compute.sh
             - 04.configure.disable.anacron.compute.sh
+            - 33.install.cost.control.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
