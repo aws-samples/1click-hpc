@@ -112,7 +112,7 @@ Scheduling:
           - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
           #- Policy: arn:aws:iam::aws:policy/AWSSupportAccess
           - Policy: arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
-          #- Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/pclusterTagsAndBudget #make sure this policy is created https://pcluster.cloud/02-tutorials/04-cost-tracking.html
+          - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/pclusterTagsAndBudget #make sure this policy is created https://pcluster.cloud/02-tutorials/04-cost-tracking.html
         S3Access:
           - BucketName: '*'
             EnableWriteAccess: true

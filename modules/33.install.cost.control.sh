@@ -66,14 +66,12 @@ if [ "$saved" != "$current" ]; then
 fi
 
 if [ ${update} -eq 1 ]; then
+    # Instance ID
+    MyInstID=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v http://169.254.169.254/latest/meta-data/instance-id)
 
-# Instance ID
-MyInstID=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/instance-id)
-tag_project=$(cat /tmp/jobs/tag_project)
-aws ec2 create-tags --resources ${MyInstID} --tags Key=aws-parallelcluster-username,Value="${active_users}"
-aws ec2 create-tags --resources ${MyInstID} --tags Key=aws-parallelcluster-jobid,Value="${active_jobs}"
-aws ec2 create-tags --resources ${MyInstID} --tags Key=aws-parallelcluster-project,Value="${active_projects}"
-
+    aws ec2 create-tags --resources ${MyInstID} --tags Key=aws-parallelcluster-username,Value="${active_users}"
+    aws ec2 create-tags --resources ${MyInstID} --tags Key=aws-parallelcluster-jobid,Value="${active_jobs}"
+    aws ec2 create-tags --resources ${MyInstID} --tags Key=aws-parallelcluster-project,Value="${active_projects}"
 fi
 EOF
 
