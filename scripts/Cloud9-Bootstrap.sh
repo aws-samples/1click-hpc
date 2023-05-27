@@ -40,9 +40,9 @@ echo "${ADMIN_PW}" | sudo realm join -U Admin ${ADName}
 
 if [[ $CUSTOMAD == "false" ]];then
   echo "${ADMIN_PW}" | adcli create-user -x -U Admin --domain=${ADName} --display-name=ReadOnlyUser ReadOnlyUser
-  echo "${ADMIN_PW}" | adcli create-user -x -U Admin --domain=${ADName} --display-name=user000 user000
+  #echo "${ADMIN_PW}" | adcli create-user -x -U Admin --domain=${ADName} --display-name=user000 user000
   aws ds reset-user-password --directory-id "${AD_ID}" --user-name "ReadOnlyUser" --new-password "${ROU_PW}" --region "${AWS_REGION_NAME}"
-  aws ds reset-user-password --directory-id "${AD_ID}" --user-name "user000" --new-password "${ROU_PW}" --region "${AWS_REGION_NAME}"
+  #aws ds reset-user-password --directory-id "${AD_ID}" --user-name "user000" --new-password "${ROU_PW}" --region "${AWS_REGION_NAME}"
 fi
 
 sudo cp /etc/resolv.conf.OK /etc/resolv.conf
@@ -99,12 +99,12 @@ else
 fi
 
 /usr/bin/envsubst < "stability-hpc/parallelcluster/config.${AWS_REGION_NAME}.sample.yaml" > config.${AWS_REGION_NAME}.yaml
-/usr/bin/envsubst < "stability-hpc/modules/50.install.capacity.reservation.pool.sh" > 50.install.capacity.reservation.pool.sh
+#/usr/bin/envsubst < "stability-hpc/modules/50.install.capacity.reservation.pool.sh" > 50.install.capacity.reservation.pool.sh
 
 #in case we use custom ODCR group
-sed -i -e "s/${CLUSTER_NAME}-ODCR-Group/$ODCRGROUP/g" 50.install.capacity.reservation.pool.sh
+#sed -i -e "s/${CLUSTER_NAME}-ODCR-Group/$ODCRGROUP/g" 50.install.capacity.reservation.pool.sh
 
-aws s3 cp --quiet 50.install.capacity.reservation.pool.sh "s3://${S3_BUCKET}/1click-hpc/modules/50.install.capacity.reservation.pool.sh" --region "${AWS_REGION_NAME}"
+#aws s3 cp --quiet 50.install.capacity.reservation.pool.sh "s3://${S3_BUCKET}/1click-hpc/modules/50.install.capacity.reservation.pool.sh" --region "${AWS_REGION_NAME}"
 
 #Create the key pair (remove the existing one if it has the same name)
 aws ec2 create-key-pair --key-name ${KEY_PAIR} --query KeyMaterial --output text > /home/ec2-user/.ssh/id_rsa

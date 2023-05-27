@@ -4,23 +4,16 @@ HeadNode:
       Size: 256
       Encrypted: false
       VolumeType: gp3
-      Iops: 4000
+      Iops: 10000
       Throughput: 1000
   CustomActions:
     OnNodeConfigured:
       Args:
         - 00.install.custom.packages.headnode.sh
         - 02.activate.passwordless.AD.headnode.sh
-        #- 03.configure.slurm.acct.headnode.sh
         - 04.configure.slurm.AllOrNothing.headnode.sh
         - 07.configure.slurm.prologs.headnode.sh
-        - 08.install.duc.headnode.sh
-        - 33.install.cost.control.sh
-        #- 40.install.monitoring.headnode.sh
-        #- 50.install.capacity.reservation.pool.sh
-        #- 70.install.enroot.pyxis.sh
-        #- 88.install.preemption.headnode.sh
-        #- 90.install.service.automation.headnode.sh
+        - 88.install.preemption.headnode.sh
       Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
   Iam:
     AdditionalIamPolicies:
@@ -29,14 +22,12 @@ HeadNode:
       - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
       - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
       - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
-      #- Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/${CLUSTER_NAME}-ODCR-Policy
-      #- Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/pclusterTagsAndBudget # make sure this policy is created https://pcluster.cloud/02-tutorials/04-cost-tracking.html
       - Policy: arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
       - Policy: arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
     S3Access:
       - BucketName: '*'
         EnableWriteAccess: true
-  InstanceType: c5n.xlarge
+  InstanceType: c5n.9xlarge
   Networking:
     AdditionalSecurityGroups:
       - ${ADDITIONAL_SG}
@@ -47,7 +38,7 @@ HeadNode:
   Imds:
     Secured: false
 Image:
-  Os: alinux2
+  Os: ubuntu2004
 DirectoryService:
   DomainName: dc=${DC0},dc=${DC1},dc=${DC2}
   DomainAddr: ldaps://${NLB_PUBLIC_DNS_NAME}
@@ -69,38 +60,45 @@ Scheduling:
     ScaledownIdletime: 10
     EnableMemoryBasedScheduling: true
   SlurmQueues:
-    - Name: spark
+    - Name: cpu128
       CapacityType: ONDEMAND
       ComputeSettings:
         LocalStorage:
           RootVolume:
-            Size: 256
+            Size: 1024
             Encrypted: false
             VolumeType: gp3
             Iops: 5000
       ComputeResources:
-        - Name: c6id-32xlarge
-          DisableSimultaneousMultithreading: true
+        - Name: c6i-32xlarge
+          DisableSimultaneousMultithreading: false
           Efa:
             Enabled: true
-          InstanceType: c6id.32xlarge
-          MaxCount: 30
+          InstanceType: c6i.32xlarge
+          MaxCount: 50
+          MinCount: 0
+        - Name: m6i-32xlarge
+          DisableSimultaneousMultithreading: false
+          Efa:
+            Enabled: true
+          InstanceType: m6i.32xlarge
+          MaxCount: 50
+          MinCount: 0
+        - Name: r6i-32xlarge
+          DisableSimultaneousMultithreading: false
+          Efa:
+            Enabled: true
+          InstanceType: r6i.32xlarge
+          MaxCount: 50
           MinCount: 0
       CustomActions:
         OnNodeConfigured:
           Args:
             - 00.install.custom.packages.compute.sh
             - 02.activate.passwordless.sudo.compute.sh
+            - 00.install.knot.resolver.cpu.sh
             - 04.configure.disable.anacron.compute.sh
-            - 33.install.cost.control.sh
-            #- 35.boost.gpu.clock.gpu.sh
-            #- 40.install.monitoring.gpu.sh
-            #- 43.allow.nvidia.debug.gpu.sh
-            #- 45.install.nccl.compute.sh
-            #- 70.install.enroot.pyxis.sh
-            #- 70.install.singularity.compute.sh
             - 80.fast.aws.cli.compute.sh
-            #- 90.install.service.automation.gpu.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
         AdditionalIamPolicies:
@@ -110,8 +108,271 @@ Scheduling:
           - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
           - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
           - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
-          #- Policy: arn:aws:iam::aws:policy/AWSSupportAccess
-          - Policy: arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+          - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/pclusterTagsAndBudget #make sure this policy is created https://pcluster.cloud/02-tutorials/04-cost-tracking.html
+        S3Access:
+          - BucketName: '*'
+            EnableWriteAccess: true
+      Networking:
+        AdditionalSecurityGroups:
+          - ${ADDITIONAL_SG}
+        PlacementGroup:
+          Enabled: false
+        SubnetIds:
+          - ${SUBNET_ID}
+        AssignPublicIp: ${USE_PUBLIC_IPS}
+    - Name: cpu64
+      CapacityType: ONDEMAND
+      ComputeSettings:
+        LocalStorage:
+          RootVolume:
+            Size: 1024
+            Encrypted: false
+            VolumeType: gp3
+            Iops: 5000
+      ComputeResources:
+        - Name: c6i-16xlarge
+          DisableSimultaneousMultithreading: false
+          InstanceType: c6i.16xlarge
+          MaxCount: 100
+          MinCount: 0
+        - Name: m6i-16xlarge
+          DisableSimultaneousMultithreading: false
+          InstanceType: m6i.16xlarge
+          MaxCount: 100
+          MinCount: 0
+        - Name: r6i-16xlarge
+          DisableSimultaneousMultithreading: false
+          InstanceType: r6i.16xlarge
+          MaxCount: 100
+          MinCount: 0
+      CustomActions:
+        OnNodeConfigured:
+          Args:
+            - 00.install.custom.packages.compute.sh
+            - 02.activate.passwordless.sudo.compute.sh
+            - 00.install.knot.resolver.cpu.sh
+            - 04.configure.disable.anacron.compute.sh
+            - 80.fast.aws.cli.compute.sh
+          Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
+      Iam:
+        AdditionalIamPolicies:
+          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
+          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
+          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+          - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/pclusterTagsAndBudget #make sure this policy is created https://pcluster.cloud/02-tutorials/04-cost-tracking.html
+        S3Access:
+          - BucketName: '*'
+            EnableWriteAccess: true
+      Networking:
+        AdditionalSecurityGroups:
+          - ${ADDITIONAL_SG}
+        PlacementGroup:
+          Enabled: false
+        SubnetIds:
+          - ${SUBNET_ID}
+        AssignPublicIp: ${USE_PUBLIC_IPS}
+    - Name: cpu48
+      CapacityType: ONDEMAND
+      ComputeSettings:
+        LocalStorage:
+          RootVolume:
+            Size: 1024
+            Encrypted: false
+            VolumeType: gp3
+            Iops: 5000
+      ComputeResources:
+        - Name: c6i-12xlarge
+          DisableSimultaneousMultithreading: false
+          InstanceType: c6i.12xlarge
+          MaxCount: 100
+          MinCount: 0
+        - Name: m6i-12xlarge
+          DisableSimultaneousMultithreading: false
+          InstanceType: m6i.12xlarge
+          MaxCount: 100
+          MinCount: 0
+        - Name: r6i-12xlarge
+          DisableSimultaneousMultithreading: false
+          InstanceType: r6i.12xlarge
+          MaxCount: 100
+          MinCount: 0
+        - Name: m5zn-12xlarge
+          DisableSimultaneousMultithreading: false
+          InstanceType: m5zn.12xlarge
+          MaxCount: 100
+          MinCount: 0
+      CustomActions:
+        OnNodeConfigured:
+          Args:
+            - 00.install.custom.packages.compute.sh
+            - 02.activate.passwordless.sudo.compute.sh
+            - 00.install.knot.resolver.cpu.sh
+            - 04.configure.disable.anacron.compute.sh
+            - 80.fast.aws.cli.compute.sh
+          Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
+      Iam:
+        AdditionalIamPolicies:
+          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
+          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
+          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+          - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/pclusterTagsAndBudget #make sure this policy is created https://pcluster.cloud/02-tutorials/04-cost-tracking.html
+        S3Access:
+          - BucketName: '*'
+            EnableWriteAccess: true
+      Networking:
+        AdditionalSecurityGroups:
+          - ${ADDITIONAL_SG}
+        PlacementGroup:
+          Enabled: false
+        SubnetIds:
+          - ${SUBNET_ID}
+        AssignPublicIp: ${USE_PUBLIC_IPS}
+    - Name: cpu32
+      CapacityType: ONDEMAND
+      ComputeSettings:
+        LocalStorage:
+          RootVolume:
+            Size: 1024
+            Encrypted: false
+            VolumeType: gp3
+            Iops: 5000
+      ComputeResources:
+        - Name: c6i-8xlarge
+          DisableSimultaneousMultithreading: false
+          InstanceType: c6i.8xlarge
+          MaxCount: 200
+          MinCount: 0
+        - Name: m6i-8xlarge
+          DisableSimultaneousMultithreading: false
+          InstanceType: m6i.8xlarge
+          MaxCount: 200
+          MinCount: 0
+        - Name: r6i-8xlarge
+          DisableSimultaneousMultithreading: false
+          InstanceType: r6i.8xlarge
+          MaxCount: 200
+          MinCount: 0
+      CustomActions:
+        OnNodeConfigured:
+          Args:
+            - 00.install.custom.packages.compute.sh
+            - 02.activate.passwordless.sudo.compute.sh
+            - 00.install.knot.resolver.cpu.sh
+            - 04.configure.disable.anacron.compute.sh
+            - 80.fast.aws.cli.compute.sh
+          Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
+      Iam:
+        AdditionalIamPolicies:
+          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
+          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
+          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+          - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/pclusterTagsAndBudget #make sure this policy is created https://pcluster.cloud/02-tutorials/04-cost-tracking.html
+        S3Access:
+          - BucketName: '*'
+            EnableWriteAccess: true
+      Networking:
+        AdditionalSecurityGroups:
+          - ${ADDITIONAL_SG}
+        PlacementGroup:
+          Enabled: false
+        SubnetIds:
+          - ${SUBNET_ID}
+        AssignPublicIp: ${USE_PUBLIC_IPS}
+    - Name: cpu24
+      CapacityType: ONDEMAND
+      ComputeSettings:
+        LocalStorage:
+          RootVolume:
+            Size: 1024
+            Encrypted: false
+            VolumeType: gp3
+            Iops: 5000
+      ComputeResources:
+        - Name: m5zn-6xlarge
+          DisableSimultaneousMultithreading: false
+          InstanceType: m5zn.6xlarge
+          MaxCount: 200
+          MinCount: 0
+      CustomActions:
+        OnNodeConfigured:
+          Args:
+            - 00.install.custom.packages.compute.sh
+            - 02.activate.passwordless.sudo.compute.sh
+            - 00.install.knot.resolver.cpu.sh
+            - 04.configure.disable.anacron.compute.sh
+            - 80.fast.aws.cli.compute.sh
+          Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
+      Iam:
+        AdditionalIamPolicies:
+          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
+          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
+          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+          - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/pclusterTagsAndBudget #make sure this policy is created https://pcluster.cloud/02-tutorials/04-cost-tracking.html
+        S3Access:
+          - BucketName: '*'
+            EnableWriteAccess: true
+      Networking:
+        AdditionalSecurityGroups:
+          - ${ADDITIONAL_SG}
+        PlacementGroup:
+          Enabled: false
+        SubnetIds:
+          - ${SUBNET_ID}
+        AssignPublicIp: ${USE_PUBLIC_IPS}
+    - Name: cpu16
+      CapacityType: ONDEMAND
+      ComputeSettings:
+        LocalStorage:
+          RootVolume:
+            Size: 1024
+            Encrypted: false
+            VolumeType: gp3
+            Iops: 5000
+      ComputeResources:
+        - Name: c6i-4xlarge
+          DisableSimultaneousMultithreading: false
+          InstanceType: c6i.4xlarge
+          MaxCount: 400
+          MinCount: 0
+        - Name: m6i-4xlarge
+          DisableSimultaneousMultithreading: false
+          InstanceType: m6i.4xlarge
+          MaxCount: 400
+          MinCount: 0
+        - Name: r6i-4xlarge
+          DisableSimultaneousMultithreading: false
+          InstanceType: r6i.4xlarge
+          MaxCount: 400
+          MinCount: 0
+      CustomActions:
+        OnNodeConfigured:
+          Args:
+            - 00.install.custom.packages.compute.sh
+            - 02.activate.passwordless.sudo.compute.sh
+            - 00.install.knot.resolver.cpu.sh
+            - 04.configure.disable.anacron.compute.sh
+            - 80.fast.aws.cli.compute.sh
+          Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
+      Iam:
+        AdditionalIamPolicies:
+          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
+          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
+          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
           - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/pclusterTagsAndBudget #make sure this policy is created https://pcluster.cloud/02-tutorials/04-cost-tracking.html
         S3Access:
           - BucketName: '*'
@@ -139,10 +400,6 @@ Tags:
     Value: NA
   - Key: aws-parallelcluster-project
     Value: NA
-Monitoring:
-  Logs:
-    CloudWatch:
-      RetentionInDays: 60
 DevSettings:
   Timeouts:
     HeadNodeBootstrapTimeout: 3600

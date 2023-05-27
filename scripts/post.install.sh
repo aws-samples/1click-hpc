@@ -29,7 +29,7 @@ runScripts() {
     
     echo "Getting packages from ${post_install_url}"
     for script in ${myscripts}; do
-        aws s3 cp --quiet ${post_install_base}/modules/${script} "${TMP_MODULES_DIR}" --region "${cfn_region}" || exit 1
+        aws s3 cp --quiet ${post_install_base}/modules-ubuntu/${script} "${TMP_MODULES_DIR}" --region "${cfn_region}" || exit 1
     done
 
     chmod 755 -R "${TMP_MODULES_DIR}"*
@@ -48,8 +48,6 @@ main() {
 TMP_MODULES_DIR="/tmp/modules/"
 export dna_json="/etc/chef/dna.json"
 export host_name=$(hostname -s)
-#export NICE_GPG_KEY_URL=${NICE_GPG_KEY_URL:-"https://d1uj6qtbmh3dt5.cloudfront.net/NICE-GPG-KEY"}
-#export DCV_KEY_WORD=$(jq --arg default "dcv" -r '.post_install.dcv | if has("dcv_queue_keyword") then .dcv_queue_keyword else $default end' "${dna_json}")
 export SLURM_CONF_FILE="/opt/slurm/etc/pcluster/slurm_parallelcluster_*_partition.conf"
 export post_install_url=$(dirname ${cfn_postinstall})
 export post_install_base=$(dirname "${post_install_url}")
@@ -58,13 +56,10 @@ export SLURM_ETC="${SLURM_ROOT}/etc"
 export compute_instance_type=$(ec2-metadata -t | awk '{print $2}')
 #FIXME: do not hardcode.
 export SHARED_FS_DIR="/fsx"
-export ec2user_home=$(getent passwd | grep ec2-user | sed 's/^.*:.*:.*:.*:.*:\(.*\):.*$/\1/')
+#export ec2user_home=$(getent passwd | grep ec2-user | sed 's/^.*:.*:.*:.*:.*:\(.*\):.*$/\1/')
+export ec2user_home=$(getent passwd | grep ubuntu | sed 's/^.*:.*:.*:.*:.*:\(.*\):.*$/\1/')
 export NICE_ROOT=$(jq --arg default "${SHARED_FS_DIR}/nice/${stack_name}" -r '.post_install.enginframe | if has("nice_root") then .nice_root else $default end' "${dna_json}")
-#export EF_CONF_ROOT=$(jq --arg default "${NICE_ROOT}/enginframe/conf" -r '.post_install.enginframe | if has("ef_conf_root") then .ef_conf_root else $default end' "${dna_json}")
-#export EF_DATA_ROOT=$(jq --arg default "${NICE_ROOT}/enginframe/data" -r '.post_install.enginframe | if has("ef_data_root") then .ef_data_root else $default end' "${dna_json}")
-#export CLIENT_BROKER_PORT=$(jq --arg default "8446" -r '.post_install.dcvsm | if has("client_broker_port") then .client_broker_port else $default end' "${dna_json}")
-#export AGENT_BROKER_PORT=$(jq --arg default "8445" -r '.post_install.dcvsm | if has("agent_broker_port") then .agent_broker_port else $default end' "${dna_json}")
-#export BROKER_CA=$(jq --arg default "${ec2user_home}/dcvsmbroker_ca.pem" -r '.post_install.dcvsm | if has("broker_ca") then .broker_ca else $default end' "${dna_json}")
+#export ec2user_pass="$(aws secretsmanager get-secret-value --secret-id "${stack_name}" --query SecretString --output text --region "${cfn_region}")"
 export ec2user_pass="$(aws secretsmanager get-secret-value --secret-id "${stack_name}" --query SecretString --output text --region "${cfn_region}")"
 
 if [[ ${cfn_node_type} == HeadNode ]]; then

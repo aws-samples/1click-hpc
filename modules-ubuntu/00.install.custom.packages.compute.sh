@@ -3,10 +3,10 @@ set -x
 set -e
 
 installCustom() {
-    apt -y update && apt -y upgrade
-    apt -y install wget tmux htop hwloc iftop aria2 numactl check subunit
+    apt-get -y update && apt-get -y upgrade
+    apt-get -y install wget tmux htop hwloc iftop aria2 numactl check subunit
     pip3 install glances
-    apt -y remove postgres*
+    apt-get -y remove postgres*
 }
 
 # main
