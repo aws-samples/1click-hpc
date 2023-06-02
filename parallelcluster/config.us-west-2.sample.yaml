@@ -13,7 +13,7 @@ HeadNode:
         - 02.activate.passwordless.AD.headnode.sh
         - 04.configure.slurm.AllOrNothing.headnode.sh
         - 07.configure.slurm.prologs.headnode.sh
-        - 08.install.duc.headnode.sh
+        - 03.configure.slurm.acct.headnode.sh
         - 88.install.preemption.headnode.sh
         - 00.install.knot.resolver.cpu.sh
       Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
