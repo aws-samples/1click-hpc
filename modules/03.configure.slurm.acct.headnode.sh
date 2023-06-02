@@ -157,8 +157,8 @@ restartSlurmDaemons() {
 # ----------------------------------------------------------------------------
 main() {
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 03.configure.slurm.acct.headnode.sh: START" >&2
-    configureFederatedSlurmDBD
     patchSlurmConfig
+    configureFederatedSlurmDBD
     restartSlurmDaemons
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 03.configure.slurm.acct.headnode.sh: STOP" >&2
 }

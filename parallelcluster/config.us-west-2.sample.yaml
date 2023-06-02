@@ -40,7 +40,7 @@ HeadNode:
   Imds:
     Secured: false
 Image:
-  Os: alinux2
+  Os: ubuntu2004
 DirectoryService:
   DomainName: dc=${DC0},dc=${DC1},dc=${DC2}
   DomainAddr: ldaps://${NLB_PUBLIC_DNS_NAME}
@@ -120,7 +120,7 @@ Scheduling:
         PlacementGroup:
           Enabled: false
         SubnetIds:
-          - ${SUBNET_ID}
+          - ${HN_SUBNET_ID}
         AssignPublicIp: ${USE_PUBLIC_IPS}
     - Name: cpu64
       CapacityType: ONDEMAND
@@ -174,7 +174,7 @@ Scheduling:
         PlacementGroup:
           Enabled: false
         SubnetIds:
-          - ${SUBNET_ID}
+          - ${HN_SUBNET_ID}
         AssignPublicIp: ${USE_PUBLIC_IPS}
     - Name: cpu48
       CapacityType: ONDEMAND
@@ -233,7 +233,7 @@ Scheduling:
         PlacementGroup:
           Enabled: false
         SubnetIds:
-          - ${SUBNET_ID}
+          - ${HN_SUBNET_ID}
         AssignPublicIp: ${USE_PUBLIC_IPS}
     - Name: cpu32
       CapacityType: ONDEMAND
@@ -287,7 +287,7 @@ Scheduling:
         PlacementGroup:
           Enabled: false
         SubnetIds:
-          - ${SUBNET_ID}
+          - ${HN_SUBNET_ID}
         AssignPublicIp: ${USE_PUBLIC_IPS}
     - Name: cpu24
       CapacityType: ONDEMAND
@@ -331,7 +331,7 @@ Scheduling:
         PlacementGroup:
           Enabled: false
         SubnetIds:
-          - ${SUBNET_ID}
+          - ${HN_SUBNET_ID}
         AssignPublicIp: ${USE_PUBLIC_IPS}
     - Name: cpu16
       CapacityType: ONDEMAND
@@ -385,7 +385,7 @@ Scheduling:
         PlacementGroup:
           Enabled: false
         SubnetIds:
-          - ${SUBNET_ID}
+          - ${HN_SUBNET_ID}
         AssignPublicIp: ${USE_PUBLIC_IPS}
 SharedStorage:
 ${FSX}
