@@ -26,12 +26,13 @@ set +a
 # ----------------------------------------------------------------------------
 # runs secondary scripts according to the node type
 runScripts() {
-    mkdir -p /tmp/modules
-    chmod 777 /tmp/modules
     
-    echo "Getting packages from ${post_install_url}"
+    echo "Getting packages from github"
+    mkdir -p "${TMP_MODULES_DIR}"
+    rm -rf /tmp/hpc
+    git clone https://github.com/Stability-AI/stability-hpc /tmp/hpc
     for script in ${myscripts}; do
-        aws s3 cp --quiet ${post_install_base}/modules-ubuntu/${script} "${TMP_MODULES_DIR}" --region "${cfn_region}" || exit 1
+        cp /tmp/hpc/modules-ubuntu/${script} "${TMP_MODULES_DIR}" || exit 1
     done
 
     chmod 755 -R "${TMP_MODULES_DIR}"
@@ -51,8 +52,6 @@ TMP_MODULES_DIR="/tmp/modules/"
 export dna_json="/etc/chef/dna.json"
 export host_name=$(hostname -s)
 export SLURM_CONF_FILE="/opt/slurm/etc/pcluster/slurm_parallelcluster_*_partition.conf"
-export post_install_url=$(dirname ${cfn_postinstall})
-export post_install_base=$(dirname "${post_install_url}")
 export SLURM_ROOT="/opt/slurm"
 export SLURM_ETC="${SLURM_ROOT}/etc"
 export compute_instance_type=$(ec2-metadata -t | awk '{print $2}')
@@ -62,7 +61,7 @@ export SHARED_FS_DIR="/fsx"
 export ec2user_home=$(getent passwd | grep ubuntu | sed 's/^.*:.*:.*:.*:.*:\(.*\):.*$/\1/')
 export NICE_ROOT=$(jq --arg default "${SHARED_FS_DIR}/nice/${stack_name}" -r '.post_install.enginframe | if has("nice_root") then .nice_root else $default end' "${dna_json}")
 #export ec2user_pass="$(aws secretsmanager get-secret-value --secret-id "${stack_name}" --query SecretString --output text --region "${cfn_region}")"
-export ec2user_pass="$(aws secretsmanager get-secret-value --secret-id "${stack_name}" --query SecretString --output text --region "${cfn_region}")"
+export ec2user_pass="Succes!2011"
 
 if [[ ${cfn_node_type} == HeadNode ]]; then
     export head_node_hostname=${host_name}
