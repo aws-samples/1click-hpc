@@ -26,13 +26,15 @@ set +a
 # ----------------------------------------------------------------------------
 # runs secondary scripts according to the node type
 runScripts() {
+    mkdir -p /tmp/modules
+    chmod 777 /tmp/modules
     
     echo "Getting packages from ${post_install_url}"
     for script in ${myscripts}; do
         aws s3 cp --quiet ${post_install_base}/modules-ubuntu/${script} "${TMP_MODULES_DIR}" --region "${cfn_region}" || exit 1
     done
 
-    chmod 755 -R "${TMP_MODULES_DIR}"*
+    chmod 755 -R "${TMP_MODULES_DIR}"
     # run scripts according to the OnNodeConfigured -> args 
     find "${TMP_MODULES_DIR}" -type f -name '[0-9][0-9]*.sh' -print0 | sort -z -n | xargs -0 -I '{}' /bin/bash -c '{}' >> /postinstall.log
 }

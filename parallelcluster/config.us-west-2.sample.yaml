@@ -12,7 +12,6 @@ HeadNode:
         - 00.install.custom.packages.headnode.sh
         - 02.activate.passwordless.AD.headnode.sh
         - 04.configure.slurm.AllOrNothing.headnode.sh
-        - 07.configure.slurm.prologs.headnode.sh
         - 03.configure.slurm.acct.headnode.sh
         - 88.install.preemption.headnode.sh
         - 00.install.knot.resolver.cpu.sh

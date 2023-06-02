@@ -18,6 +18,7 @@
 
 set -x
 set -e
+source "/etc/parallelcluster/cfnconfig"
 
 configureFederatedSlurmDBD(){
     # slurm accounting must be preinstalled in the VPC.
