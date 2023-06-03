@@ -98,6 +98,7 @@ Scheduling:
             - 02.activate.passwordless.sudo.compute.sh
             - 00.install.knot.resolver.cpu.sh
             - 04.configure.disable.anacron.compute.sh
+            - 33.install.cost.control.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
@@ -152,6 +153,7 @@ Scheduling:
             - 02.activate.passwordless.sudo.compute.sh
             - 00.install.knot.resolver.cpu.sh
             - 04.configure.disable.anacron.compute.sh
+            - 33.install.cost.control.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
