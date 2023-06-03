@@ -16,7 +16,7 @@ activateSSH() {
 }
 
 addAdmins2Sudoers() {
-    #echo "${ec2user_pass}" | passwd ubuntu
+    echo "${ec2user_pass}" | passwd ubuntu
     cat > /etc/sudoers.d/100-AD-admins << EOF
 # add domain admins as sudoers
 %Sudoers  ALL=(ALL) NOPASSWD:ALL
