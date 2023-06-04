@@ -37,7 +37,7 @@ configureFederatedSlurmDBD(){
 }
 
 patchSlurmConfig() {
-	sed -i "s/ClusterName=parallelcluster.*/ClusterName=parallelcluster-${stack_name}/" "/opt/slurm/etc/slurm.conf"
+	sed -i "s/ClusterName=parallelcluster.*/ClusterName=${stack_name}/" "/opt/slurm/etc/slurm.conf"
     sed -i "s/SlurmctldPort=6820-6829/SlurmctldPort=6820-6849/" "/opt/slurm/etc/slurm.conf"
     rm -f /var/spool/slurm.state/clustername
     ifconfig eth0 txqueuelen 512
@@ -111,7 +111,7 @@ function apiCall(user, cluster, project, ngpu)
     return tab
 end
 function slurm_job_submit(job_desc, submit_uid)
-    stability_cluster = "parallelcluster-${stack_name}"
+    stability_cluster = "${stack_name}"
     if job_desc.account == nil then
         if job_desc.comment == nil then
             slurm.user_msg("[warning] You need to specify a project. Use '--account projectname'. Please be aware that '--comment projectname' will be deprecated.")
@@ -144,7 +144,7 @@ function slurm_job_submit(job_desc, submit_uid)
     return slurm.SUCCESS
 end
 function slurm_job_modify(job_desc, job_rec, modify_uid)
-    stability_cluster = "parallelcluster-${stack_name}"
+    stability_cluster = "${stack_name}"
     if job_desc.account == nil then
         if job_desc.comment == nil then
             slurm.user_msg("[warning] You need to specify a project. Use '--account projectname'. Please be aware that '--comment projectname' will be deprecated.")
@@ -190,8 +190,6 @@ restartSlurmDaemons() {
     set +e
     systemctl restart munge
     /opt/slurm/bin/sacctmgr -i create cluster ${stack_name}
-    /opt/slurm/bin/sacctmgr -i create account name=none
-    /opt/slurm/bin/sacctmgr -i create user ${cfn_cluster_user} cluster=${stack_name} account=none
     systemctl restart slurmctld
 }
 
