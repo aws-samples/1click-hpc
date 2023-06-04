@@ -18,14 +18,15 @@
 
 set -x
 set -e
+source '/etc/parallelcluster/cfnconfig'
 
 configureFederatedSlurmDBD(){
     # slurm accounting must be preinstalled in the VPC.
     # slurm accouting secrets must be defined
     cp /tmp/hpc/sacct/slurm/slurm_fed_sacct.conf /tmp/ || exit 1
     cp /tmp/hpc/sacct/slurm/munge.key.gpg /tmp/ || exit 1
-    export SLURM_FED_DBD_HOST="$(aws secretsmanager get-secret-value --secret-id "SLURM_FED_DBD_HOST" --query SecretString --output text --region "${cfn_region}")"
-    export SLURM_FED_PASSPHRASE="$(aws secretsmanager get-secret-value --secret-id "SLURM_FED_PASSPHRASE" --query SecretString --output text --region "${cfn_region}")"
+    export SLURM_FED_DBD_HOST="$(aws secretsmanager get-secret-value --secret-id "SLURM_FED_DBD_HOST" --query SecretString --output text --region us-east-1)"
+    export SLURM_FED_PASSPHRASE="$(aws secretsmanager get-secret-value --secret-id "SLURM_FED_PASSPHRASE" --query SecretString --output text --region us-east-1)"
     /usr/bin/envsubst < slurm_fed_sacct.conf > "${SLURM_ETC}/slurm_sacct.conf"
     echo "include slurm_sacct.conf" >> "${SLURM_ETC}/slurm.conf"
     gpg --batch --passphrase "$SLURM_FED_PASSPHRASE" -d -o munge.key munge.key.gpg
@@ -54,10 +55,15 @@ local socket = require("socket")
 local http = require("socket.http")
 local ltn12 = require("ltn12")
 local json = require('cjson')
+socket.http.TIMEOUT = 10
 
-function apiCall(user,project,ngpu)
-    local path = "http://internal-Int-AD-API-2115331254.us-east-1.elb.amazonaws.com/auth"
-    local payload = '{"user": "'..user..'", "parameters": {"project": "'..project..'"}, "numGpus": '..ngpu..'}'
+function getNumber(str)
+    return string.gmatch(str, "%d+$")()
+end
+
+function apiCall(user, cluster, project, ngpu)
+    local path = "http://internal-Int-AD-API-2115331254.us-east-1.elb.amazonaws.com/authnew"
+    local payload = '{"user": "'..user..'", "parameters": {"cluster": "'..cluster..'", "project": "'..project..'"}, "numGpus": '..ngpu..'}'
     local response_body = { }
     local tab = { }
     local res, code, response_headers, status = http.request
@@ -90,10 +96,12 @@ function apiCall(user,project,ngpu)
     then
         client:set(user..':'..project..':authorization', tab.result)
         client:set(user..':'..project..':message', tab.message)
+        client:set(user..':'..project..':email', tab.email)
     else
         --print("[warning] Authorization endpoint failure. Attempting to use local cache.")
         tab.result = client:get(user..':'..project..':authorization')
         tab.message = client:get(user..':'..project..':message')
+        tab.email = client:get(user..':'..project..':email')
     end
     if (tab.result == nil)
     then
@@ -102,35 +110,99 @@ function apiCall(user,project,ngpu)
     end
     return tab
 end
-function slurm_job_submit(job_desc, part_list, submit_uid)
+function slurm_job_submit(job_desc, submit_uid)
+    stability_cluster = "parallelcluster-${stack_name}"
     if job_desc.account == nil then
         if job_desc.comment == nil then
-            slurm.log_user("You need to specify a project. Use '--account projectname'. Please be aware that '--comment projectname' will be deprecated.")
-            slurm.log_user("You can find your allocated projects by running 'id --name --groups'")
+            slurm.user_msg("[warning] You need to specify a project. Use '--account projectname'. Please be aware that '--comment projectname' will be deprecated.")
+            slurm.user_msg("[warning] You can find your allocated projects by running 'id --name --groups'")
             return slurm.ESLURM_INVALID_ACCOUNT
         end
         job_desc.account = job_desc.comment
     end
-    local tab = apiCall(job_desc.user_name, job_desc.account,0)
+    if  (job_desc.gres == nil) and (job_desc.tres_per_job == nil) and (job_desc.tres_per_node == nil) and (job_desc.tres_per_task == nil) and (job_desc.shared ~= 0) then
+        slurm.log_info("User did not specified GPUS.")
+        slurm.user_msg("[error] No GPUs were requested on the GPU cluster. If you do not need GPUs please use the CPU cluster instead.")
+        return slurm.ERROR
+    end
+    ngpus = 0
+    if job_desc.gres ~= nil then
+        ngpus = getNumber(job_desc.gres)
+    end
+    if job_desc.tres_per_job ~= nil then
+        ngpus = getNumber(job_desc.tres_per_job)
+    end
+    if job_desc.tres_per_node ~= nil then
+        ngpus = getNumber(job_desc.tres_per_node)
+    end
+    if job_desc.tres_per_task ~= nil then
+        ngpus = getNumber(job_desc.tres_per_task)
+    end
+    if job_desc.shared == 0 then
+        ngpus = 8
+    end
+    local tab = apiCall(job_desc.user_name, stability_cluster, job_desc.account, ngpus)
     if tab.result=="rejected" then
-        slurm.log_user(tab.message)
+        slurm.user_msg(tab.message)
         return slurm.ESLURM_INVALID_ACCOUNT
+    else
+        handle = io.popen("/opt/slurm/bin/sacctmgr show assoc format=qos where account=" .. job_desc.account .. ", user=" .. job_desc.user_name .. ", cluster=" .. stability_cluster .. " -n -P")
+        result = handle:read("*a")
+        handle:close()
+        job_desc.qos = string.gsub(result, '%s+', '')
+        if (tab.email ~= nil) then
+            job_desc.mail_type = 1295
+            job_desc.mail_user = tab.email
+        end
+        slurm.user_msg("[info] Determined priority for your job on the cluster " .. stability_cluster .. ": " .. job_desc.qos)
     end
     return slurm.SUCCESS
 end
-function slurm_job_modify(job_desc, job_rec, part_list, modify_uid)
+function slurm_job_modify(job_desc, job_rec, modify_uid)
+    stability_cluster = "parallelcluster-${stack_name}"
     if job_desc.account == nil then
         if job_desc.comment == nil then
-            slurm.log_user("[warning] You need to specify a project. Use '--account projectname'. Please be aware that '--comment projectname' will be deprecated.")
-            slurm.log_user("[warning] You can find your allocated projects by running 'id --name --groups'")
+            slurm.user_msg("[warning] You need to specify a project. Use '--account projectname'. Please be aware that '--comment projectname' will be deprecated.")
+            slurm.user_msg("[warning] You can find your allocated projects by running 'id --name --groups'")
             return slurm.ESLURM_INVALID_ACCOUNT
         end
         job_desc.account = job_desc.comment
     end
-    local tab = apiCall(job_desc.user_name, job_desc.account,0)
+    if  (job_desc.gres == nil) and (job_desc.tres_per_job == nil) and (job_desc.tres_per_node == nil) and (job_desc.tres_per_task == nil) and (job_desc.shared ~= 0) then
+        slurm.log_info("User did not specified GPUS.")
+        slurm.user_msg("[error] No GPUs were requested on the GPU cluster. If you do not need GPUs please use the CPU cluster instead.")
+        return slurm.ERROR
+    end
+    ngpus = 0
+    if job_desc.gres ~= nil then
+        ngpus = getNumber(job_desc.gres)
+    end
+    if job_desc.tres_per_job ~= nil then
+        ngpus = getNumber(job_desc.tres_per_job)
+    end
+    if job_desc.tres_per_node ~= nil then
+        ngpus = getNumber(job_desc.tres_per_node)
+    end
+    if job_desc.tres_per_task ~= nil then
+        ngpus = getNumber(job_desc.tres_per_task)
+    end
+    if job_desc.shared == 0 then
+        ngpus = 8
+    end
+    local tab = apiCall(job_desc.user_name, stability_cluster, job_desc.account, ngpus)
     if tab.result=="rejected" then
-        slurm.log_user(tab.message)
+        slurm.user_msg(tab.message)
         return slurm.ESLURM_INVALID_ACCOUNT
+    else
+        handle = io.popen("/opt/slurm/bin/sacctmgr show assoc format=qos where account=" .. job_desc.account .. ", user=" .. job_desc.user_name .. ", cluster=" .. stability_cluster .. " -n -P")
+        result = handle:read("*a")
+        handle:close()
+        job_desc.qos = string.gsub(result, '%s+', '')
+        if (tab.email ~= nil) then
+            job_desc.mail_type = 1295
+            job_desc.mail_user = tab.email
+        end
+        slurm.user_msg("[info] Determined priority for your job on the cluster " .. stability_cluster .. ": " .. job_desc.qos)
     end
     return slurm.SUCCESS
 end
