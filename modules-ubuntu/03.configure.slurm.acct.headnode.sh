@@ -126,21 +126,6 @@ function slurm_job_submit(job_desc, submit_uid)
         return slurm.ERROR
     end
     ngpus = 0
-    if job_desc.gres ~= nil then
-        ngpus = getNumber(job_desc.gres)
-    end
-    if job_desc.tres_per_job ~= nil then
-        ngpus = getNumber(job_desc.tres_per_job)
-    end
-    if job_desc.tres_per_node ~= nil then
-        ngpus = getNumber(job_desc.tres_per_node)
-    end
-    if job_desc.tres_per_task ~= nil then
-        ngpus = getNumber(job_desc.tres_per_task)
-    end
-    if job_desc.shared == 0 then
-        ngpus = 8
-    end
     local tab = apiCall(job_desc.user_name, stability_cluster, job_desc.account, ngpus)
     if tab.result=="rejected" then
         slurm.user_msg(tab.message)
@@ -174,21 +159,6 @@ function slurm_job_modify(job_desc, job_rec, modify_uid)
         return slurm.ERROR
     end
     ngpus = 0
-    if job_desc.gres ~= nil then
-        ngpus = getNumber(job_desc.gres)
-    end
-    if job_desc.tres_per_job ~= nil then
-        ngpus = getNumber(job_desc.tres_per_job)
-    end
-    if job_desc.tres_per_node ~= nil then
-        ngpus = getNumber(job_desc.tres_per_node)
-    end
-    if job_desc.tres_per_task ~= nil then
-        ngpus = getNumber(job_desc.tres_per_task)
-    end
-    if job_desc.shared == 0 then
-        ngpus = 8
-    end
     local tab = apiCall(job_desc.user_name, stability_cluster, job_desc.account, ngpus)
     if tab.result=="rejected" then
         slurm.user_msg(tab.message)
