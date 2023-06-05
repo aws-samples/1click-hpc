@@ -27,7 +27,7 @@ configureFederatedSlurmDBD(){
     cp /tmp/hpc/sacct/slurm/munge.key.gpg /tmp/ || exit 1
     export SLURM_FED_DBD_HOST="$(aws secretsmanager get-secret-value --secret-id "SLURM_FED_DBD_PCLUSTER_WEST" --query SecretString --output text --region us-east-1)"
     export SLURM_FED_PASSPHRASE="$(aws secretsmanager get-secret-value --secret-id "SLURM_FED_PASSPHRASE" --query SecretString --output text --region us-east-1)"
-    /usr/bin/envsubst < slurm_fed_sacct.conf > "${SLURM_ETC}/slurm_sacct.conf"
+    /usr/bin/envsubst < /tmp/slurm_fed_sacct.conf > "${SLURM_ETC}/slurm_sacct.conf"
     echo "include slurm_sacct.conf" >> "${SLURM_ETC}/slurm.conf"
     gpg --batch --ignore-mdc-error --passphrase "$SLURM_FED_PASSPHRASE" -d -o /tmp/munge.key /tmp/munge.key.gpg
     mv -f /tmp/munge.key /etc/munge/munge.key
@@ -40,7 +40,6 @@ patchSlurmConfig() {
 	sed -i "s/ClusterName=parallelcluster.*/ClusterName=${stack_name}/" "/opt/slurm/etc/slurm.conf"
     sed -i "s/SlurmctldPort=6820-6829/SlurmctldPort=6820-6849/" "/opt/slurm/etc/slurm.conf"
     rm -f /var/spool/slurm.state/clustername
-    ifconfig eth0 txqueuelen 512
 }
 
 installLuaSubmit() {
