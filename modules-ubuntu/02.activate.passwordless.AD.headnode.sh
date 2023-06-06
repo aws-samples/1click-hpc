@@ -12,6 +12,7 @@ activateSSH() {
     echo "AuthorizedKeysCommand /usr/bin/sss_ssh_authorizedkeys" >> /etc/ssh/sshd_config
     echo "AuthorizedKeysCommandUser root" >> /etc/ssh/sshd_config
     sed -E -i 's|^#?(PasswordAuthentication)\s.*|\1 no|' /etc/ssh/sshd_config
+    apt-get remove ec2-instance-connect #required on ubuntu2004 https://github.com/widdix/aws-ec2-ssh/issues/157
     systemctl restart sshd
 }
 
