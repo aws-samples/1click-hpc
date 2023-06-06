@@ -9,7 +9,7 @@ activateSSSD() {
     stack=${stack_name%$searchstring*}
     ROU_PW=$(aws secretsmanager get-secret-value --secret-id "${stack}-ROU" --query SecretString --output text --region "${cfn_region}")
     sed -E -i "s|^#?(ldap_default_authtok\s=)\s.*|\1 ${ROU_PW}|" /etc/sssd/sssd.conf
-    apt-get remove ec2-instance-connect #required on ubuntu2004 https://github.com/widdix/aws-ec2-ssh/issues/157
+    apt-get remove -y ec2-instance-connect #required on ubuntu2004 https://github.com/widdix/aws-ec2-ssh/issues/157
     systemctl restart sssd
 }
 
