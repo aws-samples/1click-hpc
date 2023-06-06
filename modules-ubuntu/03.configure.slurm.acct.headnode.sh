@@ -40,10 +40,16 @@ patchSlurmConfig() {
 	sed -i "s/ClusterName=parallelcluster.*/ClusterName=${stack_name}/" "/opt/slurm/etc/slurm.conf"
     sed -i "s/SlurmctldPort=6820-6829/SlurmctldPort=6820-6849/" "/opt/slurm/etc/slurm.conf"
     rm -f /var/spool/slurm.state/clustername
+
+    #need to add  TRESBillingWeights="CPU=0.01,Mem=0.0" to each cpu partition to avoid AssocGrpBillingMinutes problem
+    for file in /opt/slurm/etc/pcluster/*_partition.conf; do
+        sed -i '${s/$/ TRESBillingWeights="CPU=0.01,Mem=0.0"/}' $file
+    done
 }
 
 installLuaSubmit() {
-    apt-get install -y lua-devel luarocks redis
+    apt-get install -y liblua5.1-dev luarocks redis
+    luarocks install luasocket
     luarocks install redis-lua 
     luarocks install lua-cjson
     export token="$(aws secretsmanager get-secret-value --secret-id "ADtokenPSU" --query SecretString --output text --region "${cfn_region}")"
@@ -119,11 +125,6 @@ function slurm_job_submit(job_desc, submit_uid)
         end
         job_desc.account = job_desc.comment
     end
-    if  (job_desc.gres == nil) and (job_desc.tres_per_job == nil) and (job_desc.tres_per_node == nil) and (job_desc.tres_per_task == nil) and (job_desc.shared ~= 0) then
-        slurm.log_info("User did not specified GPUS.")
-        slurm.user_msg("[error] No GPUs were requested on the GPU cluster. If you do not need GPUs please use the CPU cluster instead.")
-        return slurm.ERROR
-    end
     ngpus = 0
     local tab = apiCall(job_desc.user_name, stability_cluster, job_desc.account, ngpus)
     if tab.result=="rejected" then
@@ -152,11 +153,6 @@ function slurm_job_modify(job_desc, job_rec, modify_uid)
         end
         job_desc.account = job_desc.comment
     end
-    if  (job_desc.gres == nil) and (job_desc.tres_per_job == nil) and (job_desc.tres_per_node == nil) and (job_desc.tres_per_task == nil) and (job_desc.shared ~= 0) then
-        slurm.log_info("User did not specified GPUS.")
-        slurm.user_msg("[error] No GPUs were requested on the GPU cluster. If you do not need GPUs please use the CPU cluster instead.")
-        return slurm.ERROR
-    end
     ngpus = 0
     local tab = apiCall(job_desc.user_name, stability_cluster, job_desc.account, ngpus)
     if tab.result=="rejected" then
@@ -181,7 +177,8 @@ EOF
 echo 'JobSubmitPlugins=lua' >> /opt/slurm/etc/slurm.conf
 
     cat > /etc/sudoers.d/100-AD-admins << EOF
-
+# add domain admins as sudoers
+%Sudoers  ALL=(ALL) NOPASSWD:ALL
 EOF
 }
 
@@ -198,6 +195,7 @@ main() {
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 03.configure.slurm.acct.headnode.sh: START" >&2
     configureFederatedSlurmDBD
     patchSlurmConfig
+    installLuaSubmit
     restartSlurmDaemons
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 03.configure.slurm.acct.headnode.sh: STOP" >&2
 }

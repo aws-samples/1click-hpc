@@ -5,7 +5,9 @@ source "/etc/parallelcluster/cfnconfig"
 
 activateSSSD() {
     sed -i 's/fallback_homedir = \/home\/%u/override_homedir = \/fsx\/home-%u/g' /etc/sssd/sssd.conf
-    ROU_PW=$(aws secretsmanager get-secret-value --secret-id "${stack_name}-ROU" --query SecretString --output text --region "${cfn_region}")
+    searchstring="-ComputeFleet"
+    stack=${stack_name%$searchstring*}
+    ROU_PW=$(aws secretsmanager get-secret-value --secret-id "${stack}-ROU" --query SecretString --output text --region "${cfn_region}")
     sed -E -i "s|^#?(ldap_default_authtok\s=)\s.*|\1 ${ROU_PW}|" /etc/sssd/sssd.conf
     systemctl restart sssd
 }
