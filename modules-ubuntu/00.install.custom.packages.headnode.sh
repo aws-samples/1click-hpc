@@ -4,7 +4,7 @@ set -e
 
 installCustom() {
     apt -y update && apt -y upgrade
-    apt install -y tmux htop iftop transmission-cli pssh python3.8-venv
+    apt install -y tmux htop iftop transmission-cli pssh python3.8-venv rustc cargo 
     add-apt-repository -y ppa:deadsnakes/ppa
     apt-get -y update
     apt-get -y install python3.11 python3.11-venv python3.11-dev python3.11-distutils

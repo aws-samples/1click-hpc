@@ -4,7 +4,7 @@ set -e
 
 installCustom() {
     apt-get -y update && apt-get -y upgrade
-    apt-get -y install wget tmux htop hwloc iftop aria2 numactl check subunit python3.8-venv
+    apt-get -y install wget tmux htop hwloc iftop aria2 numactl check subunit python3.8-venv rustc cargo 
     add-apt-repository -y ppa:deadsnakes/ppa
     apt-get -y update
     apt-get -y install python3.11 python3.11-venv python3.11-dev python3.11-distutils
