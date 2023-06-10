@@ -23,7 +23,7 @@ configureCostControl(){
 
         # Create the folder used to save jobs information
 
-        mkdir -p /tmp/jobs
+        mkdir -p /root/jobs
 
         # Configure the script to run every minute
         echo "
@@ -33,49 +33,49 @@ configureCostControl(){
     else
         # Cron script used to update the instance tags
 
-        cat <<'EOF' > /opt/slurm/sbin/check_tags.sh
+        cat  > /opt/slurm/sbin/check_tags.sh << EOF
 #!/bin/bash
 
 source /etc/profile
 mkdir -p /root/jobs
 
 update=0
-sleep $[ ( $RANDOM % 30 ) + 1 ]s
+sleep \$[ ( \$RANDOM % 30 ) + 1 ]s
 
 # get current jobs on this node
-host=$(hostname)
-current=$(squeue -w "$host" -h -o%i,%a,%u,%t | awk '$4 == "R" split($1,a,",") split(a[1],b,"_"); {print b[1] "|" a[2] "|" a[3]}' | sort | uniq)
+host=\$(hostname)
+current=\$(squeue -w "\$host" -h -o%i,%a,%u,%t | awk '\$4 == "R" split(\$1,a,",") split(a[1],b,"_"); {print b[1] "|" a[2] "|" a[3]}' | sort | uniq)
 saved=""
 if [ -f /root/jobs/combined ]; then
-    saved=$(cat /root/jobs/combined)
+    saved=\$(cat /root/jobs/combined)
 else
     mkdir -p /root/jobs
     > /root/jobs/combined
 fi
 
-if [ "$saved" != "$current" ]; then
+if [ "\$saved" != "\$current" ]; then
     # need to tag the node
-    active_users=$(echo "$current" | cut -d"|" -f3 | sort | uniq | head -c -1 | tr "\n" "_")
-    active_jobs=$(echo "$current" | cut -d"|" -f1 | sort | uniq | head -c -1 | tr "\n" "_")
-    active_projects=$(echo "$current" | cut -d"|" -f2 | sort | uniq | head -c -1 | tr "\n" "_")
+    active_users=\$(echo "\$current" | cut -d"|" -f3 | sort | uniq | head -c -1 | tr "\n" "_")
+    active_jobs=\$(echo "\$current" | cut -d"|" -f1 | sort | uniq | head -c -1 | tr "\n" "_")
+    active_projects=\$(echo "\$current" | cut -d"|" -f2 | sort | uniq | head -c -1 | tr "\n" "_")
 
     # save the current tagging
-    echo "$current" > /root/jobs/combined
+    echo "\$current" > /root/jobs/combined
     update=1
 fi
 
 
-if [ ${update} -eq 1 ]; then
+if [ \${update} -eq 1 ]; then
 
 # Instance ID
-TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
-region=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/placement/region)
-aws configure set region $region
-MyInstID=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/instance-id)
+TOKEN=\$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+region=\$(curl -H "X-aws-ec2-metadata-token: \$TOKEN" -v -s http://169.254.169.254/latest/meta-data/placement/region)
+aws configure set region \$region
+MyInstID=\$(curl -H "X-aws-ec2-metadata-token: \$TOKEN" -v -s http://169.254.169.254/latest/meta-data/instance-id)
 
-aws ec2 create-tags --resources ${MyInstID} --tags Key=aws-parallelcluster-username,Value="${active_users}"
-aws ec2 create-tags --resources ${MyInstID} --tags Key=aws-parallelcluster-jobid,Value="${active_jobs}"
-aws ec2 create-tags --resources ${MyInstID} --tags Key=aws-parallelcluster-project,Value="${active_projects}"
+aws ec2 create-tags --resources \${MyInstID} --tags Key=aws-parallelcluster-username,Value="\${active_users}"
+aws ec2 create-tags --resources \${MyInstID} --tags Key=aws-parallelcluster-jobid,Value="\${active_jobs}"
+aws ec2 create-tags --resources \${MyInstID} --tags Key=aws-parallelcluster-project,Value="\${active_projects}"
 
 fi
 EOF
