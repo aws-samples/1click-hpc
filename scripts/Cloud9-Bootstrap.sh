@@ -103,8 +103,8 @@ EOF
 )
 fi
 
-export FSX
-export ADMINFSX
+export FSX=${FSX}
+export ADMINFSX=${ADMINFSX}
 
 if [[ $PRIVATE_SUBNET_ID == "NONE" ]];then
   export SUBNET_ID="${PUBLIC_SUBNET_ID}"
@@ -165,7 +165,7 @@ if [[ $FSX_ID == "AUTO" ]];then
 fi
 
 if [[ $ADMINFSX_ID == "AUTO" ]];then
-  ADMINFSX_ID=$(aws cloudformation describe-stack-resources --stack-name "hpc-1click-${CLUSTER_NAME}" --logical-resource-id FSX0 --query "StackResources[*].PhysicalResourceId" --output text)
+  ADMINFSX_ID=$(aws cloudformation describe-stack-resources --stack-name "hpc-1click-${CLUSTER_NAME}" --logical-resource-id FSX1 --query "StackResources[*].PhysicalResourceId" --output text)
 fi
 
 
