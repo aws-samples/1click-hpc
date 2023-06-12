@@ -56,7 +56,7 @@ installLuaSubmit() {
     tar -zxf lua-5.3.5.tar.gz
     cd lua-5.3.5
     make linux test
-    sudo make install
+    make install
     #install luarocks from source
     wget https://luarocks.org/releases/luarocks-3.8.0.tar.gz
     tar zxpf luarocks-3.8.0.tar.gz
@@ -64,9 +64,11 @@ installLuaSubmit() {
     ./configure --with-lua-include=/usr/local/include
     make
     make install
-    /usr/local/bin/luarocks install luasocket
-    /usr/local/bin/luarocks install redis-lua 
-    /usr/local/bin/luarocks install lua-cjson
+    mkdir -p /usr/share/lua/5.3/
+    cd /usr/local
+    /usr/local/bin/luarocks install --tree  . luasocket
+    /usr/local/bin/luarocks install --tree . redis-lua 
+    /usr/local/bin/luarocks install --tree . lua-cjson
     export token="$(aws secretsmanager get-secret-value --secret-id "ADtokenPSU" --query SecretString --output text --region "${cfn_region}")"
 cat > /opt/slurm/etc/job_submit.lua << EOF
 local redis = require 'redis'
