@@ -62,7 +62,7 @@ node --version
 if [[ $FSX_ID == "AUTO" ]];then
 FSX=$(cat <<EOF
   - MountDir: /fsx
-    Name: new
+    Name: newfsx
     StorageType: FsxLustre
     FsxLustreSettings:
       StorageCapacity: 1200
@@ -73,7 +73,7 @@ EOF
 else
 FSX=$(cat <<EOF
   - MountDir: /fsx
-    Name: existing
+    Name: existingfsx
     StorageType: FsxLustre
     FsxLustreSettings:
       FileSystemId: ${FSX_ID}
@@ -84,7 +84,7 @@ fi
 if [[ $ADMINFSX_ID == "AUTO" ]];then
 ADMINFSX=$(cat <<EOF
   - MountDir: /admin
-    Name: new
+    Name: newadmin
     StorageType: FsxLustre
     FsxLustreSettings:
       StorageCapacity: 1200
@@ -95,7 +95,7 @@ EOF
 else
 ADMINFSX=$(cat <<EOF
   - MountDir: /admin
-    Name: existing
+    Name: existingadmin
     StorageType: FsxLustre
     FsxLustreSettings:
       FileSystemId: ${ADMINFSX_ID}
