@@ -15,6 +15,7 @@ Metadata:
           - PrivateSubnetAId
           - ODCRGroupName
           - FSx
+          - AdminFSx
           - AD
           - ADDNS0
           - ADDNS1
@@ -38,6 +39,8 @@ Metadata:
         default: 'ODCR Group Name:'
       FSx: 
         default: 'FSx:'
+      AdminFSx:
+        default: 'Admin FSx:'
       AD: 
         default: 'Active Directory:'
       ADDNS0:
@@ -97,6 +100,12 @@ Parameters:
       
     FSx: 
       Description: 'Please, enter your FSx ID, or just leave "AUTO" if you want to re-use an existing one.'
+      Type: String
+      AllowedPattern: ^(AUTO|fs-[0-9a-z]+)$
+      Default : AUTO
+
+    AdminFSx:
+      Description: 'Please, enter your Admin FSx ID, or just leave "AUTO" if you want to re-use an existing one.'
       Type: String
       AllowedPattern: ^(AUTO|fs-[0-9a-z]+)$
       Default : AUTO
@@ -567,6 +576,7 @@ Resources:
             - !Sub echo "export AWS_ACCOUNT=${AWS::AccountId}" >> cluster_env
             - !Sub echo "export S3_BUCKET=${Cloud9OutputBucket}" >> cluster_env
             - !Sub echo "export FSX_ID=${FSx}" >> cluster_env
+            - !Sub echo "export ADMINFSX_ID=${AdminFSx}" >> cluster_env
             - !Sub 
               - echo "export MAP_MIGRATED=${mapmigrated}" >> cluster_env
               - mapmigrated: !Ref MapMigrated

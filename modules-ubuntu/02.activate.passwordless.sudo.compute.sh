@@ -4,7 +4,7 @@ set -e
 source "/etc/parallelcluster/cfnconfig"
 
 activateSSSD() {
-    sed -i 's/fallback_homedir = \/home\/%u/override_homedir = \/fsx\/home-%u/g' /etc/sssd/sssd.conf
+    sed -i 's/fallback_homedir = \/home\/%u/override_homedir = \/admin\/home-%u/g' /etc/sssd/sssd.conf
     searchstring="-ComputeFleet"
     stack=${stack_name%$searchstring*}
     ROU_PW=$(aws secretsmanager get-secret-value --secret-id "${stack}-ROU" --query SecretString --output text --region "${cfn_region}")

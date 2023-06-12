@@ -80,7 +80,31 @@ FSX=$(cat <<EOF
 EOF
 )
 fi
+
+if [[ $ADMINFSX_ID == "AUTO" ]];then
+ADMINFSX=$(cat <<EOF
+  - MountDir: /admin
+    Name: new
+    StorageType: FsxLustre
+    FsxLustreSettings:
+      StorageCapacity: 1200
+      DeploymentType: SCRATCH_2
+      DataCompressionType: LZ4
+EOF
+)
+else
+ADMINFSX=$(cat <<EOF
+  - MountDir: /admin
+    Name: existing
+    StorageType: FsxLustre
+    FsxLustreSettings:
+      FileSystemId: ${ADMINFSX_ID}
+EOF
+)
+fi
+
 export FSX
+export ADMINFSX
 
 if [[ $PRIVATE_SUBNET_ID == "NONE" ]];then
   export SUBNET_ID="${PUBLIC_SUBNET_ID}"
@@ -140,15 +164,29 @@ if [[ $FSX_ID == "AUTO" ]];then
   FSX_ID=$(aws cloudformation describe-stack-resources --stack-name "hpc-1click-${CLUSTER_NAME}" --logical-resource-id FSX0 --query "StackResources[*].PhysicalResourceId" --output text)
 fi
 
+if [[ $ADMINFSX_ID == "AUTO" ]];then
+  ADMINFSX_ID=$(aws cloudformation describe-stack-resources --stack-name "hpc-1click-${CLUSTER_NAME}" --logical-resource-id FSX0 --query "StackResources[*].PhysicalResourceId" --output text)
+fi
+
+
 FSX_DNS_NAME=$(aws fsx describe-file-systems --file-system-ids $FSX_ID --query "FileSystems[*].DNSName" --output text)
 FSX_MOUNT_NAME=$(aws fsx describe-file-systems --file-system-ids $FSX_ID  --query "FileSystems[*].LustreConfiguration.MountName" --output text)
 
+ADMINFSX_DNS_NAME=$(aws fsx describe-file-systems --file-system-ids $ADMINFSX_ID --query "FileSystems[*].DNSName" --output text)
+ADMINFSX_MOUNT_NAME=$(aws fsx describe-file-systems --file-system-ids $ADMINFSX_ID  --query "FileSystems[*].LustreConfiguration.MountName" --output text)
+
+
 #mount the same FSx created for the HPC Cluster
 mkdir fsx
+mkdir admin
 sudo mount -t lustre -o noatime,flock $FSX_DNS_NAME@tcp:/$FSX_MOUNT_NAME fsx
+sudo mount -t lustre -o noatime,flock $ADMINFSX_DNS_NAME@tcp:/$ADMINFSX_MOUNT_NAME admin
 sudo bash -c "echo \"$FSX_DNS_NAME@tcp:/$FSX_MOUNT_NAME /home/ec2-user/environment/fsx lustre defaults,noatime,flock,_netdev 0 0\" >> /etc/fstab"
+sudo bash -c "echo \"$ADMINFSX_DNS_NAME@tcp:/$ADMINFSX_MOUNT_NAME /home/ec2-user/environment/admin lustre defaults,noatime,flock,_netdev 0 0\" >> /etc/fstab"
 sudo chmod 755 fsx
+sudo chmod 755 admin
 sudo chown ec2-user:ec2-user fsx
+sudo chown ec2-user:ec2-user admin
 
 aws s3 cp --quiet bootstrap.log "s3://${S3_BUCKET}/install.log" --region "${AWS_REGION_NAME}"
 aws s3 cp --quiet config.${AWS_REGION_NAME}.yaml "s3://${S3_BUCKET}/config.${AWS_REGION_NAME}.yaml" --region "${AWS_REGION_NAME}"
