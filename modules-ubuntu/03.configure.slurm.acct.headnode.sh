@@ -43,15 +43,29 @@ patchSlurmConfig() {
 
     #need to add  TRESBillingWeights="CPU=0.01,Mem=0.0" to each cpu partition to avoid AssocGrpBillingMinutes problem
     for file in /opt/slurm/etc/pcluster/*_partition.conf; do
-        sed -i '${s/$/ TRESBillingWeights="CPU=0.01,Mem=0.0"/}' $file
+        sed -i '${s/$/ TRESBillingWeights="CPU=0.0,Mem=0.0"/}' $file
     done
 }
 
 installLuaSubmit() {
-    apt-get install -y liblua5.1-dev luarocks redis
-    luarocks install luasocket
-    luarocks install redis-lua 
-    luarocks install lua-cjson
+    apt-get install -y redis
+    apt-get remove -y lua5.1 liblia5.1-dev
+    #install lua 5.3.5 from source
+    curl -R -O http://www.lua.org/ftp/lua-5.3.5.tar.gz
+    tar -zxf lua-5.3.5.tar.gz
+    cd lua-5.3.5
+    make linux test
+    sudo make install
+    #install luarocks from source
+    wget https://luarocks.org/releases/luarocks-3.8.0.tar.gz
+    tar zxpf luarocks-3.8.0.tar.gz
+    cd luarocks-3.8.0
+    ./configure --with-lua-include=/usr/local/include
+    make
+    make install
+    /usr/local/bin/luarocks install luasocket
+    /usr/local/bin/luarocks install redis-lua 
+    /usr/local/bin/luarocks install lua-cjson
     export token="$(aws secretsmanager get-secret-value --secret-id "ADtokenPSU" --query SecretString --output text --region "${cfn_region}")"
 cat > /opt/slurm/etc/job_submit.lua << EOF
 local redis = require 'redis'
