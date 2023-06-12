@@ -34,6 +34,7 @@ configureFederatedSlurmDBD(){
     chown munge:munge /etc/munge/munge.key
     chmod 600 /etc/munge/munge.key
     cp /etc/munge/munge.key /home/ubuntu/.munge/.munge.key
+    systemctl restart munge
 }
 
 patchSlurmConfig() {
@@ -43,7 +44,7 @@ patchSlurmConfig() {
 
     #need to add  TRESBillingWeights="CPU=0.01,Mem=0.0" to each cpu partition to avoid AssocGrpBillingMinutes problem
     for file in /opt/slurm/etc/pcluster/*_partition.conf; do
-        sed -i '${s/$/ TRESBillingWeights="CPU=0.0,Mem=0.0"/}' $file
+        sed -i '${s/$/ TRESBillingWeights="CPU=0.01,Mem=0.0"/}' $file
     done
 }
 
