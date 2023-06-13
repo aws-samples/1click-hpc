@@ -42,9 +42,9 @@ patchSlurmConfig() {
     sed -i "s/SlurmctldPort=6820-6829/SlurmctldPort=6820-6849/" "/opt/slurm/etc/slurm.conf"
     rm -f /var/spool/slurm.state/clustername
 
-    #need to add  TRESBillingWeights="CPU=0.01,Mem=0.0" to each cpu partition to avoid AssocGrpBillingMinutes problem
+    #need to add  TRESBillingWeights="CPU=0.0,Mem=0.0" to each cpu partition to avoid AssocGrpBillingMinutes problem
     for file in /opt/slurm/etc/pcluster/*_partition.conf; do
-        sed -i '${s/$/ TRESBillingWeights="CPU=0.01,Mem=0.0"/}' $file
+        sed -i '${s/$/ TRESBillingWeights="CPU=0.0,Mem=0.0"/}' $file
     done
 }
 
@@ -64,12 +64,12 @@ installLuaSubmit() {
     ./configure --with-lua-include=/usr/local/include
     make
     make install
-    mkdir -p /usr/share/lua/5.3/
     cd /usr/local
     /usr/local/bin/luarocks install --tree  . luasocket
     /usr/local/bin/luarocks install --tree . redis-lua 
     /usr/local/bin/luarocks install --tree . lua-cjson
     export token="$(aws secretsmanager get-secret-value --secret-id "ADtokenPSU" --query SecretString --output text --region "${cfn_region}")"
+
 cat > /opt/slurm/etc/job_submit.lua << EOF
 local redis = require 'redis'
 local client = redis.connect('127.0.0.1', 6379)
