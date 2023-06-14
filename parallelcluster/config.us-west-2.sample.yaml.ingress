@@ -179,6 +179,7 @@ Scheduling:
         AssignPublicIp: True
 SharedStorage:
 ${FSX}
+${ADMINFSX}
 Tags:
   - Key: 1Click-HPC
     Value: 'true'
