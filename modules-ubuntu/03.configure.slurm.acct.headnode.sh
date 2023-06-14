@@ -50,7 +50,7 @@ patchSlurmConfig() {
 
 installLuaSubmit() {
     apt-get install -y redis
-    apt-get remove -y lua5.1 liblia5.1-dev
+    apt-get remove -y lua5.1 liblua5.1-dev
     #install lua 5.3.5 from source
     curl -R -O http://www.lua.org/ftp/lua-5.3.5.tar.gz
     tar -zxf lua-5.3.5.tar.gz
