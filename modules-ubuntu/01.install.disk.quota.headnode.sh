@@ -2,6 +2,8 @@
 set -x
 set -e
 
+source "/etc/parallelcluster/cfnconfig"
+
 installQuota() {
     sed -i 's/defaults,noatime/defaults,noatime,uquota,gquota,pquota/' /etc/fstab
     sed -i '0,/"$/s// rootflags=uquota,gquota,pquota"/' /etc/default/grub
@@ -15,9 +17,14 @@ installQuota() {
     chmod +x "/root/post.reboot.headnode.sh"
 }
 
+installQuotaFSx() {
+    echo "lfs setquota -u \${PAM_USER} -b 150000000 -B 200000000 /admin" >> /opt/parallelcluster/scripts/generate_ssh_key.sh
+    echo "lfs setquota -u \${PAM_USER} -b 400000000 -B 500000000 /fsx" >> /opt/parallelcluster/scripts/generate_ssh_key.sh
+}
+
 changeNice() {
     # default niceness
-    echo "@hpc-cluster-users soft priority 10" >> /etc/security/limits.conf
+    echo "@'Domain Users' soft priority 10" >> /etc/security/limits.conf
 }
 
 
@@ -25,8 +32,9 @@ changeNice() {
 # ----------------------------------------------------------------------------
 main() {
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 01.install.disk.quota.headnode.sh: START" >&2
-    installQuota
+    #installQuota
     changeNice
+    installQuotaFSx
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 01.install.disk.quota.headnode.sh: STOP" >&2
 }
 
