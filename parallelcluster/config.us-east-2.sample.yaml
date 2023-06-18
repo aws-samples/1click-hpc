@@ -12,15 +12,16 @@ HeadNode:
         - 00.install.custom.packages.headnode.sh
         - 02.activate.passwordless.AD.headnode.sh
         - 04.configure.slurm.AllOrNothing.headnode.sh
-        - 07.configure.slurm.prologs.headnode.sh
-        - 08.install.duc.headnode.sh
+        - 03.configure.slurm.acct.headnode.sh
         - 33.install.cost.control.sh
+        - 88.install.preemption.headnode.sh
       Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
   Iam:
     AdditionalIamPolicies:
       - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
       - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
       - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
+      - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
       - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
       - Policy: arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
       - Policy: arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
@@ -38,7 +39,7 @@ HeadNode:
   Imds:
     Secured: false
 Image:
-  Os: alinux2
+  Os: ubuntu2004
 DirectoryService:
   DomainName: dc=${DC0},dc=${DC1},dc=${DC2}
   DomainAddr: ldaps://${NLB_PUBLIC_DNS_NAME}
@@ -82,6 +83,7 @@ Scheduling:
           Args:
             - 00.install.custom.packages.compute.sh
             - 02.activate.passwordless.sudo.compute.sh
+            - 00.install.knot.resolver.cpu.sh
             - 04.configure.disable.anacron.compute.sh
             - 33.install.cost.control.sh
             - 80.fast.aws.cli.compute.sh
@@ -91,9 +93,9 @@ Scheduling:
           - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
           - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
           - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
           - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
           - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
-          - Policy: arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
           - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/pclusterTagsAndBudget #make sure this policy is created https://pcluster.cloud/02-tutorials/04-cost-tracking.html
         S3Access:
           - BucketName: '*'
