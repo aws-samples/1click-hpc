@@ -25,6 +25,7 @@ HeadNode:
       - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
       - Policy: arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
       - Policy: arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+      - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/login_nodes_s3
     S3Access:
       - BucketName: '*'
         EnableWriteAccess: true
@@ -111,6 +112,7 @@ Scheduling:
           - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
           - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
           - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/pclusterTagsAndBudget #make sure this policy is created https://pcluster.cloud/02-tutorials/04-cost-tracking.html
+          - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/login_nodes_s3 #idem
         S3Access:
           - BucketName: '*'
             EnableWriteAccess: true
@@ -166,6 +168,7 @@ Scheduling:
           - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
           - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
           - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/pclusterTagsAndBudget #make sure this policy is created https://pcluster.cloud/02-tutorials/04-cost-tracking.html
+          - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/login_nodes_s3 #idem
         S3Access:
           - BucketName: '*'
             EnableWriteAccess: true
@@ -226,6 +229,7 @@ Scheduling:
           - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
           - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
           - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/pclusterTagsAndBudget #make sure this policy is created https://pcluster.cloud/02-tutorials/04-cost-tracking.html
+          - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/login_nodes_s3 #idem
         S3Access:
           - BucketName: '*'
             EnableWriteAccess: true
@@ -281,6 +285,7 @@ Scheduling:
           - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
           - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
           - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/pclusterTagsAndBudget #make sure this policy is created https://pcluster.cloud/02-tutorials/04-cost-tracking.html
+          - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/login_nodes_s3 #idem
         S3Access:
           - BucketName: '*'
             EnableWriteAccess: true
@@ -326,6 +331,7 @@ Scheduling:
           - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
           - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
           - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/pclusterTagsAndBudget #make sure this policy is created https://pcluster.cloud/02-tutorials/04-cost-tracking.html
+          - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/login_nodes_s3 #idem
         S3Access:
           - BucketName: '*'
             EnableWriteAccess: true
@@ -381,6 +387,7 @@ Scheduling:
           - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
           - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
           - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/pclusterTagsAndBudget #make sure this policy is created https://pcluster.cloud/02-tutorials/04-cost-tracking.html
+          - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/login_nodes_s3 #idem
         S3Access:
           - BucketName: '*'
             EnableWriteAccess: true
