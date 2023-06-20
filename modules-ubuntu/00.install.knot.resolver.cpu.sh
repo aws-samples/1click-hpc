@@ -25,6 +25,7 @@ installCustom() {
     echo "policy.add(policy.suffix(policy.FLAGS({'NO_CACHE'}), internalDomains))" >> /etc/knot-resolver/kresd.conf
     echo "policy.add(policy.suffix(policy.STUB({'${vpcdns}'}), internalDomains))" >> /etc/knot-resolver/kresd.conf
     sed -i "s/^modules = {/modules = {\n\t'http',/g" /etc/knot-resolver/kresd.conf
+    sed -i "/search/s/$/ ${shortstack_name}.pcluster/" /etc/resolv.conf
 
     systemctl stop systemd-resolved
     systemctl disable systemd-resolved
