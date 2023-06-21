@@ -144,7 +144,7 @@ function slurm_job_submit(job_desc, submit_uid)
     end
     ngpus = 0
     local tab = apiCall(job_desc.user_name, stability_cluster, job_desc.account, ngpus)
-    if tab.result=="rejected" then
+    if tab.result=="rejected" and job_desc.user_name ~= "root" then
         slurm.user_msg(tab.message)
         return slurm.ESLURM_INVALID_ACCOUNT
     else
@@ -172,7 +172,7 @@ function slurm_job_modify(job_desc, job_rec, modify_uid)
     end
     ngpus = 0
     local tab = apiCall(job_desc.user_name, stability_cluster, job_desc.account, ngpus)
-    if tab.result=="rejected" then
+    if tab.result=="rejected" and job_desc.user_name ~= "root" then
         slurm.user_msg(tab.message)
         return slurm.ESLURM_INVALID_ACCOUNT
     else
