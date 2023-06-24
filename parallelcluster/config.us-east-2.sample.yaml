@@ -108,8 +108,8 @@ Scheduling:
         PlacementGroup:
           Enabled: false
         SubnetIds:
-          - ${SUBNET_ID}
-        AssignPublicIp: ${USE_PUBLIC_IPS}
+          - ${HN_SUBNET_ID}
+        AssignPublicIp: True
 SharedStorage:
 ${FSX}
 Tags:
