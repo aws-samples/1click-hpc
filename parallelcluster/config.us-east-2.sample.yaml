@@ -154,7 +154,7 @@ Scheduling:
           - ${SUBNET_ID}
         AssignPublicIp: ${USE_PUBLIC_IPS}
 SharedStorage:
-${FSX}
+${ADMINFSX}
 Tags:
   - Key: 1Click-HPC
     Value: 'true'
