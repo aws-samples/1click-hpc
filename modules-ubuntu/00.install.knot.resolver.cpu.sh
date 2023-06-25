@@ -19,7 +19,7 @@ installCustom() {
     vpcdns="${A}.${B}.${C}.${G}"
     
     echo "supersede domain-name-servers 127.0.0.53, ${vpcdns};" >> /etc/dhcp/dhclient.conf
-    supersede domain-name "${shortstack_name}.pcluster";
+    echo "supersede domain-name \"${shortstack_name}.pcluster\";" >> /etc/dhcp/dhclient.conf
 
     echo "net.listen(net.lo, 8053, { kind = 'webmgmt' })" >> /etc/knot-resolver/kresd.conf
     echo "internalDomains = policy.todnames({'ec2.internal', 'us-west-2.compute.internal', '${shortstack_name}.pcluster','${cfn_region}.amazonaws.com'})" >> /etc/knot-resolver/kresd.conf
