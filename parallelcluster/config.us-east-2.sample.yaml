@@ -113,7 +113,7 @@ Scheduling:
       ComputeSettings:
         LocalStorage:
           RootVolume:
-            Size: 1024
+            Size: 256
             Encrypted: false
             VolumeType: gp3
             Iops: 5000
