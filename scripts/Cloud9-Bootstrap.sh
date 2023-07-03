@@ -59,7 +59,7 @@ export FSX
 aws s3 cp --quiet efinstall.config "s3://${S3_BUCKET}/1click-hpc/enginframe/efinstall.config" --region "${AWS_REGION_NAME}"
 aws s3 cp --quiet fm.browse.ui "s3://${S3_BUCKET}/1click-hpc/enginframe/fm.browse.ui" --region "${AWS_REGION_NAME}"
 aws s3 cp --quiet efdb.config "s3://${S3_BUCKET}/1click-hpc/enginframe/mysql/efdb.config" --region "${AWS_REGION_NAME}"
-aws s3 cp --quiet post.install.sh "s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh" --region "${AWS_REGION_NAME}
+aws s3 cp --quiet post.install.sh "s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh" --region "${AWS_REGION_NAME}"
 aws s3 cp --quiet /usr/bin/mysql "s3://${S3_BUCKET}/1click-hpc/enginframe/mysql/mysql" --region "${AWS_REGION_NAME}"
 rm -f fm.browse.ui efinstall.config
 
