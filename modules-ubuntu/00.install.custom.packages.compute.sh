@@ -8,7 +8,7 @@ installCustom() {
     apt-get -q -o DPkg::Lock::Timeout=240 install -y build-essential wget htop hwloc iftop aria2 numactl check subunit inotify-tools bwm-ng subunit rustc cargo netcat
     apt-get -q -o DPkg::Lock::Timeout=240 install -y autoconf automake gdb git git-lfs libffi-dev zlib1g-dev ipset libsqlite3-dev libavcodec-dev libavfilter-dev libavformat-dev libavutil-dev
     apt-get -q -o DPkg::Lock::Timeout=240 install -y libssl-dev python3.8-venv libsndfile1 libsndfile1-dev ffmpeg libx264-dev libx265-dev logrotate openjdk-11-jre-headless openjdk-8-jre-headless openjdk-17-jre-headless
-    apt-get -y remove apport
+    apt-get -y remove apport thunderbird*
     pip install --upgrade pip
     apt-get -q -oDPkg::Lock::Timeout=240 remove -y postgres*
     #installing python versions
@@ -17,6 +17,7 @@ installCustom() {
     apt-get -q -o DPkg::Lock::Timeout=240 install -y python3.9-venv python3.10-venv python3.11-venv python3.12-venv python3.9-dev python3.10-dev python3.11-dev python3.12-dev iotop iftop bwm-ng
     apt-get -q -o DPkg::Lock::Timeout=240 install -y python3.9-distutils python3.10-distutils python3.11-distutils
     pip3 install glances
+    apt-get -y autoremove
 }
 
 # main
