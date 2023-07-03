@@ -46,7 +46,7 @@ main() {
 TMP_MODULES_DIR="/tmp/modules/"
 export host_name=$(hostname -s)
 export SLURM_CONF_FILE="/opt/slurm/etc/pcluster/slurm_parallelcluster_*_partition.conf"
-post_install_url=$(dirname ${S3_BUCKET})
+post_install_url=$(dirname ${POST_INSTALL})
 export post_install_base=$(dirname "${post_install_url}")
 SLURM_ROOT="/opt/slurm"
 export SLURM_ETC="${SLURM_ROOT}/etc"
