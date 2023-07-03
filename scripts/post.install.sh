@@ -27,7 +27,7 @@ set +a
 # runs secondary scripts according to the node type
 runScripts() {
     
-    echo "Getting packages from ${post_install_base}"
+    echo "Getting packages from ${post_install_url}"
     for script in "${@}"; do
         aws s3 cp --quiet ${post_install_base}/modules/${script} "${TMP_MODULES_DIR}" --region "${cfn_region}" || exit 1
     done
@@ -46,7 +46,8 @@ main() {
 TMP_MODULES_DIR="/tmp/modules/"
 export host_name=$(hostname -s)
 export SLURM_CONF_FILE="/opt/slurm/etc/pcluster/slurm_parallelcluster_*_partition.conf"
-export post_install_base=${S3_BUCKET}
+post_install_url=$(dirname ${S3_BUCKET})
+export post_install_base=$(dirname "${post_install_url}")
 SLURM_ROOT="/opt/slurm"
 export SLURM_ETC="${SLURM_ROOT}/etc"
 export SHARED_FS_DIR="$(cat /etc/parallelcluster/shared_storages_data.yaml | grep mount_dir | awk '{print $2}')"
