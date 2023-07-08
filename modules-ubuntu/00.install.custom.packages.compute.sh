@@ -18,6 +18,7 @@ installCustom() {
     apt-get -q -o DPkg::Lock::Timeout=240 install -y python3.9-distutils python3.10-distutils python3.11-distutils
     pip3 install glances
     apt-get -y autoremove
+    sudo -v ; curl https://rclone.org/install.sh | sudo bash
 }
 
 # main
