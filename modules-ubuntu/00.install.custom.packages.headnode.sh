@@ -3,7 +3,9 @@ set -x
 set -e
 
 installCustom() {
-    apt-get -y update && apt-get -y upgrade
+    apt-get -y update
+    apt-get upgrade -o Dpkg::Options::="--force-confold" -y openssh-server
+    apt-get -y upgrade
 
     #apt-get purge -y ec2-instance-connect #required on ubuntu2004 https://github.com/widdix/aws-ec2-ssh/issues/157
     sudo apt-get -q -o DPkg::Lock::Timeout=240 install -y build-essential wget tmux htop hwloc iftop aria2 numactl check subunit inotify-tools bwm-ng subunit rustc cargo netcat
