@@ -4,7 +4,7 @@ set -e
 
 installCustom() {
     apt-get -y update
-    apt-get upgrade -o Dpkg::Options::="--force-confold" -y openssh-server
+    UCF_FORCE_CONFFOLD=1 apt-get upgrade -y openssh-server
     apt-get -y upgrade
 
     #apt-get purge -y ec2-instance-connect #required on ubuntu2004 https://github.com/widdix/aws-ec2-ssh/issues/157
