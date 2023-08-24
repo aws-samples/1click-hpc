@@ -18,6 +18,7 @@ installCustom() {
     G=$((${E}+2))
     vpcdns="${A}.${B}.${C}.${G}"
     
+    # note: knot resolver installed on ubuntu 2004 on bare metal works with 127.0.0.53 but in AWS it does not
     echo "supersede domain-name-servers 127.0.0.1, ${vpcdns};" >> /etc/dhcp/dhclient.conf
     echo "supersede domain-name \"${shortstack_name}.pcluster\";" >> /etc/dhcp/dhclient.conf
 
