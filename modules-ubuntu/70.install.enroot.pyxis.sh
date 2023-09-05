@@ -33,8 +33,8 @@ installENROOT() {
 #ENROOT_SYSCONF_PATH       /etc/enroot
 ENROOT_RUNTIME_PATH        /run/enroot/user-\$(id -u)
 ENROOT_CONFIG_PATH         ${HOME}/enroot
-ENROOT_CACHE_PATH          /tmp/group-\$(id -g)
-ENROOT_DATA_PATH           /tmp/enroot-data/user-\$(id -u)
+ENROOT_CACHE_PATH          /tmp/group-\$(id -u)
+ENROOT_DATA_PATH           /tmp/data-\$(id -u)
 #ENROOT_TEMP_PATH          ${TMPDIR:-/tmp}
 
 # Gzip program used to uncompress digest layers.
