@@ -3,7 +3,6 @@
 set -x
 set -e
 
-
 installCustom() {
     git clone https://github.com/Stability-AI/iam-credentials-api-proxy /root/iam-credentials-api-proxy
     cp /root/iam-credentials-api-proxy/ica.service /etc/systemd/system/ica.service
@@ -18,9 +17,9 @@ installCustom() {
 # main
 # ----------------------------------------------------------------------------
 main() {
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 08.install.duc.headnode.sh: START" >&2
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 10.install.proxy.iam.compute.sh: START" >&2
     installCustom
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 08.install.duc.headnode.sh: STOP" >&2
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 10.install.proxy.iam.compute.sh: STOP" >&2
 }
 
 main "$@"

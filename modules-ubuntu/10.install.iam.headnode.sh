@@ -1,22 +1,20 @@
 #!/bin/bash
 
 # depends on 03.configure.slurm.acct.headnode.sh
-
 set -x
 set -e
-
 source '/etc/parallelcluster/cfnconfig'
 
 installBBuffers() {
     export APIURL="$(aws secretsmanager get-secret-value --secret-id "IamApiDev-url" --query SecretString --output text --region us-west-2)"
     export APISECRET="$(aws secretsmanager get-secret-value --secret-id "IamApiDev-HeadNodeSecret" --query SecretString --output text --region us-west-2)"
 
-    echo "" > /opt/slurm/etc/slurm.conf
+    echo " " >> /opt/slurm/etc/slurm.conf
     echo "#BURST BUFFER CONFIGURATION" >> /opt/slurm/etc/slurm.conf
     echo "BurstBufferType=burst_buffer/lua" >> /opt/slurm/etc/slurm.conf
     echo "DebugFlags=BurstBuffer" >> /opt/slurm/etc/slurm.conf
 
-    echo "" >> /opt/slurm/etc/slurm.conf
+    echo " " >> /opt/slurm/etc/slurm.conf
     echo "#TASK PROLOG CONFIGURATION" >> /opt/slurm/etc/slurm.conf
     echo "TaskProlog=/opt/slurm/etc/task_prolog.sh" >> /opt/slurm/etc/slurm.conf
 
@@ -35,14 +33,11 @@ local https = require("ssl.https")
 local ltn12 = require("ltn12")
 local json = require('cjson')
 socket.http.TIMEOUT = 10
-local handle = "$APISECRET"
-local headnodekey = handle:read("*a")
-handle:close()
-headnodekey=string.gsub(headnodekey, "[\n\r]", "")
+local headnodekey = "$APISECRET"
 
 function apiCall(user, cluster, project, jobid)
     --todo: do not hardcode
-    local path = "https://"..$APIURL.."/sessions"
+    local path = "https://".."$APIURL".."/sessions"
     local payload = '{"sessionId": "'..jobid..'", "projectId": "'..project..'", "clusterName": "'..cluster..'", "clusterUser": "'..user..'","submittedTime":"'..os.date("%Y-%m-%dT%H:%M:%S")..'"}'
     local response_body = { }
     local tab = { }
@@ -70,7 +65,7 @@ end
 
 function apiCall2(user, cluster, jobid)
     --todo: do not hardcode and find better way to identify the row to invalidate, use user, cluster and project as well
-		local path = "https://"..$APIURL.."/sessions/"..jobid.."/cluster/"..cluster
+		local path = "https://".."$APIURL"..ls -la"/sessions/"..jobid.."/cluster/"..cluster
     local payload = '{"status": "COMPLETED"}'
     local response_body = { }
     local tab = { }
@@ -505,15 +500,17 @@ end
 
 EOF
 
+	chmod +x /opt/slurm/etc/task_prolog.sh
+
 }
 
 
 # main
 # ----------------------------------------------------------------------------
 main() {
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 08.install.duc.headnode.sh: START" >&2
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 10.install.iam.headnode.sh: START" >&2
     installBBuffers
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 08.install.duc.headnode.sh: STOP" >&2
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 10.install.iam.headnode.sh: STOP" >&2
 }
 
 main "$@"
