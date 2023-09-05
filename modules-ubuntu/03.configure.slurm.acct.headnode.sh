@@ -27,7 +27,6 @@ configureFederatedSlurmDBD(){
     cp /tmp/hpc/sacct/slurm/munge.key.gpg /tmp/ || exit 1
     export SLURM_FED_DBD_HOST="$(aws secretsmanager get-secret-value --secret-id "SLURM_FED_DBD_PCLUSTER_WEST" --query SecretString --output text --region us-east-1)"
     export SLURM_FED_PASSPHRASE="$(aws secretsmanager get-secret-value --secret-id "SLURM_FED_PASSPHRASE" --query SecretString --output text --region us-east-1)"
-    export AD_API_BASE="$(aws secretsmanager get-secret-value --secret-id "AD_API_URL" --query SecretString --output text --region us-east-1)"
     /usr/bin/envsubst < /tmp/slurm_fed_sacct.conf > "${SLURM_ETC}/slurm_sacct.conf"
     echo "include slurm_sacct.conf" >> "${SLURM_ETC}/slurm.conf"
     gpg --batch --ignore-mdc-error --passphrase "$SLURM_FED_PASSPHRASE" -d -o /tmp/munge.key /tmp/munge.key.gpg
@@ -69,7 +68,8 @@ installLuaSubmit() {
     /usr/local/bin/luarocks install --tree  . luasocket
     /usr/local/bin/luarocks install --tree . redis-lua 
     /usr/local/bin/luarocks install --tree . lua-cjson
-    export token="$(aws secretsmanager get-secret-value --secret-id "ADtokenPSU" --query SecretString --output text --region "${cfn_region}")"
+    export token="$(aws secretsmanager get-secret-value --secret-id "ADtokenPSU" --query SecretString --output text --region ${cfn_region})"
+    export AD_API_BASE="$(aws secretsmanager get-secret-value --secret-id "AD_API_URL" --query SecretString --output text --region us-east-1)"
 
 cat > /opt/slurm/etc/job_submit.lua << EOF
 local redis = require 'redis'
@@ -85,7 +85,7 @@ function getNumber(str)
 end
 
 function apiCall(user, cluster, project, ngpu)
-    local path = "http://"..$AD_API_BASE.."/authnew"
+    local path = "http://".."$AD_API_BASE".."/authnew"
     local payload = '{"user": "'..user..'", "parameters": {"cluster": "'..cluster..'", "project": "'..project..'"}, "numGpus": '..ngpu..'}'
     local response_body = { }
     local tab = { }
