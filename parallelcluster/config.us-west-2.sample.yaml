@@ -27,8 +27,8 @@ HeadNode:
       - Policy: arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
       - Policy: arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
     S3Access:
-      - BucketName: '*'
-        EnableWriteAccess: true
+      - BucketName: 's3://dummy-do-not-delete'
+        EnableWriteAccess: false
   InstanceType: c5n.9xlarge
   Networking:
     AdditionalSecurityGroups:
@@ -62,7 +62,7 @@ Scheduling:
     ScaledownIdletime: 10
     EnableMemoryBasedScheduling: true
   SlurmQueues:
-     - Name: cpu16
+    - Name: cpu16
       CapacityType: ONDEMAND
       ComputeSettings:
         LocalStorage:
