@@ -69,7 +69,7 @@ installLuaSubmit() {
     /usr/local/bin/luarocks install --tree . redis-lua 
     /usr/local/bin/luarocks install --tree . lua-cjson
     export token="$(aws secretsmanager get-secret-value --secret-id "ADtokenPSU" --query SecretString --output text --region ${cfn_region})"
-    export AD_API_BASE="$(aws secretsmanager get-secret-value --secret-id "AD_API_URL" --query SecretString --output text --region us-east-1)"
+    export AD_API_BASE="$(aws secretsmanager get-secret-value --secret-id "AD_API_BASE" --query SecretString --output text --region us-east-1)"
 
 cat > /opt/slurm/etc/job_submit.lua << EOF
 local redis = require 'redis'
