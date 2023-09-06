@@ -18,11 +18,15 @@ installBBuffers() {
     echo "#TASK PROLOG CONFIGURATION" >> /opt/slurm/etc/slurm.conf
     echo "TaskProlog=/opt/slurm/etc/task_prolog.sh" >> /opt/slurm/etc/slurm.conf
 
+	#activate burst buffers with job_submit.lua
+	sed -i '/^\s*stability_cluster.*/a\    job_desc.burst_buffer = "#BB_LUA"' "/opt/slurm/etc/job_submit.lua"
+
 cat > /opt/slurm/etc/task_prolog.sh << EOF
 #!/bin/bash
 host=\$(hostname)
-if [[ "\${AWS_CONTAINER_CREDENTIALS_FULL_URI}" != *"clusterNodeId"* ]];then
-    echo "export AWS_CONTAINER_CREDENTIALS_FULL_URI=\${AWS_CONTAINER_CREDENTIALS_FULL_URI}?clusterNodeId=\${host}"
+cluster=\$(echo \$SLURM_WORKING_CLUSTER | cut -d':' -f1)
+if [[ "\${AWS_CONTAINER_CREDENTIALS_FULL_URI}" != *"roleSessionName"* ]];then
+    echo "export AWS_CONTAINER_CREDENTIALS_FULL_URI=\${AWS_CONTAINER_CREDENTIALS_FULL_URI}?roleSessionName=\${SLURM_JOB_ACCOUNT}-\${cluster}-\${USER}-\${host}"
 fi
 EOF
 
@@ -314,7 +318,7 @@ function slurm_bb_data_in(job_id, job_script, uid, gid, job_info)
         -- <state_save>/hash.<last_digit_job_id>/job.<job_id>/path
 	job_id_len = string.len(job_id)
 	last_hash_digit = string.sub(job_id, job_id_len, job_id_len)
-	s3_file = "/opt/slurm/savestate/hash." .. last_hash_digit .. "/job." .. job_id .. "/s3"
+	s3_file = "/var/spool/slurm.state/hash." .. last_hash_digit .. "/job." .. job_id .. "/s3"
         if (tab ~= nil)
         then
             slurm.log_info("tab is not nil, the local full URI is "..tab.LOCALHOST_AWS_CONTAINER_CREDENTIALS_FULL_URI)
@@ -373,7 +377,7 @@ function slurm_bb_paths(job_id, job_script, path_file, uid, gid, job_info)
         -- <state_save>/hash.<last_digit_job_id>/job.<job_id>/path
         job_id_len = string.len(job_id)
         last_hash_digit = string.sub(job_id, job_id_len, job_id_len)
-        s3_file = "/opt/slurm/savestate/hash." .. last_hash_digit .. "/job." .. job_id .. "/s3"
+        s3_file = "/var/spool/slurm.state/hash." .. last_hash_digit .. "/job." .. job_id .. "/s3"
         local file = io.open(s3_file, "rb") -- r read mode and b binary mode
         if not file then
                 slurm.log_user("S3 file not found in bb paths.")
@@ -501,6 +505,8 @@ end
 EOF
 
 	chmod +x /opt/slurm/etc/task_prolog.sh
+	luarocks install luasec
+	systemctl restart slurmctld
 
 }
 
