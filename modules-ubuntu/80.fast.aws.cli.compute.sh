@@ -25,7 +25,7 @@ makeLUSTREfast() {
 }
 
 makeDockerfast() {
-    apt install docker.io
+    apt install -y docker.io
     sudo systemctl stop docker
     sudo mkdir -p /etc/systemd/system/docker.socket.d
     echo -e "[Socket]\nSocketGroup=424402651" | sudo tee /etc/systemd/system/docker.socket.d/override.conf
