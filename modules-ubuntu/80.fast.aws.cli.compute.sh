@@ -24,6 +24,16 @@ makeLUSTREfast() {
     (crontab -u $(whoami) -l; echo "$line" ) | crontab -u $(whoami) -
 }
 
+makeDockerfast() {
+    apt install docker.io
+    sudo systemctl stop docker
+    sudo mkdir -p /etc/systemd/system/docker.socket.d
+    echo -e "[Socket]\nSocketGroup=424402651" | sudo tee /etc/systemd/system/docker.socket.d/override.conf
+    sudo chown root:424402651 /var/run/docker.sock
+    sudo systemctl daemon-reload
+    sudo systemctl restart docker
+}
+
 
 # main
 # ----------------------------------------------------------------------------
@@ -31,6 +41,7 @@ main() {
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 80.fast.aws.cli.compute.sh: START" >&2
     makeAWSCLIfast
     makeLUSTREfast
+    makeDockerfast
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 80.fast.aws.cli.compute.sh: STOP" >&2
 }
 
