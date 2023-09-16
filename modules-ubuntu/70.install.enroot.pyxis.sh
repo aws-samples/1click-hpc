@@ -7,15 +7,15 @@ source "/etc/parallelcluster/cfnconfig"
 installENROOT() {
 
   arch=$(dpkg --print-architecture)
-  curl -fSsL -O https://github.com/NVIDIA/enroot/releases/download/v3.4.0/enroot_3.4.0-1_${arch}.deb
-  curl -fSsL -O https://github.com/NVIDIA/enroot/releases/download/v3.4.0/enroot+caps_3.4.0-1_${arch}.deb # optional
-  sudo apt install -y ./*.deb
+  curl -fSsL -O https://github.com/NVIDIA/enroot/releases/download/v3.4.1/enroot_3.4.1-1_${arch}.deb
+  curl -fSsL -O https://github.com/NVIDIA/enroot/releases/download/v3.4.1/enroot+caps_3.4.1-1_${arch}.deb # optional
+  sudo apt-get -q -o DPkg::Lock::Timeout=240 install -y ./enroot*.deb
   # enable pmi and pytorch hooks for enroot
   # cp /usr/share/enroot/hooks.d/50-slurm-pmi.sh /usr/share/enroot/hooks.d/50-slurm-pytorch.sh /etc/enroot/hooks.d #this cannot find scontrol
   # fix missing path for slurm pmi hooks
   echo "PATH=/opt/slurm/sbin:/opt/slurm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin" >> /etc/sysconfig/slurmd
 
-  mkdir -p /scratch && chmod -R 777 /scratch
+  mkdir -p /scratch && chmod -R 1777 /scratch
 
   # slurm 22.05 requires pyxis to be recompiled against slurm.h so the below includes now the spank.h location
   git clone https://github.com/NVIDIA/pyxis.git /tmp/pyxis
@@ -53,7 +53,7 @@ ENROOT_ROOTFS_WRITABLE     yes
 #ENROOT_REMAP_ROOT          no
 
 # Maximum number of processors to use for parallel tasks (0 means unlimited).
-#ENROOT_MAX_PROCESSORS      $(nproc)
+#ENROOT_MAX_PROCESSORS      \$(nproc)
 
 # Maximum number of concurrent connections (0 means unlimited).
 #ENROOT_MAX_CONNECTIONS     10

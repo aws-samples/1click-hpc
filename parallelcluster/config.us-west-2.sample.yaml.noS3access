@@ -15,7 +15,6 @@ HeadNode:
         - 03.configure.slurm.acct.headnode.sh
         - 10.install.iam.headnode.sh
         - 33.install.cost.control.sh
-        - 70.install.enroot.pyxis.sh
         - 88.install.preemption.headnode.sh
       Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
   Iam:
@@ -29,7 +28,7 @@ HeadNode:
       - Policy: arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
     S3Access:
       - BucketName: ${S3_BUCKET}
-        EnableWriteAccess: true
+        EnableWriteAccess: false
   InstanceType: c5n.9xlarge
   Networking:
     AdditionalSecurityGroups:
@@ -63,7 +62,7 @@ Scheduling:
     ScaledownIdletime: 10
     EnableMemoryBasedScheduling: true
   SlurmQueues:
-    - Name: spark
+    - Name: cpu16
       CapacityType: ONDEMAND
       ComputeSettings:
         LocalStorage:
@@ -73,20 +72,20 @@ Scheduling:
             VolumeType: gp3
             Iops: 5000
       ComputeResources:
-        - Name: i3en-12xlarge
+        - Name: c6i-4xlarge
           DisableSimultaneousMultithreading: false
-          InstanceType: i3en.12xlarge
-          MaxCount: 100
+          InstanceType: c6i.4xlarge
+          MaxCount: 400
           MinCount: 0
-        - Name: i3en-24xlarge
+        - Name: m6i-4xlarge
           DisableSimultaneousMultithreading: false
-          InstanceType: i3en.24xlarge
-          MaxCount: 100
+          InstanceType: m6i.4xlarge
+          MaxCount: 400
           MinCount: 0
-        - Name: i4i-32xlarge
+        - Name: r6i-4xlarge
           DisableSimultaneousMultithreading: false
-          InstanceType: i4i.32xlarge
-          MaxCount: 100
+          InstanceType: r6i.4xlarge
+          MaxCount: 400
           MinCount: 0
       CustomActions:
         OnNodeConfigured:
@@ -97,7 +96,6 @@ Scheduling:
             - 04.configure.disable.anacron.compute.sh
             - 10.install.proxy.iam.compute.sh
             - 33.install.cost.control.sh
-            - 70.install.enroot.pyxis.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
@@ -111,7 +109,7 @@ Scheduling:
           - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/pclusterTagsAndBudget #make sure this policy is created https://pcluster.cloud/02-tutorials/04-cost-tracking.html
         S3Access:
           - BucketName: ${S3_BUCKET}
-            EnableWriteAccess: true
+            EnableWriteAccess: false
       Networking:
         AdditionalSecurityGroups:
           - ${ADDITIONAL_SG}
@@ -121,7 +119,6 @@ Scheduling:
           - ${SUBNET_ID}
         AssignPublicIp: ${USE_PUBLIC_IPS}
 SharedStorage:
-${FSX}
 ${ADMINFSX}
 Tags:
   - Key: 1Click-HPC
