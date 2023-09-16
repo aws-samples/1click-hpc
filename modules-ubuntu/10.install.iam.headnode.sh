@@ -41,7 +41,7 @@ local headnodekey = "$APISECRET"
 
 function apiCall(user, cluster, project, jobid)
     --todo: do not hardcode
-    local path = "https://".."$APIURL".."/sessions"
+    local path = "$APIURL".."sessions"
     local payload = '{"sessionId": "'..jobid..'", "projectId": "'..project..'", "clusterName": "'..cluster..'", "clusterUser": "'..user..'","submittedTime":"'..os.date("%Y-%m-%dT%H:%M:%S")..'"}'
     local response_body = { }
     local tab = { }
@@ -69,7 +69,7 @@ end
 
 function apiCall2(user, cluster, jobid)
     --todo: do not hardcode and find better way to identify the row to invalidate, use user, cluster and project as well
-		local path = "https://".."$APIURL"..ls -la"/sessions/"..jobid.."/cluster/"..cluster
+	local path = "$APIURL".."sessions/"..jobid.."/cluster/"..cluster
     local payload = '{"status": "COMPLETED"}'
     local response_body = { }
     local tab = { }
