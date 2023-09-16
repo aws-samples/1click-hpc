@@ -16,6 +16,7 @@ installENROOT() {
   # echo "PATH=/opt/slurm/sbin:/opt/slurm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin" >> /etc/sysconfig/slurmd
 
   mkdir -p /scratch && chmod -R 1777 /scratch
+  mkdir -p /scratch/enroot && chmod -R 1777 /scratch/enroot
 
   # slurm 22.05 requires pyxis to be recompiled against slurm.h so the below includes now the spank.h location
   git clone https://github.com/NVIDIA/pyxis.git /tmp/pyxis
@@ -31,11 +32,11 @@ installENROOT() {
   cat > /etc/enroot/enroot.conf << EOF
 #ENROOT_LIBRARY_PATH       /usr/lib/enroot
 #ENROOT_SYSCONF_PATH       /etc/enroot
-ENROOT_RUNTIME_PATH        /run/enroot/user-\$(id -u)
-ENROOT_CONFIG_PATH         ${HOME}/enroot
-ENROOT_CACHE_PATH          /tmp/group-\$(id -u)
-ENROOT_DATA_PATH           /tmp/data-\$(id -u)
-#ENROOT_TEMP_PATH          ${TMPDIR:-/tmp}
+ENROOT_RUNTIME_PATH        /scratch/enroot/run-user-\$(id -u)
+ENROOT_CONFIG_PATH         \${HOME}/enroot
+ENROOT_CACHE_PATH          /scratch/enroot/cache-user-\$(id -u)
+ENROOT_DATA_PATH           /scratch/enroot/data-user-\$(id -u)
+#ENROOT_TEMP_PATH          \${TMPDIR:-/scratch}
 
 # Gzip program used to uncompress digest layers.
 #ENROOT_GZIP_PROGRAM        gzip
