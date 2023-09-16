@@ -13,7 +13,7 @@ installENROOT() {
   # enable pmi and pytorch hooks for enroot
   # cp /usr/share/enroot/hooks.d/50-slurm-pmi.sh /usr/share/enroot/hooks.d/50-slurm-pytorch.sh /etc/enroot/hooks.d #this cannot find scontrol
   # fix missing path for slurm pmi hooks
-  echo "PATH=/opt/slurm/sbin:/opt/slurm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin" >> /etc/sysconfig/slurmd
+  # echo "PATH=/opt/slurm/sbin:/opt/slurm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin" >> /etc/sysconfig/slurmd
 
   mkdir -p /scratch && chmod -R 1777 /scratch
 
