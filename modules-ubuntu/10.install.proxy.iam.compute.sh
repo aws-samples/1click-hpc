@@ -11,6 +11,7 @@ installCustom() {
     systemctl daemon-reload
     systemctl enable ica.service
     systemctl start ica.service
+    ln -s /opt/slurm/sbin/stablessh /usr/local/bin/stablessh
 }
 
 
