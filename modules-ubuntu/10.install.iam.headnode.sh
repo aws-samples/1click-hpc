@@ -28,6 +28,266 @@ cluster=\$(echo \$SLURM_WORKING_CLUSTER | cut -d':' -f1 | sed -e "s/^hpc-1click-
 if [[ "\${AWS_CONTAINER_CREDENTIALS_FULL_URI}" != *"roleSessionName"* ]];then
     echo "export AWS_CONTAINER_CREDENTIALS_FULL_URI=\${AWS_CONTAINER_CREDENTIALS_FULL_URI}?roleSessionName=\${SLURM_JOB_ACCOUNT}-\${cluster}-\${USER}-\${host}"
 fi
+sshport=\$((22000 + \${SLURM_JOB_ID}%1000))
+if ! pgrep -f "sshd -D -p \${sshport}" &> /dev/null 2>&1;then
+    #SSHPATH=/scratch/customsshd.\${SLURM_JOB_ID}
+    SSHPATH=\$(mktemp -d -t customsshd.XXXXXX)
+    if [ ! -d \${SSHPATH} ];then
+        mkdir -p \${SSHPATH}
+    fi
+    if [ ! -f \${SSHPATH}/ssh_host_rsa_key ];then
+        ssh-keygen -f \${SSHPATH}/ssh_host_rsa_key -N '' -t rsa
+    fi
+
+    if [ ! -f \${SSHPATH}/ssh_host_dsa_key ];then
+        ssh-keygen -f \${SSHPATH}/ssh_host_dsa_key -N '' -t dsa
+    fi
+    if [ ! -f \${SSHPATH}/sshd_config ];then
+    cat << INEOF > \${SSHPATH}/sshd_config
+HostKey \${SSHPATH}/ssh_host_rsa_key
+HostKey \${SSHPATH}/ssh_host_dsa_key
+AuthorizedKeysFile  \${HOME}/.ssh/authorized_keys
+ChallengeResponseAuthentication no
+PasswordAuthentication no
+AuthorizedKeysCommand /usr/bin/sss_ssh_authorizedkeys
+AuthorizedKeysCommandUser \${SLURM_JOB_USER}
+AllowUsers \${SLURM_JOB_USER}
+UsePAM yes
+Subsystem   sftp    /usr/lib/ssh/sftp-server
+PidFile \${SSHPATH}/sshd.pid
+INEOF
+    fi
+
+    /usr/sbin/sshd -p \${sshport} -f \${SSHPATH}/sshd_config -o "SetEnv=AWS_CONTAINER_CREDENTIALS_FULL_URI=\$AWS_CONTAINER_CREDENTIALS_FULL_URI AWS_CONTAINER_AUTHORIZATION_TOKEN=\$AWS_CONTAINER_AUTHORIZATION_TOKEN"
+fi
+EOF
+
+cat > /opt/slurm/sbin/stablessh << EOF
+#!/bin/bash
+
+# Check if a list of params contains a specific param
+# usage: if _param_variant "h|?|help t|tunnel j|jobid" ; then ...
+# the global variable \$key is updated to the long notation (last entry in the pipe delineated list, if applicable)
+_param_variant() {
+  for param in \$1 ; do
+    local variants=\${param//\|/ }
+    for variant in \$variants ; do
+      if [[ "\$variant" = "\$2" ]] ; then
+        # Update the key to match the long version
+        local arr=(\${param//\|/ })
+        let last=\${#arr[@]}-1
+        key="\${arr[\$last]}"
+        return 0
+      fi
+    done
+  done
+  return 1
+}
+
+# Get input parameters in short or long notation, with no dependencies beyond bash
+# usage:
+#     # First, set your defaults
+#     param_help=false
+#     param_path="."
+#     param_file=false
+#     param_image=false
+#     param_image_lossy=true
+#     # Define allowed parameters
+#     allowed_params="h|?|help t|tunnel j|jobid"
+#     # Get parameters from the arguments provided
+#     _get_params \$*
+#
+# Parameters will be converted into safe variable names like:
+#     param_help,
+#     param_tunnel,
+#     param_jobid,
+#
+# Parameters without a value like "-h" or "--help" will be treated as
+# boolean, and will be set as param_help=true
+#
+# Parameters can accept values in the various typical ways:
+#     -i "path/goes/here"
+#     --image "path/goes/here"
+#     --image="path/goes/here"
+#     --image=path/goes/here
+# These would all result in effectively the same thing:
+#     param_image="path/goes/here"
+#
+# Concatinated short parameters (boolean) are also supported
+#     -vhm is the same as -v -h -m
+_get_params(){
+
+  local param_pair
+  local key
+  local value
+  local shift_count
+
+  while : ; do
+    # Ensure we have a valid param. Allows this to work even in -u mode.
+    if [[ \$# == 0 || -z \$1 ]] ; then
+      break
+    fi
+
+    # Split the argument if it contains "="
+    param_pair=(\${1//=/ })
+    # Remove preceeding dashes
+    key="\${param_pair[0]#--}"
+
+    # Check for concatinated boolean short parameters.
+    local nodash="\${key#-}"
+    local breakout=false
+    if [[ "\$nodash" != "\$key" && \${#nodash} -gt 1 ]]; then
+      # Extrapolate multiple boolean keys in single dash notation. ie. "-vmh" should translate to: "-v -m -h"
+      local short_param_count=\${#nodash}
+      let new_arg_count=\$#+\$short_param_count-1
+      local new_args=""
+      # \$str_pos is the current position in the short param string \$nodash
+      for (( str_pos=0; str_pos<new_arg_count; str_pos++ )); do
+        # The first character becomes the current key
+        if [ \$str_pos -eq 0 ] ; then
+          key="\${nodash:\$str_pos:1}"
+          breakout=true
+        fi
+        # \$arg_pos is the current position in the constructed arguments list
+        let arg_pos=\$str_pos+1
+        if [ \$arg_pos -gt \$short_param_count ] ; then
+          # handle other arguments
+          let orignal_arg_number=\$arg_pos-\$short_param_count+1
+          local new_arg="\${!orignal_arg_number}"
+        else
+          # break out our one argument into new ones
+          local new_arg="-\${nodash:\$str_pos:1}"
+        fi
+        new_args="\$new_args \"\$new_arg\""
+      done
+      # remove the preceding space and set the new arguments
+      eval set -- "\${new_args# }"
+    fi
+    if ! \$breakout ; then
+      key="\$nodash"
+    fi
+
+    # By default we expect to shift one argument at a time
+    shift_count=1
+    if [ "\${#param_pair[@]}" -gt "1" ] ; then
+      # This is a param with equals notation
+      value="\${param_pair[1]}"
+    else
+      # This is either a boolean param and there is no value,
+      # or the value is the next command line argument
+      # Assume the value is a boolean true, unless the next argument is found to be a value.
+      value=true
+      if [[ \$# -gt 1 && -n "\$2" ]]; then
+        local nodash="\${2#-}"
+        if [ "\$nodash" = "\$2" ]; then
+          # The next argument has NO preceding dash so it is a value
+          value="\$2"
+          shift_count=2
+        fi
+      fi
+    fi
+
+    # Check that the param being passed is one of the allowed params
+    if _param_variant "\$allowed_params" "\$key" ; then
+      # --key-name will now become param_key_name
+      eval param_\${key//-/_}="\$value"
+    else
+      printf 'WARNING: Unknown option (ignored): %s\n' "\$1" >&2
+    fi
+    shift \$shift_count
+  done
+}
+
+function _usage()
+{
+  ###### U S A G E : Help and ERROR ######
+  cat <<INEOF
+  stablessh \$Options
+  \$*
+          Usage: stablessh <[options]>
+          Options:
+                  -h -?  --help         Show this message
+                  -t     --tunnel       Show the ssh config entry to build the vscode debugging tunnel
+                  -j     --jobid        Your slurm job ID (other user's jobs will not work)
+
+          Example: stablessh -t -j 123456
+INEOF
+}
+
+function _tunnel()
+{
+  ###### T U N N E L : ssh config entry ######
+cat <<INEOF
+#  To connect to your job, add this in your home computer ssh config file:
+#  (possible at ~/.ssh/config, you also need to edit your private key below)
+
+# you can save this part permanently in your ~/.ssh/config file
+# ==========================permanent==========================
+Host sai-*
+    IdentityFile ~/.ssh/<privkey>
+    ServerAliveInterval 240
+    ServerAliveCountMax 10
+    TCPKeepAlive yes
+    UseKeychain yes
+# for mac users, UseKeychain will save your password in the keychain
+# replace the <privkey> above with your home computer cluster private key
+
+Host sai-jumphost-int
+    HostName westint1.hpc.stability.ai
+    User \$USER
+    Port 22
+# ==========================end permanent==========================
+
+# please modify the following for any new job or add more entries if you run multiple jobs
+Host sai-vscode-direct
+    Hostname \$1
+    User \$USER
+    Port \$2
+    ProxyJump jumphost-int
+    UserKnownHostsFile=/dev/null
+    StrictHostKeyChecking no
+# make sure to match the proxyjump host name with the name of the second entry above
+INEOF
+}
+
+# Assign defaults for parameters
+param_help=false
+param_jobid=0
+param_tunnel=false
+
+# Define the params we will allow
+allowed_params="h|?|help t|tunnel j|jobid"
+
+# Get the params from arguments provided
+_get_params \$*
+
+# takes the job id as an argument and established a ssh connection inside the user job cgroup
+# it works with launching a sshd process within the slurm job via slurm prolog
+
+if [ "\$param_jobid" == "0" ];then
+    _usage
+    exit 1
+fi
+
+if [ "\$param_help" == "true" ];then
+    _usage
+    exit 1
+fi
+
+# get the main host and calculate the ssh port from the job id
+mainhost=\$(scontrol show hostnames \$(scontrol show job \$param_jobid | grep '^   NodeList' | cut -d "=" -f2) | head -n 1)
+sshport=\$((22000 + \$param_jobid%1000))
+
+if [ "\$mainhost" == "" ];then
+    echo "please check again your valid job IDs by running \"squeue --me\""
+    exit 1
+fi
+
+if [[ "\$param_tunnel" == "true" ]];then
+    _tunnel \$mainhost \$sshport
+else
+    ssh -p \$sshport -o "UserKnownHostsFile=/dev/null" \$mainhost
+fi
 EOF
 
 cat > /opt/slurm/etc/burst_buffer.lua << EOF
@@ -507,6 +767,9 @@ EOF
 	chmod +x /opt/slurm/etc/task_prolog.sh
 	luarocks install luasec
 	systemctl restart slurmctld
+	#add stablessh command on all nodes
+	chmox +x /opt/slurm/sbin/stablessh
+    sudo ln -s /opt/slurm/sbin/stablessh /usr/local/bin/stablessh
 
 }
 
