@@ -149,10 +149,27 @@ function slurm_job_submit(job_desc, submit_uid)
         slurm.user_msg(tab.message)
         return slurm.ESLURM_INVALID_ACCOUNT
     else
-        handle = io.popen("/opt/slurm/bin/sacctmgr show assoc format=defaultqos where account=" .. job_desc.account .. ", user=" .. job_desc.user_name .. ", cluster=" .. stability_cluster .. " -n -P")
-        result = handle:read("*a")
-        handle:close()
-        job_desc.qos = string.gsub(result, '%s+', '')
+        if job_desc.qos == nil then
+            handle = io.popen("/opt/slurm/bin/sacctmgr show assoc format=defaultqos where account=" .. job_desc.account .. ", user=" .. job_desc.user_name .. ", cluster=" .. stability_cluster .. " -n -P")
+            result = handle:read("*a")
+            handle:close()
+            job_desc.qos = string.gsub(result, '%s+', '')
+        else
+            goodqos = false
+            handle = io.popen("/opt/slurm/bin/sacctmgr show assoc format=qos where account=" .. job_desc.account .. ", user=" .. job_desc.user_name .. ", cluster=" .. stability_cluster .. " -n -P")
+            result = handle:read("*a")
+            handle:close()
+            for w in string.gsub(result, '%s+', ''):gmatch("([^,]+)") do 
+                if w == job_desc.qos then
+                    goodqos = true
+                    break
+                end
+            end
+            if goodqos == false then
+                slurm.user_msg("[error] You cannot use the QOS " .. job_desc.qos .. " for this project. Please use one of the following: " .. result)
+                return slurm.ESLURM_INVALID_ACCOUNT
+            end
+        end
         if (tab.email ~= nil) then
             job_desc.mail_type = 1295
             job_desc.mail_user = tab.email
@@ -177,10 +194,27 @@ function slurm_job_modify(job_desc, job_rec, modify_uid)
         slurm.user_msg(tab.message)
         return slurm.ESLURM_INVALID_ACCOUNT
     else
-        handle = io.popen("/opt/slurm/bin/sacctmgr show assoc format=defaultqos where account=" .. job_desc.account .. ", user=" .. job_desc.user_name .. ", cluster=" .. stability_cluster .. " -n -P")
-        result = handle:read("*a")
-        handle:close()
-        job_desc.qos = string.gsub(result, '%s+', '')
+        if job_desc.qos == nil then
+            handle = io.popen("/opt/slurm/bin/sacctmgr show assoc format=defaultqos where account=" .. job_desc.account .. ", user=" .. job_desc.user_name .. ", cluster=" .. stability_cluster .. " -n -P")
+            result = handle:read("*a")
+            handle:close()
+            job_desc.qos = string.gsub(result, '%s+', '')
+        else
+            goodqos = false
+            handle = io.popen("/opt/slurm/bin/sacctmgr show assoc format=qos where account=" .. job_desc.account .. ", user=" .. job_desc.user_name .. ", cluster=" .. stability_cluster .. " -n -P")
+            result = handle:read("*a")
+            handle:close()
+            for w in string.gsub(result, '%s+', ''):gmatch("([^,]+)") do 
+                if w == job_desc.qos then
+                    goodqos = true
+                    break
+                end
+            end
+            if goodqos == false then
+                slurm.user_msg("[error] You cannot use the QOS " .. job_desc.qos .. " for this project. Please use one of the following: " .. result)
+                return slurm.ESLURM_INVALID_ACCOUNT
+            end
+        end
         if (tab.email ~= nil) then
             job_desc.mail_type = 1295
             job_desc.mail_user = tab.email
