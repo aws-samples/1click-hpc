@@ -149,7 +149,7 @@ function slurm_job_submit(job_desc, submit_uid)
         slurm.user_msg(tab.message)
         return slurm.ESLURM_INVALID_ACCOUNT
     else
-        handle = io.popen("/opt/slurm/bin/sacctmgr show assoc format=qos where account=" .. job_desc.account .. ", user=" .. job_desc.user_name .. ", cluster=" .. stability_cluster .. " -n -P")
+        handle = io.popen("/opt/slurm/bin/sacctmgr show assoc format=defaultqos where account=" .. job_desc.account .. ", user=" .. job_desc.user_name .. ", cluster=" .. stability_cluster .. " -n -P")
         result = handle:read("*a")
         handle:close()
         job_desc.qos = string.gsub(result, '%s+', '')
@@ -177,7 +177,7 @@ function slurm_job_modify(job_desc, job_rec, modify_uid)
         slurm.user_msg(tab.message)
         return slurm.ESLURM_INVALID_ACCOUNT
     else
-        handle = io.popen("/opt/slurm/bin/sacctmgr show assoc format=qos where account=" .. job_desc.account .. ", user=" .. job_desc.user_name .. ", cluster=" .. stability_cluster .. " -n -P")
+        handle = io.popen("/opt/slurm/bin/sacctmgr show assoc format=defaultqos where account=" .. job_desc.account .. ", user=" .. job_desc.user_name .. ", cluster=" .. stability_cluster .. " -n -P")
         result = handle:read("*a")
         handle:close()
         job_desc.qos = string.gsub(result, '%s+', '')
