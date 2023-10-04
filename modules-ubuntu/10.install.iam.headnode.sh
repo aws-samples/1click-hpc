@@ -57,7 +57,8 @@ Subsystem   sftp    /usr/lib/ssh/sftp-server
 PidFile \${SSHPATH}/sshd.pid
 INEOF
     fi
-
+    mkdir -p /tmp/\${SLURM_JOB_USER}
+    memcached -p /tmp/\${SLURM_JOB_USER}/memcached.sock -d
     /usr/sbin/sshd -p \${sshport} -f \${SSHPATH}/sshd_config -o "SetEnv=AWS_CONTAINER_CREDENTIALS_FULL_URI=\${AWS_CONTAINER_CREDENTIALS_FULL_URI}?roleSessionName=\${SLURM_JOB_ACCOUNT}-\${cluster}-\${SLURM_JOB_USER}-\${host} AWS_CONTAINER_AUTHORIZATION_TOKEN=\${AWS_CONTAINER_AUTHORIZATION_TOKEN}"
 fi
 EOF
