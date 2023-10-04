@@ -25,23 +25,23 @@ makeLUSTREfast() {
 }
 
 makeDockerfast() {
+    sudo apt install -y docker.io
     cluster=$(scontrol show config | grep ClusterName | cut -d'=' -f2 | xargs | sed -e "s/^hpc-1click-//")
-    docker_group=997
+    docker_group=$(grep docker /etc/group | cut -d':' -f3)
     case $cluster in
         spark)
             docker_group=424402651
         ;;
         westcpu2)
-            docker_group=997
+            #docker_group=997
         ;;
         sectest)
-            docker_group=997
+            #docker_group=997
         ;;
         ingress-west | externalcpu-west)
-            docker_group=997
+            #docker_group=997
         ;;
     esac
-    apt install -y docker.io
     sudo systemctl stop docker
     sudo mkdir -p /etc/systemd/system/docker.socket.d
     echo -e "[Socket]\nSocketGroup=$docker_group" | sudo tee /etc/systemd/system/docker.socket.d/override.conf
