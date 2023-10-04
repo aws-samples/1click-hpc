@@ -26,7 +26,7 @@ makeLUSTREfast() {
 
 makeDockerfast() {
     sudo apt install -y docker.io
-    cluster=$(scontrol show config | grep ClusterName | cut -d'=' -f2 | xargs | sed -e "s/^hpc-1click-//")
+    cluster=$(cat /opt/slurm/etc/slurm.conf | grep ClusterName | cut -d'=' -f2 | xargs | sed -e "s/^hpc-1click-//")
     docker_group=$(grep docker /etc/group | cut -d':' -f3)
     case $cluster in
         spark)
