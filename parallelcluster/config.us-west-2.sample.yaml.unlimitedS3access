@@ -13,7 +13,6 @@ HeadNode:
         - 02.activate.passwordless.AD.headnode.sh
         - 04.configure.slurm.AllOrNothing.headnode.sh
         - 03.configure.slurm.acct.headnode.sh
-        - 10.install.iam.headnode.sh
         - 33.install.cost.control.sh
         - 88.install.preemption.headnode.sh
       Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
@@ -27,7 +26,7 @@ HeadNode:
       - Policy: arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
       - Policy: arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
     S3Access:
-      - BucketName: ${S3_BUCKET}
+      - BucketName: '*'
         EnableWriteAccess: false
   InstanceType: c5n.9xlarge
   Networking:
@@ -94,7 +93,6 @@ Scheduling:
             - 02.activate.passwordless.sudo.compute.sh
             - 00.install.knot.resolver.cpu.sh
             - 04.configure.disable.anacron.compute.sh
-            - 10.install.proxy.iam.compute.sh
             - 33.install.cost.control.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
@@ -108,7 +106,7 @@ Scheduling:
           - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
           - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/pclusterTagsAndBudget #make sure this policy is created https://pcluster.cloud/02-tutorials/04-cost-tracking.html
         S3Access:
-          - BucketName: ${S3_BUCKET}
+          - BucketName: '*'
             EnableWriteAccess: false
       Networking:
         AdditionalSecurityGroups:

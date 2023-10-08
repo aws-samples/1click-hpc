@@ -29,14 +29,8 @@ makeDockerfast() {
     cluster=$(cat /opt/slurm/etc/slurm.conf | grep ClusterName | cut -d'=' -f2 | xargs | sed -e "s/^hpc-1click-//")
     docker_group=$(grep docker /etc/group | cut -d':' -f3)
     case $cluster in
-        spark)
+        spark | westcpu2)
             docker_group=424402651
-        ;;
-        westcpu2)
-            #docker_group=997
-        ;;
-        sectest)
-            #docker_group=997
         ;;
         ingress-west | externalcpu-west)
             #docker_group=997
