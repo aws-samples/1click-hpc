@@ -52,7 +52,7 @@ PasswordAuthentication no
 AuthorizedKeysCommand /usr/bin/sss_ssh_authorizedkeys
 AuthorizedKeysCommandUser \${SLURM_JOB_USER}
 AllowUsers \${SLURM_JOB_USER}
-UsePAM yes
+UsePAM no
 Subsystem   sftp    /usr/lib/ssh/sftp-server
 PidFile \${SSHPATH}/sshd.pid
 INEOF
