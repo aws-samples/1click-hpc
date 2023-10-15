@@ -19,7 +19,7 @@ installBBuffers() {
     echo "TaskProlog=/opt/slurm/etc/task_prolog.sh" >> /opt/slurm/etc/slurm.conf
 
 	#activate burst buffers with job_submit.lua
-	sed -i '/^\s*stability_cluster.*/a\    job_desc.burst_buffer = "#BB_LUA"' "/opt/slurm/etc/job_submit.lua"
+	sed -i '/^\s*stability_cluster.*/a\    if job_desc.user_name ~= "root" then\n        job_desc.burst_buffer = "#BB_LUA"\n    end' "/opt/slurm/etc/job_submit.lua"
 
 cat > /opt/slurm/etc/task_prolog.sh << EOF
 #!/bin/bash
