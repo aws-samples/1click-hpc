@@ -23,6 +23,8 @@ source '/etc/parallelcluster/cfnconfig'
 configureFederatedSlurmDBD(){
     # slurm accounting must be preinstalled in the VPC.
     # slurm accouting secrets must be defined
+    # SLURM_ETC is missing from the environment
+    SLURM_ETC=/opt/slurm/etc
     cp /tmp/hpc/sacct/slurm/slurm_fed_sacct.conf /tmp/ || exit 1
     cp /tmp/hpc/sacct/slurm/munge.key.gpg /tmp/ || exit 1
     export SLURM_FED_DBD_HOST="$(aws secretsmanager get-secret-value --secret-id "SLURM_FED_DBD_PCLUSTER_WEST" --query SecretString --output text --region ${cfn_region})"
