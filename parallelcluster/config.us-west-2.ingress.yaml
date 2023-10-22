@@ -31,8 +31,6 @@ HeadNode:
         EnableWriteAccess: true
   InstanceType: c5n.9xlarge
   Networking:
-    AdditionalSecurityGroups:
-      - ${ADDITIONAL_SG}
     ElasticIp: true
     SubnetId: ${HN_SUBNET_ID}
   Ssh:
@@ -117,8 +115,6 @@ Scheduling:
           - BucketName: ${S3_BUCKET}
             EnableWriteAccess: true
       Networking:
-        AdditionalSecurityGroups:
-          - ${ADDITIONAL_SG}
         PlacementGroup:
           Enabled: false
         SubnetIds:
@@ -173,8 +169,6 @@ Scheduling:
           - BucketName: ${S3_BUCKET}
             EnableWriteAccess: true
       Networking:
-        AdditionalSecurityGroups:
-          - ${ADDITIONAL_SG}
         PlacementGroup:
           Enabled: false
         SubnetIds:
