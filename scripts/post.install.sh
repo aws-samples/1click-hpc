@@ -37,15 +37,15 @@ runScripts() {
 
     chmod 755 -R "${TMP_MODULES_DIR}"
     # run scripts according to the OnNodeConfigured -> args 
-    find "${TMP_MODULES_DIR}" -type f -name '[0-9][0-9]*.sh' -print0 | sort -z -n | xargs -0 -I '{}' /bin/bash -c '{}' >> /postinstall.log
+    find "${TMP_MODULES_DIR}" -type f -name '[0-9][0-9]*.sh' -print0 | sort -z -n | xargs -0 -I '{}' /bin/bash -c '{}' >> /postinstall.log 2>&1
 }
 
 # main
 # ----------------------------------------------------------------------------
 main() {
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] post.install.sh START" >&2
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] post.install.sh START" >> /postinstall.log 2>&1
     runScripts
-    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] post.install.sh: STOP" >&2
+    echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] post.install.sh: STOP" >> /postinstall.log 2>&1
 }
 
 TMP_MODULES_DIR="/tmp/modules/"
