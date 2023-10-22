@@ -12,7 +12,7 @@ HeadNode:
         - 00.install.custom.packages.headnode.sh
         - 02.activate.passwordless.AD.headnode.sh
         - 04.configure.slurm.AllOrNothing.headnode.sh
-        - 03.configure.slurm.acct.headnode.sh
+        #- 03.configure.slurm.acct.headnode.sh
         - 10.install.iam.headnode.sh
         - 33.install.cost.control.sh
         - 88.install.preemption.headnode.sh
@@ -96,7 +96,6 @@ Scheduling:
           Args:
             - 00.install.custom.packages.compute.sh
             - 02.activate.passwordless.sudo.compute.sh
-            - 00.install.knot.resolver.cpu.sh
             - 04.configure.disable.anacron.compute.sh
             - 10.install.proxy.iam.compute.sh
             - 33.install.cost.control.sh
@@ -150,7 +149,6 @@ Scheduling:
           Args:
             - 00.install.custom.packages.compute.sh
             - 02.activate.passwordless.sudo.compute.sh
-            - 00.install.knot.resolver.cpu.sh
             - 04.configure.disable.anacron.compute.sh
             - 10.install.proxy.iam.compute.sh
             - 33.install.cost.control.sh
@@ -209,7 +207,6 @@ Scheduling:
           Args:
             - 00.install.custom.packages.compute.sh
             - 02.activate.passwordless.sudo.compute.sh
-            - 00.install.knot.resolver.cpu.sh
             - 04.configure.disable.anacron.compute.sh
             - 10.install.proxy.iam.compute.sh
             - 33.install.cost.control.sh
@@ -263,7 +260,6 @@ Scheduling:
           Args:
             - 00.install.custom.packages.compute.sh
             - 02.activate.passwordless.sudo.compute.sh
-            - 00.install.knot.resolver.cpu.sh
             - 04.configure.disable.anacron.compute.sh
             - 10.install.proxy.iam.compute.sh
             - 33.install.cost.control.sh
@@ -307,7 +303,6 @@ Scheduling:
           Args:
             - 00.install.custom.packages.compute.sh
             - 02.activate.passwordless.sudo.compute.sh
-            - 00.install.knot.resolver.cpu.sh
             - 04.configure.disable.anacron.compute.sh
             - 10.install.proxy.iam.compute.sh
             - 33.install.cost.control.sh
@@ -361,7 +356,6 @@ Scheduling:
           Args:
             - 00.install.custom.packages.compute.sh
             - 02.activate.passwordless.sudo.compute.sh
-            - 00.install.knot.resolver.cpu.sh
             - 04.configure.disable.anacron.compute.sh
             - 10.install.proxy.iam.compute.sh
             - 33.install.cost.control.sh
@@ -415,7 +409,6 @@ Scheduling:
           Args:
             - 00.install.custom.packages.compute.sh
             - 02.activate.passwordless.sudo.compute.sh
-            - 00.install.knot.resolver.cpu.sh
             - 04.configure.disable.anacron.compute.sh
             - 10.install.proxy.iam.compute.sh
             - 33.install.cost.control.sh
