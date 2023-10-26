@@ -1,0 +1,101 @@
+#!/bin/bash
+
+set -x
+
+CLUSTER_NAME=$1
+rm -rf stability-hpc
+git clone "https://github.com/stability-ai/stability-hpc"
+
+python3 -m pip install "aws-parallelcluster" --user --upgrade --quiet
+
+#source cluster profile
+. cluster_env
+
+#source cluster parameters
+. ${CLUSTER_NAME}.conf
+
+#create the S3 bucket for the cluster
+aws s3api create-bucket --bucket "${S3_BUCKET}" --region "${AWS_REGION_NAME}" --create-bucket-configuration LocationConstraint="${AWS_REGION_NAME}" > /dev/null 2>&1
+aws s3 cp --quiet --recursive stability-hpc "s3://${S3_BUCKET}/1click-hpc" --region ${AWS_REGION_NAME}
+
+#needed to config the domain
+ADName=$(aws ds describe-directories --directory-id "${AD_ID}" --query 'DirectoryDescriptions[*].Name' --output text)
+
+export DC0=$(echo "${ADName}" | awk -F'.' '{print $1}')
+export DC1=$(echo "${ADName}" | awk -F'.' '{print $2}')
+export DC2=$(echo "${ADName}" | awk -F'.' '{print $3}')
+export OU="AD-Manage"
+
+#note that pcluster will refuse to create two lustre file systems if both values are AUTO
+
+if [[ $FSX_ID == "AUTO" ]];then
+FSX=$(cat <<EOF
+  - MountDir: /fsx
+    Name: newfsx
+    StorageType: FsxLustre
+    FsxLustreSettings:
+      StorageCapacity: 1200
+      DeploymentType: SCRATCH_2
+      DataCompressionType: LZ4
+EOF
+)
+else
+FSX=$(cat <<EOF
+  - MountDir: /fsx
+    Name: existingfsx
+    StorageType: FsxLustre
+    FsxLustreSettings:
+      FileSystemId: ${FSX_ID}
+EOF
+)
+fi
+
+if [[ $ADMINFSX_ID == "AUTO" ]];then
+ADMINFSX=$(cat <<EOF
+  - MountDir: /admin
+    Name: newadmin
+    StorageType: FsxLustre
+    FsxLustreSettings:
+      StorageCapacity: 1200
+      DeploymentType: SCRATCH_2
+      DataCompressionType: LZ4
+EOF
+)
+else
+ADMINFSX=$(cat <<EOF
+  - MountDir: /admin
+    Name: existingadmin
+    StorageType: FsxLustre
+    FsxLustreSettings:
+      FileSystemId: ${ADMINFSX_ID}
+EOF
+)
+fi
+
+export FSX=${FSX}
+export ADMINFSX=${ADMINFSX}
+
+if [[ $PRIVATE_SUBNET_ID == "NONE" ]];then
+  export SUBNET_ID="${PUBLIC_SUBNET_ID}"
+  export USE_PUBLIC_IPS='true'
+  export HN_SUBNET_ID="${PUBLIC_SUBNET_ID}"
+else
+  export SUBNET_ID="${PRIVATE_SUBNET_ID}"
+  export USE_PUBLIC_IPS='false'
+  export HN_SUBNET_ID="${PUBLIC_SUBNET_ID}"
+fi
+
+/usr/bin/envsubst < "stability-hpc/parallelcluster/${TEMPLATE}" > config.${CLUSTER_NAME}.yaml
+
+aws ec2 create-key-pair --key-name ${KEY_PAIR} --query KeyMaterial --output text > "/home/ec2-user/.ssh/id_rsa_${CLUSTER_NAME}"
+if [ $? -ne 0 ]; then
+    aws ec2 delete-key-pair --key-name ${KEY_PAIR}
+    aws ec2 create-key-pair --key-name ${KEY_PAIR} --query KeyMaterial --output text > "/home/ec2-user/.ssh/id_rsa_${CLUSTER_NAME}"
+fi
+sudo chmod 600 "/home/ec2-user/.ssh/id_rsa_${CLUSTER_NAME}"
+
+#Create the cluster and wait
+/home/ec2-user/.local/bin/pcluster create-cluster --cluster-name "stability-${CLUSTER_NAME}" --cluster-configuration config.${CLUSTER_NAME}.yaml --rollback-on-failure false --wait >> bootstrap.log
+
+aws s3 cp --quiet bootstrap.log "s3://${S3_BUCKET}/install.log" --region "${AWS_REGION_NAME}"
+aws s3 cp --quiet config.${AWS_REGION_NAME}.yaml "s3://${S3_BUCKET}/config.${AWS_REGION_NAME}.yaml" --region "${AWS_REGION_NAME}"

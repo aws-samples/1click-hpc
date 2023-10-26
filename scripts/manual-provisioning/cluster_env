@@ -1,0 +1,17 @@
+#!/bin/bash
+
+export NLB_PUBLIC_DNS_NAME="ldaps-xxxxxxxxxxxxxxx.elb.us-west-2.amazonaws.com"
+export SECRET_ARN='arn:aws:secretsmanager:us-west-2:123456789012:secret:ADpasswordAdmin-xxxxxx'
+export AWS_PROFILE="your-aws-profile"
+export S3_BUCKET="${CLUSTER_NAME}-${RANDOM}"
+export AWS_DEFAULT_REGION="us-west-2"
+export AWS_REGION_NAME="us-west-2"
+export AWS_ACCOUNT=123456789012
+export MAP_MIGRATED="mmtoken"
+export CUSTOMAD="true"
+export AD_ID="d-xxxxxxxxxx"
+export PUBLIC_SUBNET_ID="subnet-xxxxxxxxxxxxxx"
+export PRIVATE_SUBNET_ID="subnet-yyyyyyyyyyyyyy"
+export ODCRGROUP="AUTO"
+export POST_INSTALL="stability-hpc/scripts/post.install.sh"
+export KEY_PAIR="${CLUSTER_NAME}-${RANDOM}"
