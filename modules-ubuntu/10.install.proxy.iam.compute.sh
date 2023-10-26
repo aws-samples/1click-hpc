@@ -13,7 +13,7 @@ installCustom() {
     systemctl start ica.service
     ln -s /opt/slurm/sbin/stablessh /usr/local/bin/stablessh
     #restrict ssh access only to Sudoers group
-    echo "AllowGroups Sudoers" >> /etc/ssh/sshd_config
+    #echo "AllowGroups Sudoers" >> /etc/ssh/sshd_config
     systemctl restart sshd
 }
 
