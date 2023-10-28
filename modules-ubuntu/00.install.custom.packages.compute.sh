@@ -14,10 +14,8 @@ installCustom() {
     pip install --upgrade pip
     apt-get -q -oDPkg::Lock::Timeout=240 remove -y postgres*
 
-    echo net.ipv6.conf.all.disable_ipv6 = 1 >> /etc/sysctl.conf
-    echo net.ipv6.conf.default.disable_ipv6 = 1 >> /etc/sysctl.conf
-    echo net.ipv6.conf.lo.disable_ipv6 = 1 >> /etc/sysctl.conf
-    sysctl -p
+    #set precedence for IPv4 over IPv6
+    sed -i 's/#precedence ::ffff:0:0\/96  100/precedence ::ffff:0:0\/96  100/g' /etc/gai.conf
 
     #installing python versions
     add-apt-repository ppa:deadsnakes/ppa -y
