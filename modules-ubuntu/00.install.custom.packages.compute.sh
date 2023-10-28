@@ -13,6 +13,11 @@ installCustom() {
     apt-get -y remove apport thunderbird*
     pip install --upgrade pip
     apt-get -q -oDPkg::Lock::Timeout=240 remove -y postgres*
+
+    echo net.ipv6.conf.all.disable_ipv6 = 1 >> /etc/sysctl.conf
+    echo net.ipv6.conf.default.disable_ipv6 = 1 >> /etc/sysctl.conf
+    echo net.ipv6.conf.lo.disable_ipv6 = 1 >> /etc/sysctl.conf
+
     #installing python versions
     add-apt-repository ppa:deadsnakes/ppa -y
     apt-get -q -o DPkg::Lock::Timeout=240 update
