@@ -6,8 +6,8 @@ set -e
 source '/etc/parallelcluster/cfnconfig'
 
 installBBuffers() {
-    export APIURL="$(aws secretsmanager get-secret-value --secret-id "IamApiprod-IamApiUrlSecret" --query SecretString --output text --region us-west-2)" #todo: do not hardcode, add secret name as CF parameter
-    export APISECRET="$(aws secretsmanager get-secret-value --secret-id "IamApiprod-HeadNodeSecret" --query SecretString --output text --region us-west-2)" #todo: do not hardcode, add secret name as CF parameter
+    export APIURL="$(aws secretsmanager get-secret-value --secret-id "IamApiprod-IamApiUrlSecret" --query SecretString --output text --region us-west-2 --cli-connect-timeout 1)" #todo: do not hardcode, add secret name as CF parameter
+    export APISECRET="$(aws secretsmanager get-secret-value --secret-id "IamApiprod-HeadNodeSecret" --query SecretString --output text --region us-west-2 --cli-connect-timeout 1)" #todo: do not hardcode, add secret name as CF parameter
 
     echo " " >> /opt/slurm/etc/slurm.conf
     echo "#BURST BUFFER CONFIGURATION" >> /opt/slurm/etc/slurm.conf

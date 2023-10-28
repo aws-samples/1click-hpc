@@ -26,8 +26,8 @@ configureFederatedSlurmDBD(){
     SLURM_ETC=/opt/slurm/etc
     cp /tmp/hpc/sacct/slurm/slurm_fed_sacct.conf /tmp/ || exit 1
     cp /tmp/hpc/sacct/slurm/munge.key.gpg /tmp/ || exit 1
-    export SLURM_FED_DBD_HOST="$(aws secretsmanager get-secret-value --secret-id "SLURM_FED_DBD_PCLUSTER_WEST" --query SecretString --output text --region ${cfn_region})"
-    export SLURM_FED_PASSPHRASE="$(aws secretsmanager get-secret-value --secret-id "SLURM_FED_PASSPHRASE" --query SecretString --output text --region ${cfn_region})"
+    export SLURM_FED_DBD_HOST="$(aws secretsmanager get-secret-value --secret-id "SLURM_FED_DBD_PCLUSTER_WEST" --query SecretString --output text --region ${cfn_region} --cli-connect-timeout 1)"
+    export SLURM_FED_PASSPHRASE="$(aws secretsmanager get-secret-value --secret-id "SLURM_FED_PASSPHRASE" --query SecretString --output text --region ${cfn_region} --cli-connect-timeout 1)"
     /usr/bin/envsubst < /tmp/slurm_fed_sacct.conf > "${SLURM_ETC}/slurm_sacct.conf"
     echo "include slurm_sacct.conf" >> "${SLURM_ETC}/slurm.conf"
     gpg --batch --ignore-mdc-error --passphrase "$SLURM_FED_PASSPHRASE" -d -o /tmp/munge.key /tmp/munge.key.gpg

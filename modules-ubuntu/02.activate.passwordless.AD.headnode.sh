@@ -5,7 +5,7 @@ source "/etc/parallelcluster/cfnconfig"
 
 activateSSH() {
     sed -i 's/fallback_homedir = \/home\/%u/override_homedir = \/admin\/home-%u/g' /etc/sssd/sssd.conf
-    ROU_PW=$(aws secretsmanager get-secret-value --secret-id "newADrouPassword" --query SecretString --output text --region "${cfn_region}")
+    ROU_PW=$(aws secretsmanager get-secret-value --secret-id "newADrouPassword" --query SecretString --output text --region "${cfn_region}" --cli-connect-timeout 1)
     sed -E -i "s|^#?(ldap_default_authtok\s=)\s.*|\1 ${ROU_PW}|" /etc/sssd/sssd.conf
 
     systemctl restart sssd
