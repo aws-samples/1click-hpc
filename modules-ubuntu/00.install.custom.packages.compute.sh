@@ -3,6 +3,11 @@ set -x
 set -e
 
 installCustom() {
+    apt-get -o Acquire::ForceIPv4=true update
+    apt-get -o Acquire::ForceIPv4=true upgrade
+    #set precedence for IPv4 over IPv6
+    sed -i 's/#precedence ::ffff:0:0\/96  100/precedence ::ffff:0:0\/96  100/g' /etc/gai.conf
+
     apt-get -y update 
     UCF_FORCE_CONFFOLD=1 apt-get upgrade -y openssh-server
     apt-get -y upgrade
@@ -13,10 +18,7 @@ installCustom() {
     apt-get -y remove apport thunderbird*
     pip install --upgrade pip
     apt-get -q -oDPkg::Lock::Timeout=240 remove -y postgres*
-
-    #set precedence for IPv4 over IPv6
-    sed -i 's/#precedence ::ffff:0:0\/96  100/precedence ::ffff:0:0\/96  100/g' /etc/gai.conf
-
+    
     #installing python versions
     add-apt-repository ppa:deadsnakes/ppa -y
     apt-get -q -o DPkg::Lock::Timeout=240 update
