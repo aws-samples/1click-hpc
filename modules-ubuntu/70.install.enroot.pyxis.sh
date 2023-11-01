@@ -10,10 +10,6 @@ installENROOT() {
   curl -fSsL -O https://github.com/NVIDIA/enroot/releases/download/v3.4.1/enroot_3.4.1-1_${arch}.deb
   curl -fSsL -O https://github.com/NVIDIA/enroot/releases/download/v3.4.1/enroot+caps_3.4.1-1_${arch}.deb # optional
   sudo apt-get -q -o DPkg::Lock::Timeout=240 install -y ./enroot*.deb
-  # enable pmi and pytorch hooks for enroot
-  # cp /usr/share/enroot/hooks.d/50-slurm-pmi.sh /usr/share/enroot/hooks.d/50-slurm-pytorch.sh /etc/enroot/hooks.d #this cannot find scontrol
-  # fix missing path for slurm pmi hooks
-  # echo "PATH=/opt/slurm/sbin:/opt/slurm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin" >> /etc/sysconfig/slurmd
 
   mkdir -p /scratch && chmod -R 1777 /scratch
   mkdir -p /scratch/enroot && chmod -R 1777 /scratch/enroot
@@ -143,7 +139,7 @@ activateNkernels () {
 main() {
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 70.install.enroot.pyxis.sh: START" >&2
     installENROOT
-    activateNkernels
+    #activateNkernels
     echo "[INFO][$(date '+%Y-%m-%d %H:%M:%S')] 70.install.enroot.pyxis.sh: STOP" >&2
 }
 
