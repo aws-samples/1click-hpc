@@ -221,6 +221,7 @@ Scheduling:
             - 00.install.custom.packages.compute.sh
             - 04.configure.disable.anacron.compute.sh
             - 33.install.cost.control.sh
+            - 70.install.enroot.pyxis.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
@@ -251,9 +252,9 @@ Scheduling:
             VolumeType: gp3
             Iops: 5000
       ComputeResources:
-        - Name: p2-xlarge
+        - Name: p3-2xlarge
           DisableSimultaneousMultithreading: false
-          InstanceType: p2.xlarge
+          InstanceType: p3.2xlarge
           MaxCount: 100
           MinCount: 0
       CustomActions:
@@ -262,6 +263,7 @@ Scheduling:
             - 00.install.custom.packages.compute.sh
             - 04.configure.disable.anacron.compute.sh
             - 33.install.cost.control.sh
+            - 70.install.enroot.pyxis.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
