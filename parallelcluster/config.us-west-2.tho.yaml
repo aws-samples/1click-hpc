@@ -10,8 +10,10 @@ HeadNode:
     OnNodeConfigured:
       Args:
         - 00.install.custom.packages.headnode.sh
+        - 02.manual.users.headnode.sh
         - 04.configure.slurm.AllOrNothing.headnode.sh
         - 33.install.cost.control.sh
+        - 70.install.enroot.pyxis.sh
       Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
   Iam:
     AdditionalIamPolicies:
@@ -76,8 +78,10 @@ Scheduling:
         OnNodeConfigured:
           Args:
             - 00.install.custom.packages.compute.sh
+            - 02.manual.users.compute.sh
             - 04.configure.disable.anacron.compute.sh
             - 33.install.cost.control.sh
+            - 70.install.enroot.pyxis.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
@@ -127,8 +131,10 @@ Scheduling:
         OnNodeConfigured:
           Args:
             - 00.install.custom.packages.compute.sh
+            - 02.manual.users.compute.sh
             - 04.configure.disable.anacron.compute.sh
             - 33.install.cost.control.sh
+            - 70.install.enroot.pyxis.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
@@ -168,8 +174,10 @@ Scheduling:
         OnNodeConfigured:
           Args:
             - 00.install.custom.packages.compute.sh
+            - 02.manual.users.compute.sh
             - 04.configure.disable.anacron.compute.sh
             - 33.install.cost.control.sh
+            - 70.install.enroot.pyxis.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
@@ -219,6 +227,7 @@ Scheduling:
         OnNodeConfigured:
           Args:
             - 00.install.custom.packages.compute.sh
+            - 02.manual.users.compute.sh
             - 04.configure.disable.anacron.compute.sh
             - 33.install.cost.control.sh
             - 70.install.enroot.pyxis.sh
@@ -261,6 +270,7 @@ Scheduling:
         OnNodeConfigured:
           Args:
             - 00.install.custom.packages.compute.sh
+            - 02.manual.users.compute.sh
             - 04.configure.disable.anacron.compute.sh
             - 33.install.cost.control.sh
             - 70.install.enroot.pyxis.sh

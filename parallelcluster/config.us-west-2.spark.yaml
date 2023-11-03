@@ -14,6 +14,7 @@ HeadNode:
         - 04.configure.slurm.AllOrNothing.headnode.sh
         - 03.configure.slurm.acct.headnode.sh
         - 33.install.cost.control.sh
+        - 70.install.enroot.pyxis.sh
         - 88.install.preemption.headnode.sh
       Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
   Iam:
@@ -92,6 +93,7 @@ Scheduling:
             - 00.install.knot.resolver.cpu.sh
             - 04.configure.disable.anacron.compute.sh
             - 33.install.cost.control.sh
+            - 70.install.enroot.pyxis.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:

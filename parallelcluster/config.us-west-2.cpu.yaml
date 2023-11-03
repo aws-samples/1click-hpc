@@ -15,6 +15,7 @@ HeadNode:
         - 03.configure.slurm.acct.headnode.sh
         - 10.install.iam.headnode.sh
         - 33.install.cost.control.sh
+        - 70.install.enroot.pyxis.sh
         - 88.install.preemption.headnode.sh
       Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
   Iam:
@@ -99,6 +100,7 @@ Scheduling:
             - 04.configure.disable.anacron.compute.sh
             - 10.install.proxy.iam.compute.sh
             - 33.install.cost.control.sh
+            - 70.install.enroot.pyxis.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
@@ -152,6 +154,7 @@ Scheduling:
             - 04.configure.disable.anacron.compute.sh
             - 10.install.proxy.iam.compute.sh
             - 33.install.cost.control.sh
+            - 70.install.enroot.pyxis.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
@@ -210,6 +213,7 @@ Scheduling:
             - 04.configure.disable.anacron.compute.sh
             - 10.install.proxy.iam.compute.sh
             - 33.install.cost.control.sh
+            - 70.install.enroot.pyxis.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
@@ -263,6 +267,7 @@ Scheduling:
             - 04.configure.disable.anacron.compute.sh
             - 10.install.proxy.iam.compute.sh
             - 33.install.cost.control.sh
+            - 70.install.enroot.pyxis.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
@@ -306,6 +311,7 @@ Scheduling:
             - 04.configure.disable.anacron.compute.sh
             - 10.install.proxy.iam.compute.sh
             - 33.install.cost.control.sh
+            - 70.install.enroot.pyxis.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
@@ -359,6 +365,7 @@ Scheduling:
             - 04.configure.disable.anacron.compute.sh
             - 10.install.proxy.iam.compute.sh
             - 33.install.cost.control.sh
+            - 70.install.enroot.pyxis.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
@@ -412,6 +419,7 @@ Scheduling:
             - 04.configure.disable.anacron.compute.sh
             - 10.install.proxy.iam.compute.sh
             - 33.install.cost.control.sh
+            - 70.install.enroot.pyxis.sh
             - 80.fast.aws.cli.compute.sh
           Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
       Iam:
