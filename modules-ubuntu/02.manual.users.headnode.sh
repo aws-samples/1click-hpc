@@ -10,6 +10,7 @@ function addmakeuser() {
     mkdir -p /admin/config
     cat > /admin/config/makeuser <<EOF
 #!/bin/bash
+sudo cp -R /etc/skel /home/\$1
 sudo useradd -s /bin/bash \$1
 sudo mkdir -p /home/\$1/.ssh
 sudo chown -R \$1:\$1 /home/\$1
@@ -21,7 +22,7 @@ sudo su -l \$1 -c '
   chmod 600 ~/.ssh/*
 ' "\$@"
 
-echo "\$1,$(id -u \$1)" | sudo tee -a /admin/userlistfile
+echo "\$1,\$(id -u \$1)" | sudo tee -a /admin/userlistfile
 EOF
 
     chmod +x /admin/config/makeuser
