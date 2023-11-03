@@ -171,7 +171,7 @@ function slurm_job_submit(job_desc, submit_uid)
                 return slurm.ESLURM_INVALID_ACCOUNT
             end
         end
-        if (tab.email ~= nil) then
+        if (tab.email ~= nil and job_desc.user_name ~= "root") then
             job_desc.mail_type = 1295
             job_desc.mail_user = tab.email
         end
@@ -216,7 +216,7 @@ function slurm_job_modify(job_desc, job_rec, modify_uid)
                 return slurm.ESLURM_INVALID_ACCOUNT
             end
         end
-        if (tab.email ~= nil) then
+        if (tab.email ~= nil and job_desc.user_name ~= "root") then
             job_desc.mail_type = 1295
             job_desc.mail_user = tab.email
         end

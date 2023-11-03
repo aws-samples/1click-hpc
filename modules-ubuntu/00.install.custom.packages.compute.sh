@@ -3,8 +3,8 @@ set -x
 set -e
 
 installCustom() {
-    apt-get -o Acquire::ForceIPv4=true update
-    apt-get -o Acquire::ForceIPv4=true upgrade
+    #apt-get -o Acquire::ForceIPv4=true update
+    #apt-get -o Acquire::ForceIPv4=true upgrade
     #set precedence for IPv4 over IPv6
     sed -i 's/#precedence ::ffff:0:0\/96  100/precedence ::ffff:0:0\/96  100/g' /etc/gai.conf
 
