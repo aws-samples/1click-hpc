@@ -174,6 +174,60 @@ Scheduling:
         SubnetIds:
           - ${HN_SUBNET_ID}
         AssignPublicIp: True
+    - Name: cpu16
+      CapacityType: ONDEMAND
+      ComputeSettings:
+        LocalStorage:
+          RootVolume:
+            Size: 256
+            Encrypted: false
+            VolumeType: gp3
+            Iops: 5000
+      ComputeResources:
+        - Name: c6i-4xlarge
+          DisableSimultaneousMultithreading: false
+          InstanceType: c6i.4xlarge
+          MaxCount: 400
+          MinCount: 0
+        - Name: m6i-4xlarge
+          DisableSimultaneousMultithreading: false
+          InstanceType: m6i.4xlarge
+          MaxCount: 400
+          MinCount: 0
+        - Name: r6i-4xlarge
+          DisableSimultaneousMultithreading: false
+          InstanceType: r6i.4xlarge
+          MaxCount: 400
+          MinCount: 0
+      CustomActions:
+        OnNodeConfigured:
+          Args:
+            - 00.install.custom.packages.compute.sh
+            - 02.activate.passwordless.sudo.compute.sh
+            - 00.install.knot.resolver.cpu.sh
+            - 04.configure.disable.anacron.compute.sh
+            - 10.install.proxy.iam.compute.sh
+            - 33.install.cost.control.sh
+            - 80.fast.aws.cli.compute.sh
+          Script: s3://${S3_BUCKET}/1click-hpc/scripts/post.install.sh
+      Iam:
+        AdditionalIamPolicies:
+          - Policy: arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+          - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
+          - Policy: arn:aws:iam::aws:policy/CloudWatchFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess
+          - Policy: arn:aws:iam::aws:policy/AmazonSSMFullAccess
+          - Policy: arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+          - Policy: arn:aws:iam::${AWS_ACCOUNT}:policy/pclusterTagsAndBudget #make sure this policy is created https://pcluster.cloud/02-tutorials/04-cost-tracking.html
+        S3Access:
+          - BucketName: ${S3_BUCKET}
+            EnableWriteAccess: true
+      Networking:
+        PlacementGroup:
+          Enabled: false
+        SubnetIds:
+          - ${HN_SUBNET_ID}
+        AssignPublicIp: ${USE_PUBLIC_IPS}
 SharedStorage:
 ${ADMINFSX}
 Tags:
