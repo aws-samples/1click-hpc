@@ -12,7 +12,7 @@ installBBuffers() {
     echo " " >> /opt/slurm/etc/slurm.conf
     echo "#BURST BUFFER CONFIGURATION" >> /opt/slurm/etc/slurm.conf
     echo "BurstBufferType=burst_buffer/lua" >> /opt/slurm/etc/slurm.conf
-    echo "DebugFlags=BurstBuffer" >> /opt/slurm/etc/slurm.conf
+    echo "DebugFlags=Power,BurstBuffer" >> /opt/slurm/etc/slurm.conf
 
     echo " " >> /opt/slurm/etc/slurm.conf
     echo "#TASK PROLOG CONFIGURATION" >> /opt/slurm/etc/slurm.conf
