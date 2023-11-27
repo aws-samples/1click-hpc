@@ -28,38 +28,45 @@ cluster=\$(echo \$SLURM_WORKING_CLUSTER | cut -d':' -f1 | sed -e "s/^hpc-1click-
 if [[ "\${AWS_CONTAINER_CREDENTIALS_FULL_URI}" != *"roleSessionName"* ]];then
     echo "export AWS_CONTAINER_CREDENTIALS_FULL_URI=\${AWS_CONTAINER_CREDENTIALS_FULL_URI}?roleSessionName=\${SLURM_JOB_ACCOUNT}-\${cluster}-\${USER}-\${host}"
 fi
-sshport=\$((22000 + \${SLURM_JOB_ID}%1000))
-if ! pgrep -f "sshd -D -p \${sshport}" &> /dev/null 2>&1;then
-    #SSHPATH=/scratch/customsshd.\${SLURM_JOB_ID}
-    SSHPATH=\$(mktemp -d -t customsshd.XXXXXX)
-    if [ ! -d \${SSHPATH} ];then
-        mkdir -p \${SSHPATH}
-    fi
-    if [ ! -f \${SSHPATH}/ssh_host_rsa_key ];then
-        ssh-keygen -f \${SSHPATH}/ssh_host_rsa_key -N '' -t rsa
-    fi
 
-    if [ ! -f \${SSHPATH}/ssh_host_dsa_key ];then
-        ssh-keygen -f \${SSHPATH}/ssh_host_dsa_key -N '' -t dsa
-    fi
-    if [ ! -f \${SSHPATH}/sshd_config ];then
-    cat << INEOF > \${SSHPATH}/sshd_config
-HostKey \${SSHPATH}/ssh_host_rsa_key
-HostKey \${SSHPATH}/ssh_host_dsa_key
-AuthorizedKeysFile  \${HOME}/.ssh/authorized_keys
-ChallengeResponseAuthentication no
-PasswordAuthentication no
-AuthorizedKeysCommand /usr/bin/sss_ssh_authorizedkeys
-AuthorizedKeysCommandUser \${SLURM_JOB_USER}
-AllowUsers \${SLURM_JOB_USER}
-UsePAM no
-Subsystem   sftp    /usr/lib/ssh/sftp-server
-PidFile \${SSHPATH}/sshd.pid
-INEOF
-    fi
-    mkdir -p /tmp/\${SLURM_JOB_USER}
-    memcached -p /tmp/\${SLURM_JOB_USER}/memcached.sock -d
-    /usr/sbin/sshd -p \${sshport} -f \${SSHPATH}/sshd_config -o "SetEnv=AWS_CONTAINER_CREDENTIALS_FULL_URI=\${AWS_CONTAINER_CREDENTIALS_FULL_URI}?roleSessionName=\${SLURM_JOB_ACCOUNT}-\${cluster}-\${SLURM_JOB_USER}-\${host} AWS_CONTAINER_AUTHORIZATION_TOKEN=\${AWS_CONTAINER_AUTHORIZATION_TOKEN}"
+if [ "\${SLURM_JOB_USER}" == "smchosting" ]; then
+  exit 0
+fi
+
+if command -v /usr/sbin/sshd >/dev/null; then
+  sshport=\$((22000 + \${SLURM_JOB_ID}%1000))
+  if ! pgrep -f "sshd -D -p \${sshport}" &> /dev/null 2>&1;then
+      #SSHPATH=/scratch/customsshd.\${SLURM_JOB_ID}
+      SSHPATH=\$(mktemp -d -t customsshd.XXXXXX)
+      if [ ! -d \${SSHPATH} ];then
+          mkdir -p \${SSHPATH}
+      fi
+      if [ ! -f \${SSHPATH}/ssh_host_rsa_key ];then
+          ssh-keygen -f \${SSHPATH}/ssh_host_rsa_key -N '' -t rsa
+      fi
+
+      if [ ! -f \${SSHPATH}/ssh_host_dsa_key ];then
+          ssh-keygen -f \${SSHPATH}/ssh_host_dsa_key -N '' -t dsa
+      fi
+      if [ ! -f \${SSHPATH}/sshd_config ];then
+      cat << INEOF > \${SSHPATH}/sshd_config
+  HostKey \${SSHPATH}/ssh_host_rsa_key
+  HostKey \${SSHPATH}/ssh_host_dsa_key
+  AuthorizedKeysFile  \${HOME}/.ssh/authorized_keys
+  ChallengeResponseAuthentication no
+  PasswordAuthentication no
+  AuthorizedKeysCommand /usr/bin/sss_ssh_authorizedkeys
+  AuthorizedKeysCommandUser \${SLURM_JOB_USER}
+  AllowUsers \${SLURM_JOB_USER}
+  UsePAM no
+  Subsystem   sftp    /usr/lib/ssh/sftp-server
+  PidFile \${SSHPATH}/sshd.pid
+  INEOF
+      fi
+      mkdir -p /tmp/\${SLURM_JOB_USER}
+      memcached -p /tmp/\${SLURM_JOB_USER}/memcached.sock -d
+      /usr/sbin/sshd -p \${sshport} -f \${SSHPATH}/sshd_config -o "SetEnv=AWS_CONTAINER_CREDENTIALS_FULL_URI=\${AWS_CONTAINER_CREDENTIALS_FULL_URI}?roleSessionName=\${SLURM_JOB_ACCOUNT}-\${cluster}-\${SLURM_JOB_USER}-\${host} AWS_CONTAINER_AUTHORIZATION_TOKEN=\${AWS_CONTAINER_AUTHORIZATION_TOKEN}"
+  fi
 fi
 EOF
 
