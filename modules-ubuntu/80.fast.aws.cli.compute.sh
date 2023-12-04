@@ -32,8 +32,11 @@ makeDockerfast() {
         spark | westcpu2)
             docker_group=424402651
         ;;
+        stability-westcpu | stability-grantwestcpu)
+            docker_group=1879805746
+        ;;
         ingress-west | externalcpu-west)
-            #docker_group=997
+            docker_group=997
         ;;
     esac
     sudo systemctl stop docker
