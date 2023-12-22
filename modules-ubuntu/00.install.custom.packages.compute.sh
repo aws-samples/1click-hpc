@@ -25,6 +25,10 @@ installCustom() {
     pip3 install glances
     apt-get -y autoremove
     sudo -v ; curl https://rclone.org/install.sh | sudo bash
+
+    if [ -f /admin/config/weka_stateless_client.sh ]; then
+        /admin/config/weka_stateless_client.sh
+    fi
 }
 
 # main
