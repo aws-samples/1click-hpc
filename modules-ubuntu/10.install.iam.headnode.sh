@@ -23,8 +23,8 @@ installBBuffers() {
 
 cat > /opt/slurm/etc/task_prolog.sh << EOF
 #!/bin/bash
-host=\$(hostname | sed -e "s/-dy-//" | sed -e "s/-//g")
-cluster=\$(echo \$SLURM_WORKING_CLUSTER | cut -d':' -f1 | sed -e "s/^hpc-1click-//")
+host=\$(hostname | sed -e "s/-dy-//" | sed -e "s/-//g" | sed -e "s/large//")
+cluster=\$(echo \$SLURM_WORKING_CLUSTER | cut -d':' -f1 | sed -e "s/^hpc-1click-//" | sed -e "s/^stability-//")
 if [[ "\${AWS_CONTAINER_CREDENTIALS_FULL_URI}" != *"roleSessionName"* ]];then
     echo "export AWS_CONTAINER_CREDENTIALS_FULL_URI=\${AWS_CONTAINER_CREDENTIALS_FULL_URI}?roleSessionName=\${SLURM_JOB_ACCOUNT}-\${cluster}-\${USER}-\${host}"
 fi
