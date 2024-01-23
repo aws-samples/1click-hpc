@@ -9,6 +9,11 @@ activateSSSD() {
     stack=${stack_name%$searchstring*}
     ROU_PW=$(aws secretsmanager get-secret-value --secret-id "newADrouPassword" --query SecretString --output text --region "${cfn_region}" --cli-connect-timeout 1)
     sed -E -i "s|^#?(ldap_default_authtok\s=)\s.*|\1 ${ROU_PW}|" /etc/sssd/sssd.conf
+    
+    #patch for ingresseast to avoid redeploying
+    sed -E -i "s|^#?(ldap_uri\s=)\s.*us-east-1.*|ldap_uri = ldaps://ldaps-d171c2d625ffa6d5.elb.us-east-1.amazonaws.com|" /etc/sssd/sssd.conf
+    sed -E -i "s|^#?(ldap_default_bind_dn\s=)\s.*|\1 cn=ReadOnlyUser,ou=AD-Manage,dc=research,dc=stability,dc=ai|" /etc/sssd/sssd.conf
+    
     apt-get remove -y ec2-instance-connect #required on ubuntu2004 https://github.com/widdix/aws-ec2-ssh/issues/157
     systemctl restart sssd
 }
