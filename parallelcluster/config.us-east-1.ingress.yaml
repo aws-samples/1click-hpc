@@ -259,7 +259,6 @@ Scheduling:
           - ${HN_SUBNET_ID}
         AssignPublicIp: True
 SharedStorage:
-${FSX}
 ${ADMINFSX}
 Tags:
   - Key: 1Click-HPC
