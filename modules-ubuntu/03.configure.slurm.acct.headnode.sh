@@ -34,7 +34,15 @@ configureFederatedSlurmDBD(){
     mv -f /tmp/munge.key /etc/munge/munge.key
     chown munge:munge /etc/munge/munge.key
     chmod 600 /etc/munge/munge.key
-    cp /etc/munge/munge.key /home/ubuntu/.munge/.munge.key
+    if [ -d /home/ubuntu/.munge ]; then
+        cp /etc/munge/munge.key /home/ubuntu/.munge/.munge.key
+    fi
+    if [ -d /opt/parallelcluster/shared/.munge ]; then
+        cp /etc/munge/munge.key /opt/parallelcluster/shared/.munge/.munge.key
+    fi
+    if [ -d /opt/parallelcluster/shared_login_nodes/.munge ]; then
+        cp /etc/munge/munge.key /opt/parallelcluster/shared_login_nodes/.munge/.munge.key
+    fi
     systemctl restart munge
 }
 
@@ -53,7 +61,7 @@ installLuaSubmit() {
     apt-get install -y redis
     apt-get remove -y lua5.1 liblua5.1-dev
     #install lua 5.3.5 from source
-    curl -R -O http://www.lua.org/ftp/lua-5.3.5.tar.gz
+    curl -R -O https://www.lua.org/ftp/lua-5.3.5.tar.gz
     tar -zxf lua-5.3.5.tar.gz
     cd lua-5.3.5
     make linux test
