@@ -2,12 +2,13 @@
 
 set -x
 set -e
+source '/etc/parallelcluster/cfnconfig'
 
 installCustom() {
     git clone https://github.com/Stability-AI/iam-credentials-api-proxy /opt/iam-credentials-api-proxy
     cp /opt/iam-credentials-api-proxy/ica.service /etc/systemd/system/ica.service
     #change IamApiDev-EndpointHostSecret with your secret name where you store the IamApi EndpointHost #todo: do not hardcode, add secret name as CF parameter
-    icahost=$(aws secretsmanager get-secret-value --secret-id IamApiprod-EndpointHostSecret --query SecretString --output text --region us-west-2 --cli-connect-timeout 1)
+    icahost=$(aws secretsmanager get-secret-value --secret-id IamApiprod-EndpointHostSecret --query SecretString --output text --region "${cfn_region}" --cli-connect-timeout 1)
     sed -i "s|target_hostname|$icahost|g" /etc/systemd/system/ica.service
     systemctl daemon-reload
     systemctl enable ica.service
