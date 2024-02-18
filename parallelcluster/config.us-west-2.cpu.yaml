@@ -302,7 +302,7 @@ Scheduling:
           DisableSimultaneousMultithreading: false
           InstanceType: m5zn.6xlarge
           MaxCount: 200
-          MinCount: 0
+          MinCount: 3
       CustomActions:
         OnNodeConfigured:
           Args:
