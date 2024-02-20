@@ -49,19 +49,19 @@ if command -v /usr/sbin/sshd >/dev/null; then
           ssh-keygen -f \${SSHPATH}/ssh_host_dsa_key -N '' -t dsa
       fi
       if [ ! -f \${SSHPATH}/sshd_config ];then
-      cat << INEOF > \${SSHPATH}/sshd_config
-  HostKey \${SSHPATH}/ssh_host_rsa_key
-  HostKey \${SSHPATH}/ssh_host_dsa_key
-  AuthorizedKeysFile  \${HOME}/.ssh/authorized_keys
-  ChallengeResponseAuthentication no
-  PasswordAuthentication no
-  AuthorizedKeysCommand /usr/bin/sss_ssh_authorizedkeys
-  AuthorizedKeysCommandUser \${SLURM_JOB_USER}
-  AllowUsers \${SLURM_JOB_USER}
-  UsePAM no
-  Subsystem   sftp    /usr/lib/ssh/sftp-server
-  PidFile \${SSHPATH}/sshd.pid
-  INEOF
+      cat > \${SSHPATH}/sshd_config << INEOF
+HostKey \${SSHPATH}/ssh_host_rsa_key
+HostKey \${SSHPATH}/ssh_host_dsa_key
+AuthorizedKeysFile  \${HOME}/.ssh/authorized_keys
+ChallengeResponseAuthentication no
+PasswordAuthentication no
+AuthorizedKeysCommand /usr/bin/sss_ssh_authorizedkeys
+AuthorizedKeysCommandUser \${SLURM_JOB_USER}
+AllowUsers \${SLURM_JOB_USER}
+UsePAM no
+Subsystem   sftp    /usr/lib/ssh/sftp-server
+PidFile \${SSHPATH}/sshd.pid
+INEOF
       fi
       mkdir -p /tmp/\${SLURM_JOB_USER}
       memcached -p /tmp/\${SLURM_JOB_USER}/memcached.sock -d
